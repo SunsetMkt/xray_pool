@@ -22,8 +22,8 @@ type BackEnd struct {
 	restartSignal chan interface{}
 }
 
-func NewBackEnd(httpPort int, running bool, srv *http.Server, restartSignal chan interface{}) *BackEnd {
-	return &BackEnd{httpPort: httpPort, running: running, srv: srv, restartSignal: restartSignal}
+func NewBackEnd(httpPort int, restartSignal chan interface{}) *BackEnd {
+	return &BackEnd{httpPort: httpPort, restartSignal: restartSignal}
 }
 
 func (b *BackEnd) start() {
