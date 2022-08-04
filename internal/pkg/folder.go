@@ -1,7 +1,9 @@
 package pkg
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 )
 
@@ -38,7 +40,7 @@ func GetConfigRootDirFPath() string {
 // GetBaseXrayFolderFPath 获取基础的 Xray 程序存放目录
 func GetBaseXrayFolderFPath() string {
 
-	nowPath := GetConfigRootDirFPath() + baseXrayFolderName
+	nowPath := filepath.Join(GetConfigRootDirFPath(), baseXrayFolderName)
 	if _, err := os.Stat(nowPath); os.IsNotExist(err) {
 		err = os.MkdirAll(nowPath, os.ModePerm)
 		if err != nil {
@@ -48,10 +50,23 @@ func GetBaseXrayFolderFPath() string {
 	return nowPath
 }
 
+// GetIndexXrayFolderFPath 根据基础的 Xray 程序生成新的 Index 序列号的 Xray 程序存放目录
+func GetIndexXrayFolderFPath(index int) string {
+
+	nowPath := filepath.Join(GetConfigRootDirFPath(), fmt.Sprintf("%s_%d", baseXrayFolderName, index))
+	if _, err := os.Stat(nowPath); os.IsNotExist(err) {
+		err = os.MkdirAll(nowPath, os.ModePerm)
+		if err != nil {
+			panic("GetIndexXrayFolderFPath mkdir, Error:" + err.Error())
+		}
+	}
+	return nowPath
+}
+
 // GetTmpFolderFPath 获取临时目录文件夹
 func GetTmpFolderFPath() string {
 
-	nowPath := GetConfigRootDirFPath() + tmpFolderName
+	nowPath := filepath.Join(GetConfigRootDirFPath(), tmpFolderName)
 	if _, err := os.Stat(nowPath); os.IsNotExist(err) {
 		err = os.MkdirAll(nowPath, os.ModePerm)
 		if err != nil {

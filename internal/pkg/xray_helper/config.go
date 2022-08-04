@@ -3,9 +3,7 @@ package xray_helper
 import (
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
-	"github.com/allanpk716/xray_pool/internal/pkg/core"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/routing"
-	"github.com/allanpk716/xray_pool/internal/pkg/core/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/protocols"
 	"github.com/allanpk716/xray_pool/internal/pkg/protocols/field"
 	"path/filepath"
@@ -13,16 +11,17 @@ import (
 )
 
 // GenConfig 构建 Xray 的运行配置
-func (x XrayHelper) GenConfig(node protocols.Protocol, proxySettings *settings.OneProxySettings, route *routing.Routing) string {
+func (x *XrayHelper) GenConfig(node protocols.Protocol) string {
 
-	path := filepath.Join(pkg.GetConfigRootDirFPath(), configFileName)
+	// 需要根据 base xray 的配置生成当前 Index xray 的配置
+	path := filepath.Join(pkg.GetIndexXrayFolderFPath(x.index), configFileName)
 	var conf = map[string]interface{}{
-		"log":       logConfig(),
-		"inbounds":  inboundsConfig(proxySettings),
-		"outbounds": outboundConfig(node, proxySettings),
-		"policy":    policyConfig(),
-		"dns":       dnsConfig(proxySettings),
-		"routing":   routingConfig(proxySettings, route),
+		"log":       x.logConfig(),
+		"inbounds":  x.inboundsConfig(),
+		"outbounds": x.outboundConfig(node),
+		"policy":    x.policyConfig(),
+		"dns":       x.dnsConfig(),
+		"routing":   x.routingConfig(),
 	}
 	err := pkg.WriteJSON(conf, path)
 	if err != nil {
@@ -31,29 +30,34 @@ func (x XrayHelper) GenConfig(node protocols.Protocol, proxySettings *settings.O
 	return path
 }
 
-// 日志
-func logConfig() interface{} {
-	path := core.LogFile
+func (x *XrayHelper) GetLogFPath() string {
+	path := filepath.Join(pkg.GetIndexXrayFolderFPath(x.index), xrayLogFileName)
+	return path
+}
+
+// logConfig 日志
+func (x *XrayHelper) logConfig() interface{} {
+
 	return map[string]string{
-		"access":   path,
+		"access":   x.GetLogFPath(),
 		"loglevel": "warning",
 	}
 }
 
-// 入站
-func inboundsConfig(proxySettings *settings.OneProxySettings) interface{} {
+// inboundsConfig 入站
+func (x *XrayHelper) inboundsConfig() interface{} {
 	listen := "127.0.0.1"
-	if proxySettings.AllowLanConn {
+	if x.proxySettings.AllowLanConn {
 		listen = "0.0.0.0"
 	}
 	data := []interface{}{
 		map[string]interface{}{
 			"tag":      "proxy",
-			"port":     proxySettings.SocksPort,
+			"port":     x.proxySettings.SocksPort,
 			"listen":   listen,
 			"protocol": "socks",
 			"sniffing": map[string]interface{}{
-				"enabled": proxySettings.Sniffing,
+				"enabled": x.proxySettings.Sniffing,
 				"destOverride": []string{
 					"http",
 					"tls",
@@ -61,15 +65,15 @@ func inboundsConfig(proxySettings *settings.OneProxySettings) interface{} {
 			},
 			"settings": map[string]interface{}{
 				"auth":      "noauth",
-				"udp":       proxySettings.RelayUDP,
+				"udp":       x.proxySettings.RelayUDP,
 				"userLevel": 0,
 			},
 		},
 	}
-	if proxySettings.HttpPort > 0 {
+	if x.proxySettings.HttpPort > 0 {
 		data = append(data, map[string]interface{}{
 			"tag":      "http",
-			"port":     proxySettings.HttpPort,
+			"port":     x.proxySettings.HttpPort,
 			"listen":   listen,
 			"protocol": "http",
 			"settings": map[string]interface{}{
@@ -77,15 +81,15 @@ func inboundsConfig(proxySettings *settings.OneProxySettings) interface{} {
 			},
 		})
 	}
-	if proxySettings.DNSPort > 0 {
+	if x.proxySettings.DNSPort > 0 {
 		data = append(data, map[string]interface{}{
 			"tag":      "dns-in",
-			"port":     proxySettings.DNSPort,
+			"port":     x.proxySettings.DNSPort,
 			"listen":   listen,
 			"protocol": "dokodemo-door",
 			"settings": map[string]interface{}{
 				"userLevel": 0,
-				"address":   proxySettings.DNSForeign,
+				"address":   x.proxySettings.DNSForeign,
 				"network":   "tcp,udp",
 				"port":      53,
 			},
@@ -94,8 +98,8 @@ func inboundsConfig(proxySettings *settings.OneProxySettings) interface{} {
 	return data
 }
 
-// 本地策略
-func policyConfig() interface{} {
+// policyConfig 本地策略
+func (x *XrayHelper) policyConfig() interface{} {
 	return map[string]interface{}{
 		"levels": map[string]interface{}{
 			"0": map[string]interface{}{
@@ -113,12 +117,12 @@ func policyConfig() interface{} {
 	}
 }
 
-// DNS
-func dnsConfig(proxySettings *settings.OneProxySettings) interface{} {
+// dnsConfig DNS
+func (x *XrayHelper) dnsConfig() interface{} {
 	servers := make([]interface{}, 0)
-	if proxySettings.DNSDomestic != "" {
+	if x.proxySettings.DNSDomestic != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": proxySettings.DNSDomestic,
+			"address": x.proxySettings.DNSDomestic,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:cn",
@@ -128,9 +132,9 @@ func dnsConfig(proxySettings *settings.OneProxySettings) interface{} {
 			},
 		})
 	}
-	if proxySettings.DNSDomesticBackup != "" {
+	if x.proxySettings.DNSDomesticBackup != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": proxySettings.DNSDomesticBackup,
+			"address": x.proxySettings.DNSDomesticBackup,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:cn",
@@ -140,9 +144,9 @@ func dnsConfig(proxySettings *settings.OneProxySettings) interface{} {
 			},
 		})
 	}
-	if proxySettings.DNSForeign != "" {
+	if x.proxySettings.DNSForeign != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": proxySettings.DNSForeign,
+			"address": x.proxySettings.DNSForeign,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:geolocation-!cn",
@@ -158,10 +162,10 @@ func dnsConfig(proxySettings *settings.OneProxySettings) interface{} {
 	}
 }
 
-// 路由
-func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Routing) interface{} {
+// routingConfig 路由
+func (x *XrayHelper) routingConfig() interface{} {
 	rules := make([]interface{}, 0)
-	if proxySettings.DNSPort != 0 {
+	if x.proxySettings.DNSPort != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type": "field",
 			"inboundTag": []interface{}{
@@ -170,23 +174,23 @@ func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Rout
 			"outboundTag": "dns-out",
 		})
 	}
-	if proxySettings.DNSForeign != "" {
+	if x.proxySettings.DNSForeign != "" {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
 			"port":        53,
 			"outboundTag": "proxy",
 			"ip": []string{
-				proxySettings.DNSForeign,
+				x.proxySettings.DNSForeign,
 			},
 		})
 	}
-	if proxySettings.DNSDomestic != "" || proxySettings.DNSDomesticBackup != "" {
+	if x.proxySettings.DNSDomestic != "" || x.proxySettings.DNSDomesticBackup != "" {
 		var ip []string
-		if proxySettings.DNSDomestic != "" {
-			ip = append(ip, proxySettings.DNSDomestic)
+		if x.proxySettings.DNSDomestic != "" {
+			ip = append(ip, x.proxySettings.DNSDomestic)
 		}
-		if proxySettings.DNSDomesticBackup != "" {
-			ip = append(ip, proxySettings.DNSDomesticBackup)
+		if x.proxySettings.DNSDomesticBackup != "" {
+			ip = append(ip, x.proxySettings.DNSDomesticBackup)
 		}
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -195,7 +199,7 @@ func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Rout
 			"ip":          ip,
 		})
 	}
-	ips, domains := route.GetRulesGroupData(routing.TypeBlock)
+	ips, domains := x.route.GetRulesGroupData(routing.TypeBlock)
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -210,7 +214,7 @@ func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Rout
 			"domain":      domains,
 		})
 	}
-	ips, domains = route.GetRulesGroupData(routing.TypeDirect)
+	ips, domains = x.route.GetRulesGroupData(routing.TypeDirect)
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -225,7 +229,7 @@ func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Rout
 			"domain":      domains,
 		})
 	}
-	ips, domains = route.GetRulesGroupData(routing.TypeProxy)
+	ips, domains = x.route.GetRulesGroupData(routing.TypeProxy)
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -241,7 +245,7 @@ func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Rout
 		})
 	}
 
-	if proxySettings.BypassLANAndMainLand {
+	if x.proxySettings.BypassLANAndMainLand {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
 			"outboundTag": "direct",
@@ -259,33 +263,33 @@ func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Rout
 		})
 	}
 	return map[string]interface{}{
-		"domainStrategy": proxySettings.RoutingStrategy,
+		"domainStrategy": x.proxySettings.RoutingStrategy,
 		"rules":          rules,
 	}
 }
 
-// 出站
-func outboundConfig(n protocols.Protocol, proxySettings *settings.OneProxySettings) interface{} {
+// outboundConfig 出站
+func (x *XrayHelper) outboundConfig(n protocols.Protocol) interface{} {
 	out := make([]interface{}, 0)
 	switch n.GetProtocolMode() {
 	case protocols.ModeTrojan:
 		t := n.(*protocols.Trojan)
-		out = append(out, trojanOutbound(t))
+		out = append(out, x.trojanOutbound(t))
 	case protocols.ModeShadowSocks:
 		ss := n.(*protocols.ShadowSocks)
-		out = append(out, shadowSocksOutbound(ss))
+		out = append(out, x.shadowSocksOutbound(ss))
 	case protocols.ModeVMess:
 		v := n.(*protocols.VMess)
-		out = append(out, vMessOutbound(v, proxySettings))
+		out = append(out, x.vMessOutbound(v))
 	case protocols.ModeSocks:
 		v := n.(*protocols.Socks)
-		out = append(out, socksOutbound(v))
+		out = append(out, x.socksOutbound(v))
 	case protocols.ModeVLESS:
 		v := n.(*protocols.VLess)
-		out = append(out, vLessOutbound(v, proxySettings))
+		out = append(out, x.vLessOutbound(v))
 	case protocols.ModeVMessAEAD:
 		v := n.(*protocols.VMessAEAD)
-		out = append(out, vMessAEADOutbound(v, proxySettings))
+		out = append(out, x.vMessAEADOutbound(v))
 	}
 	out = append(out, map[string]interface{}{
 		"tag":      "direct",
@@ -308,8 +312,8 @@ func outboundConfig(n protocols.Protocol, proxySettings *settings.OneProxySettin
 	return out
 }
 
-// ShadowSocks
-func shadowSocksOutbound(ss *protocols.ShadowSocks) interface{} {
+// ShadowSocks 出站
+func (x *XrayHelper) shadowSocksOutbound(ss *protocols.ShadowSocks) interface{} {
 	return map[string]interface{}{
 		"tag":      "proxy",
 		"protocol": "shadowsocks",
@@ -330,8 +334,8 @@ func shadowSocksOutbound(ss *protocols.ShadowSocks) interface{} {
 	}
 }
 
-// Trojan
-func trojanOutbound(trojan *protocols.Trojan) interface{} {
+// Trojan 出站
+func (x *XrayHelper) trojanOutbound(trojan *protocols.Trojan) interface{} {
 	streamSettings := map[string]interface{}{
 		"network":  "tcp",
 		"security": "tls",
@@ -359,9 +363,9 @@ func trojanOutbound(trojan *protocols.Trojan) interface{} {
 	}
 }
 
-// VMess
-func vMessOutbound(vmess *protocols.VMess, proxySettings *settings.OneProxySettings) interface{} {
-	mux := proxySettings.Mux
+// VMess 出站
+func (x *XrayHelper) vMessOutbound(vmess *protocols.VMess) interface{} {
+	mux := x.proxySettings.Mux
 	streamSettings := map[string]interface{}{
 		"network":  vmess.Net,
 		"security": vmess.Tls,
@@ -465,8 +469,8 @@ func vMessOutbound(vmess *protocols.VMess, proxySettings *settings.OneProxySetti
 	}
 }
 
-// socks
-func socksOutbound(socks *protocols.Socks) interface{} {
+// socks 出站
+func (x *XrayHelper) socksOutbound(socks *protocols.Socks) interface{} {
 	user := map[string]interface{}{
 		"address": socks.Address,
 		"port":    socks.Port,
@@ -499,9 +503,9 @@ func socksOutbound(socks *protocols.Socks) interface{} {
 	}
 }
 
-// VLESS
-func vLessOutbound(vless *protocols.VLess, proxySettings *settings.OneProxySettings) interface{} {
-	mux := proxySettings.Mux
+// VLESS 出站
+func (x *XrayHelper) vLessOutbound(vless *protocols.VLess) interface{} {
+	mux := x.proxySettings.Mux
 	security := vless.GetValue(field.Security)
 	network := vless.GetValue(field.NetworkType)
 	user := map[string]interface{}{
@@ -625,9 +629,9 @@ func vLessOutbound(vless *protocols.VLess, proxySettings *settings.OneProxySetti
 	}
 }
 
-// VMessAEAD
-func vMessAEADOutbound(vmess *protocols.VMessAEAD, proxySettings *settings.OneProxySettings) interface{} {
-	mux := proxySettings.Mux
+// VMessAEAD 出站
+func (x *XrayHelper) vMessAEADOutbound(vmess *protocols.VMessAEAD) interface{} {
+	mux := x.proxySettings.Mux
 	security := vmess.GetValue(field.Security)
 	network := vmess.GetValue(field.NetworkType)
 	streamSettings := map[string]interface{}{
@@ -736,5 +740,6 @@ func vMessAEADOutbound(vmess *protocols.VMessAEAD, proxySettings *settings.OnePr
 }
 
 const (
-	configFileName = "xray-config.json"
+	configFileName  = "xray-config.json"
+	xrayLogFileName = "xray_access.log"
 )
