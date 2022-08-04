@@ -53,7 +53,7 @@ func GetBaseXrayFolderFPath() string {
 // GetIndexXrayFolderFPath 根据基础的 Xray 程序生成新的 Index 序列号的 Xray 程序存放目录
 func GetIndexXrayFolderFPath(index int) string {
 
-	nowPath := filepath.Join(GetConfigRootDirFPath(), fmt.Sprintf("%s_%d", baseXrayFolderName, index))
+	nowPath := filepath.Join(GetTmpFolderFPath(), fmt.Sprintf("%s_%d", baseXrayFolderName, index))
 	if _, err := os.Stat(nowPath); os.IsNotExist(err) {
 		err = os.MkdirAll(nowPath, os.ModePerm)
 		if err != nil {

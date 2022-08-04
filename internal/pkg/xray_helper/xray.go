@@ -52,6 +52,12 @@ func (x *XrayHelper) Check() bool {
 
 	x.xrayPath = xrayExeFullPath
 
+	// Check 的最后就进行数据的复制
+	err := pkg.CopyDir(nowRootPath, pkg.GetIndexXrayFolderFPath(x.index))
+	if err != nil {
+		logger.Errorf("复制 Xray 程序失败: %s", err.Error())
+		return false
+	}
 	return true
 }
 
@@ -84,7 +90,7 @@ func (x *XrayHelper) run(node protocols.Protocol) bool {
 	x.Stop()
 	switch node.GetProtocolMode() {
 	case protocols.ModeShadowSocks, protocols.ModeTrojan, protocols.ModeVMess, protocols.ModeSocks, protocols.ModeVLESS, protocols.ModeVMessAEAD:
-		file := x.GenConfig(node, x.proxySettings, x.route)
+		file := x.GenConfig(node)
 		x.xrayCmd = exec.Command(x.xrayPath, "-c", file)
 	default:
 		logger.Errorf("暂不支持%v协议", node.GetProtocolMode())
@@ -132,11 +138,11 @@ func (x *XrayHelper) Stop() {
 		x.proxySettings.PID = 0
 	}
 	// 日志文件过大清除
-	file, _ := os.Stat(core.LogFile)
+	file, _ := os.Stat(x.GetLogFPath())
 	if file != nil {
 		fileSize := float64(file.Size()) / (1 << 20)
 		if fileSize > 5 {
-			err := os.Remove(core.LogFile)
+			err := os.Remove(x.GetLogFPath())
 			if err != nil {
 				logger.Errorf("清除日志文件失败: %v", err)
 			}
