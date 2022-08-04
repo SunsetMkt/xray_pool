@@ -12,8 +12,8 @@ import (
 	"strings"
 )
 
-// GetConfig 构建 Xray 的运行配置
-func (x XrayHelper) GetConfig(node protocols.Protocol, proxySettings *settings.OneProxySettings, route *routing.Routing) string {
+// GenConfig 构建 Xray 的运行配置
+func (x XrayHelper) GenConfig(node protocols.Protocol, proxySettings *settings.OneProxySettings, route *routing.Routing) string {
 
 	path := filepath.Join(pkg.GetConfigRootDirFPath(), configFileName)
 	var conf = map[string]interface{}{
