@@ -4,9 +4,8 @@ import (
 	"bufio"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
-	"github.com/allanpk716/xray_pool/internal/pkg/core"
+	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/routing"
-	coreSettings "github.com/allanpk716/xray_pool/internal/pkg/core/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/protocols"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"os"
@@ -17,16 +16,16 @@ import (
 )
 
 type XrayHelper struct {
-	index         int                            // 第几个 xray 实例
-	xrayCmd       *exec.Cmd                      // xray 程序的进程
-	AppSettings   *settings.AppSettings          // 主程序的配置
-	xrayPath      string                         // xray 程序的路径
-	proxySettings *coreSettings.OneProxySettings // 代理的配置
-	route         *routing.Routing               // 路由
+	index         int                    // 第几个 xray 实例
+	xrayCmd       *exec.Cmd              // xray 程序的进程
+	AppSettings   *settings.AppSettings  // 主程序的配置
+	xrayPath      string                 // xray 程序的路径
+	proxySettings settings.ProxySettings // 代理的配置
+	route         *routing.Routing       // 路由
 }
 
-func NewXrayHelper(index int, appSettings *settings.AppSettings, xrayPath string, proxySettings *coreSettings.OneProxySettings, route *routing.Routing) *XrayHelper {
-	return &XrayHelper{index: index, AppSettings: appSettings, xrayPath: xrayPath, proxySettings: proxySettings, route: route}
+func NewXrayHelper(index int, appSettings *settings.AppSettings, xrayPath string, route *routing.Routing) *XrayHelper {
+	return &XrayHelper{index: index, AppSettings: appSettings, xrayPath: xrayPath, proxySettings: appSettings.MainProxySettings, route: route}
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
@@ -61,28 +60,18 @@ func (x *XrayHelper) Check() bool {
 	return true
 }
 
-func (x *XrayHelper) Start(key string) {
+func (x *XrayHelper) Start(node *node.Node) {
 	testUrl := x.AppSettings.TestUrl
 	testTimeout := x.AppSettings.OneNodeTestTimeOut
-	manager := manage.Manager
-	indexList := core.IndexList(key, manager.NodeLen())
-	if len(indexList) == 0 {
-		log.Warn("没有选取到节点")
-	} else if len(indexList) == 1 {
-		index := indexList[0]
-		node := manager.GetNode(index)
-		manager.SetSelectedIndex(index)
-		manager.Save()
-		exe := run(node.Protocol)
-		if exe {
-			if setting.Http() == 0 {
-				log.Infof("启动成功, 监听socks端口: %d, 所选节点: %d", setting.Socks(), manager.SelectedIndex())
-			} else {
-				log.Infof("启动成功, 监听socks/http端口: %d/%d, 所选节点: %d", setting.Socks(), setting.Http(), manager.SelectedIndex())
-			}
-			result, status := TestNode(testUrl, setting.Socks(), testTimeout)
-			log.Infof("%6s [ %s ] 延迟: %dms", status, testUrl, result)
+	exe := x.run(node.Protocol)
+	if exe {
+		if x.proxySettings.HttpPort == 0 {
+			logger.Infof("启动成功, 监听socks端口: %d, 所选节点: %s", x.proxySettings.SocksPort, node.SubID)
+		} else {
+			logger.Infof("启动成功, 监听socks/http端口: %d/%d, 所选节点: %s", x.proxySettings.SocksPort, x.proxySettings.HttpPort, node.SubID)
 		}
+		result, status := x.TestNode(testUrl, x.proxySettings.SocksPort, testTimeout)
+		logger.Infof("%6s [ %s ] 延迟: %dms", status, testUrl, result)
 	}
 }
 

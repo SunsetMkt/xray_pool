@@ -1,9 +1,9 @@
 package protocols
 
 import (
-	"Txray/core/protocols/field"
 	"bytes"
 	"fmt"
+	"github.com/allanpk716/xray_pool/internal/pkg/protocols/field"
 	"net/url"
 )
 

@@ -11,10 +11,10 @@ import (
 
 type Node struct {
 	protocols.Protocol `json:"-"`
-	SubID              string         `json:"sub_id"`
-	Data               string         `json:"data"`
-	TestResult         float64        `json:"-"`
-	Wg                 sync.WaitGroup `json:"-"`
+	SubID              string  `json:"sub_id"`
+	Data               string  `json:"data"`
+	TestResult         float64 `json:"-"`
+	wg                 *sync.WaitGroup
 }
 
 func (n *Node) TestResultStr() string {
@@ -28,15 +28,16 @@ func (n *Node) TestResultStr() string {
 }
 
 // NewNode New一个节点
-func NewNode(link, id string) *Node {
+func NewNode(link, id string, wg *sync.WaitGroup) *Node {
 	if data := protocols.ParseLink(link); data != nil {
-		return &Node{Protocol: data, SubID: id}
+		return &Node{Protocol: data, SubID: id, wg: wg}
 	}
 	return nil
 }
 
-func NewNodeByData(protocol protocols.Protocol) *Node {
-	return &Node{Protocol: protocol}
+// NewNodeByData New一个节点
+func NewNodeByData(protocol protocols.Protocol, wg *sync.WaitGroup) *Node {
+	return &Node{Protocol: protocol, wg: wg}
 }
 
 // ParseData 反序列化Data
@@ -72,7 +73,7 @@ func (n *Node) TCPing() {
 	} else {
 		n.TestResult = sum / float64(count)
 	}
-	n.Wg.Done()
+	n.wg.Done()
 }
 
 func (n *Node) Show() {

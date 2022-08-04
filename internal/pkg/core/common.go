@@ -6,7 +6,6 @@ import (
 )
 
 var (
-	DataFile    = filepath.Join(pkg.GetConfigRootDirFPath(), "data.json")
-	SettingFile = filepath.Join(pkg.GetConfigRootDirFPath(), "setting.toml")
+	AppSettings = filepath.Join(pkg.GetConfigRootDirFPath(), "xray_pool_config.json")
 	RoutingFile = filepath.Join(pkg.GetConfigRootDirFPath(), "routing.json")
 )
