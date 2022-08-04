@@ -740,6 +740,6 @@ func (x *XrayHelper) vMessAEADOutbound(vmess *protocols.VMessAEAD) interface{} {
 }
 
 const (
-	configFileName  = "xray-config.json"
+	configFileName  = "xray_config.json"
 	xrayLogFileName = "xray_access.log"
 )
