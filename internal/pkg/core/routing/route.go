@@ -1,43 +1,103 @@
 package routing
 
 import (
+	"encoding/json"
+	"github.com/WQGroup/logger"
+	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core"
+	"os"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
-// 添加规则
-func AddRule(rt Type, list ...string) int {
-	defer route.save()
+type Routing struct {
+	Proxy  []*OneRouting `json:"proxy"`
+	Direct []*OneRouting `json:"direct"`
+	Block  []*OneRouting `json:"block"`
+}
+
+func NewRouting() *Routing {
+
+	route := &Routing{
+		Proxy:  make([]*OneRouting, 0),
+		Direct: make([]*OneRouting, 0),
+		Block:  make([]*OneRouting, 0),
+	}
+	if _, err := os.Stat(core.RoutingFile); os.IsNotExist(err) {
+		route.save()
+	} else {
+		file, _ := os.Open(core.RoutingFile)
+		defer func() {
+			_ = file.Close()
+		}()
+		err = json.NewDecoder(file).Decode(route)
+		if err != nil {
+			logger.Panic(err)
+		}
+	}
+
+	return route
+}
+
+func (r *Routing) save() {
+	err := pkg.WriteJSON(r, core.RoutingFile)
+	if err != nil {
+		logger.Error(err)
+	}
+}
+
+// GetRuleMode 判断是IP规则还是域名规则
+// IP|Domain
+func GetRuleMode(str string) Mode {
+	if strings.HasPrefix(str, "geoip:") {
+		return ModeIP
+	}
+	if strings.Contains(str, "ip.dat:") {
+		return ModeIP
+	}
+	pattern := `(?:^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})(?:/(?:[1-9]|[1-2][0-9]|3[0-2]){1})?$`
+	re, _ := regexp.Compile(pattern)
+	if re.MatchString(str) {
+		return ModeIP
+	}
+	return ModeDomain
+}
+
+// AddRule 添加规则
+func (r *Routing) AddRule(rt Type, list ...string) int {
+	defer r.save()
 	count := 0
 	for _, rule := range list {
 		if rule != "" {
-			r := &routing{
+			oneRouting := &OneRouting{
 				Data: rule,
 				Mode: GetRuleMode(rule),
 			}
 			count += 1
 			switch rt {
 			case TypeBlock:
-				route.Block = append(route.Block, r)
+				r.Block = append(r.Block, oneRouting)
 			case TypeDirect:
-				route.Direct = append(route.Direct, r)
+				r.Direct = append(r.Direct, oneRouting)
 			case TypeProxy:
-				route.Proxy = append(route.Proxy, r)
+				r.Proxy = append(r.Proxy, oneRouting)
 			}
 		}
 	}
 	return count
 }
 
-func GetRule(rt Type, key string) [][]string {
-	var rules []*routing
+// GetRule 获取规则
+func (r *Routing) GetRule(rt Type, key string) [][]string {
+	var rules []*OneRouting
 	switch rt {
 	case TypeDirect:
-		rules = route.Direct
+		rules = r.Direct
 	case TypeProxy:
-		rules = route.Proxy
+		rules = r.Proxy
 	case TypeBlock:
-		rules = route.Block
+		rules = r.Block
 	}
 	indexList := core.IndexList(key, len(rules))
 	result := make([][]string, 0, len(indexList))
@@ -52,18 +112,18 @@ func GetRule(rt Type, key string) [][]string {
 	return result
 }
 
-// 对路由数据进行分组
-func GetRulesGroupData(rt Type) ([]string, []string) {
+// GetRulesGroupData 对路由数据进行分组
+func (r *Routing) GetRulesGroupData(rt Type) ([]string, []string) {
 	ips := make([]string, 0)
 	domains := make([]string, 0)
-	var rules []*routing
+	var rules []*OneRouting
 	switch rt {
 	case TypeDirect:
-		rules = route.Direct
+		rules = r.Direct
 	case TypeProxy:
-		rules = route.Proxy
+		rules = r.Proxy
 	case TypeBlock:
-		rules = route.Block
+		rules = r.Block
 	}
 	for _, x := range rules {
 		if x.Mode == "Domain" {
@@ -75,47 +135,48 @@ func GetRulesGroupData(rt Type) ([]string, []string) {
 	return ips, domains
 }
 
-// 删除规则
-func DelRule(rt Type, key string) {
-	var rules []*routing
+// DelRule 删除规则
+func (r *Routing) DelRule(rt Type, key string) {
+	var rules []*OneRouting
 	switch rt {
 	case TypeDirect:
-		rules = route.Direct
+		rules = r.Direct
 	case TypeProxy:
-		rules = route.Proxy
+		rules = r.Proxy
 	case TypeBlock:
-		rules = route.Block
+		rules = r.Block
 	}
 	indexList := core.IndexList(key, len(rules))
 	if len(indexList) == 0 {
 		return
 	}
-	defer route.save()
-	result := make([]*routing, 0)
+	defer r.save()
+	result := make([]*OneRouting, 0)
 	for i, rule := range rules {
-		if !manage.HasIn(i+1, indexList) {
+		if pkg.HasIn(i+1, indexList) == false {
 			result = append(result, rule)
 		}
 	}
 	switch rt {
 	case TypeDirect:
-		route.Direct = result
+		r.Direct = result
 	case TypeProxy:
-		route.Proxy = result
+		r.Proxy = result
 	case TypeBlock:
-		route.Block = result
+		r.Block = result
 	}
-	log.Info("删除了 [", len(indexList), "] 条规则")
+	logger.Info("删除了 [", len(indexList), "] 条规则")
 }
 
-func RuleLen(rt Type) int {
+// RuleLen 有多少条规则
+func (r *Routing) RuleLen(rt Type) int {
 	switch rt {
 	case TypeDirect:
-		return len(route.Direct)
+		return len(r.Direct)
 	case TypeProxy:
-		return len(route.Proxy)
+		return len(r.Proxy)
 	case TypeBlock:
-		return len(route.Block)
+		return len(r.Block)
 	default:
 		return 0
 	}

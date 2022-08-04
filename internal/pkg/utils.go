@@ -33,3 +33,12 @@ func WriteJSON(v interface{}, path string) error {
 	jsonEncode.SetIndent("", "\t")
 	return jsonEncode.Encode(v)
 }
+
+func HasIn(index int, indexList []int) bool {
+	for _, i := range indexList {
+		if i == index {
+			return true
+		}
+	}
+	return false
+}

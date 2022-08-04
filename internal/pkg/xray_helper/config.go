@@ -13,7 +13,7 @@ import (
 )
 
 // GetConfig 构建 Xray 的运行配置
-func (x XrayHelper) GetConfig(node protocols.Protocol, proxySettings *settings.OneProxySettings) string {
+func (x XrayHelper) GetConfig(node protocols.Protocol, proxySettings *settings.OneProxySettings, route *routing.Routing) string {
 
 	path := filepath.Join(pkg.GetConfigRootDirFPath(), configFileName)
 	var conf = map[string]interface{}{
@@ -22,7 +22,7 @@ func (x XrayHelper) GetConfig(node protocols.Protocol, proxySettings *settings.O
 		"outbounds": outboundConfig(node, proxySettings),
 		"policy":    policyConfig(),
 		"dns":       dnsConfig(proxySettings),
-		"routing":   routingConfig(proxySettings),
+		"routing":   routingConfig(proxySettings, route),
 	}
 	err := pkg.WriteJSON(conf, path)
 	if err != nil {
@@ -159,7 +159,7 @@ func dnsConfig(proxySettings *settings.OneProxySettings) interface{} {
 }
 
 // 路由
-func routingConfig(proxySettings *settings.OneProxySettings) interface{} {
+func routingConfig(proxySettings *settings.OneProxySettings, route *routing.Routing) interface{} {
 	rules := make([]interface{}, 0)
 	if proxySettings.DNSPort != 0 {
 		rules = append(rules, map[string]interface{}{
@@ -195,7 +195,7 @@ func routingConfig(proxySettings *settings.OneProxySettings) interface{} {
 			"ip":          ip,
 		})
 	}
-	ips, domains := routing.GetRulesGroupData(routing.TypeBlock)
+	ips, domains := route.GetRulesGroupData(routing.TypeBlock)
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -210,7 +210,7 @@ func routingConfig(proxySettings *settings.OneProxySettings) interface{} {
 			"domain":      domains,
 		})
 	}
-	ips, domains = routing.GetRulesGroupData(routing.TypeDirect)
+	ips, domains = route.GetRulesGroupData(routing.TypeDirect)
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -225,7 +225,7 @@ func routingConfig(proxySettings *settings.OneProxySettings) interface{} {
 			"domain":      domains,
 		})
 	}
-	ips, domains = routing.GetRulesGroupData(routing.TypeProxy)
+	ips, domains = route.GetRulesGroupData(routing.TypeProxy)
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -273,7 +273,7 @@ func outboundConfig(n protocols.Protocol, proxySettings *settings.OneProxySettin
 		out = append(out, trojanOutbound(t))
 	case protocols.ModeShadowSocks:
 		ss := n.(*protocols.ShadowSocks)
-		out = append(out, shadowsocksOutbound(ss))
+		out = append(out, shadowSocksOutbound(ss))
 	case protocols.ModeVMess:
 		v := n.(*protocols.VMess)
 		out = append(out, vMessOutbound(v, proxySettings))
@@ -309,7 +309,7 @@ func outboundConfig(n protocols.Protocol, proxySettings *settings.OneProxySettin
 }
 
 // ShadowSocks
-func shadowsocksOutbound(ss *protocols.ShadowSocks) interface{} {
+func shadowSocksOutbound(ss *protocols.ShadowSocks) interface{} {
 	return map[string]interface{}{
 		"tag":      "proxy",
 		"protocol": "shadowsocks",
