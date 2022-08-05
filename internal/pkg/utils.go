@@ -129,7 +129,7 @@ func GetXrayExeName() string {
 // ScanAlivePortList 扫描本地空闲的端口
 func ScanAlivePortList(portRange string) []int {
 
-	logger.Info("扫描本地可用端口,，开始...")
+	logger.Info("扫描本地可用端口，开始...")
 	defer logger.Info("扫描本地可用端口，完成")
 	scan := detector.NewScanTools(10, 50*time.Millisecond)
 

@@ -48,7 +48,7 @@ func (x *XrayHelper) Check() bool {
 	// Check 的最后就进行数据的复制
 	err := pkg.CopyDir(nowRootPath, pkg.GetIndexXrayFolderFPath(x.index))
 	if err != nil {
-		logger.Errorf("复制 Xray 程序失败: %s", err.Error())
+		logger.Errorf("Xray -- %2d 复制 Xray 程序失败: %s", x.index, err.Error())
 		return false
 	}
 	return true
@@ -70,6 +70,7 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) boo
 		logger.Infof("Xray -- %2d %6s [ %s ] 延迟: %dms", x.index, status, testUrl, result)
 
 		if result < 0 {
+			x.Stop()
 			logger.Infof("Xray -- %2d 当前节点: %v 访问 %v 失败, 将不再使用该节点", x.index, node.GetName(), testUrl)
 			return false
 		}
@@ -81,17 +82,25 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) boo
 }
 
 func (x *XrayHelper) run(node protocols.Protocol) bool {
-	x.Stop()
+
 	switch node.GetProtocolMode() {
 	case protocols.ModeShadowSocks, protocols.ModeTrojan, protocols.ModeVMess, protocols.ModeSocks, protocols.ModeVLESS, protocols.ModeVMessAEAD:
 		file := x.GenConfig(node)
 		x.xrayCmd = exec.Command(x.xrayPath, "-c", file)
 	default:
-		logger.Errorf("暂不支持%v协议", node.GetProtocolMode())
+		logger.Errorf("Xray -- %2d 暂不支持%v协议", x.index, node.GetProtocolMode())
 		return false
 	}
-	stdout, _ := x.xrayCmd.StdoutPipe()
-	_ = x.xrayCmd.Start()
+	stdout, err := x.xrayCmd.StdoutPipe()
+	if err != nil {
+		logger.Errorf("Xray -- %2d 获取 xray 程序的 stdout 管道失败: %s", x.index, err.Error())
+		return false
+	}
+	err = x.xrayCmd.Start()
+	if err != nil {
+		logger.Errorf("Xray -- %2d 启动 xray 程序失败: %s", x.index, err.Error())
+		return false
+	}
 	r := bufio.NewReader(stdout)
 	lines := new([]string)
 	go readInfo(r, lines)
@@ -103,7 +112,7 @@ func (x *XrayHelper) run(node protocols.Protocol) bool {
 		x.proxySettings.PID = x.xrayCmd.Process.Pid
 		return true
 	case <-status:
-		logger.Error("开启xray服务失败, 查看下面报错信息来检查出错问题")
+		logger.Error("Xray -- %2d 开启xray服务失败, 查看下面报错信息来检查出错问题", x.index)
 		for _, x := range *lines {
 			logger.Error(x)
 		}
@@ -117,28 +126,34 @@ func (x *XrayHelper) Stop() {
 	if x.xrayCmd != nil {
 		err := x.xrayCmd.Process.Kill()
 		if err != nil {
-			logger.Errorf("停止xray服务失败: %v", err)
+			logger.Errorf("Xray -- %2d 停止xray服务失败: %v", x.index, err)
 		}
 		x.xrayCmd = nil
-	}
-	if x.proxySettings.PID != 0 {
-		process, err := os.FindProcess(x.proxySettings.PID)
-		if err == nil {
-			err = process.Kill()
-			if err != nil {
-				logger.Errorf("停止xray服务失败: %v", err)
+	} else {
+
+		if x.proxySettings.PID != 0 {
+			process, err := os.FindProcess(x.proxySettings.PID)
+			if err == nil {
+				err = process.Kill()
+				if err != nil {
+					logger.Errorf("Xray -- %2d 停止xray服务失败: %v", x.index, err)
+				}
 			}
+			x.proxySettings.PID = 0
 		}
-		x.proxySettings.PID = 0
 	}
 	// 日志文件过大清除
-	file, _ := os.Stat(x.GetLogFPath())
+	file, err := os.Stat(x.GetLogFPath())
+	if err != nil {
+		logger.Errorf("Xray -- %2d os.Stat日志文件大小: %v", x.index, err.Error())
+		return
+	}
 	if file != nil {
 		fileSize := float64(file.Size()) / (1 << 20)
 		if fileSize > 5 {
 			err := os.Remove(x.GetLogFPath())
 			if err != nil {
-				logger.Errorf("清除日志文件失败: %v", err)
+				logger.Errorf("Xray -- %2d 清除日志文件失败: %v", x.index, err)
 			}
 		}
 	}

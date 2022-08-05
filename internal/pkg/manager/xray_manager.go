@@ -42,7 +42,6 @@ func (m *Manager) StartXray() bool {
 		if startXrayCount >= m.AppSettings.XrayInstanceCount || selectNodeIndex > m.NodeLen() {
 			break
 		}
-
 		// 设置 socks 端口
 		nowProxySettings := m.AppSettings.MainProxySettings
 		socksPort := alivePorts[alivePortIndex]
@@ -64,6 +63,12 @@ func (m *Manager) StartXray() bool {
 		if nowXrayHelper.Start(m.GetNode(selectNodeIndex), m.AppSettings.TestUrl, m.AppSettings.OneNodeTestTimeOut) == true {
 			m.xrayHelperList = append(m.xrayHelperList, nowXrayHelper)
 			startXrayCount++
+		} else {
+			// 如果失败了，那么端口的 Index 需要回退
+			alivePortIndex--
+			if m.AppSettings.XrayOpenSocksAndHttp == true {
+				alivePortIndex--
+			}
 		}
 		selectNodeIndex++
 	}
