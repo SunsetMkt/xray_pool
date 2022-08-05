@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/WQGroup/logger"
 	"net/http"
+	"net/url"
 )
 
 type Subscribe struct {
@@ -13,10 +14,25 @@ type Subscribe struct {
 	Using bool   `json:"using"`
 }
 
-func NewSubscribe(url, name string) *Subscribe {
-	return &Subscribe{Name: name, Url: url, Using: true}
+func NewSubscribe(inUrl, name string) *Subscribe {
+
+	remarkName := ""
+	if name == "" {
+		u, err := url.Parse(inUrl)
+		if err != nil {
+			logger.Errorf("订阅[%s]解析失败:%s", inUrl, err.Error())
+			remarkName = "remark"
+		} else {
+			remarkName = u.Host
+		}
+	} else {
+		remarkName = name
+	}
+
+	return &Subscribe{Name: remarkName, Url: inUrl, Using: true}
 }
 
+// ID 返回订阅的ID，由 URL 的 MD5 值组成
 func (s *Subscribe) ID() string {
 	return fmt.Sprintf("%x", md5.Sum([]byte(s.Url)))
 }

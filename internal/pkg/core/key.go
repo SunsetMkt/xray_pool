@@ -23,6 +23,14 @@ func Range(start, end int) []int {
 	return result
 }
 
+// IndexList 返回符合条件的索引列表
+// key: 关键字
+//	1.选择前6个：'1,2,3,4,5,6' 或 '1-3,4-6' 或 '1-6' 或 '-6'
+//	2.选择第6个及后面的所有：'6-'
+//	3.选择第6个：'6'
+//	4.选择所有：'all' 或 '-'
+//注意：超出部分会被忽略，'all' 只能单独使用
+// max: 最大索引
 func IndexList(key string, max int) []int {
 	if max == 0 {
 		return []int{}
