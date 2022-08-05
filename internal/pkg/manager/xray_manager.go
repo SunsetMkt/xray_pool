@@ -4,6 +4,7 @@ import (
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_helper"
+	"github.com/panjf2000/ants/v2"
 	"github.com/tklauser/ps"
 	"os"
 
@@ -35,6 +36,15 @@ func (m *Manager) StartXray() bool {
 	m.NodesTCPing()
 
 	// 开始启动 xray
+	p, err := ants.NewPoolWithFunc(4, func(inData interface{}) {
+		deliveryInfo := inData.(DeliveryInfo)
+	})
+	if err != nil {
+		logger.Errorf("创建 xray 工作池失败: %v", err)
+		return false
+	}
+	defer p.Release()
+
 	selectNodeIndex := 1
 	alivePortIndex := 0
 	startXrayCount := 0
@@ -119,4 +129,7 @@ func (m *Manager) KillAllXray() {
 			}
 		}
 	}
+}
+
+type DeliveryInfo struct {
 }

@@ -15,7 +15,7 @@ func NewAppSettings() *AppSettings {
 		XrayPortRange:           "36000-36200",
 		XrayInstanceCount:       3,
 		XrayOpenSocksAndHttp:    false,
-		OneNodeTestTimeOut:      5,
+		OneNodeTestTimeOut:      6,
 		BatchNodeTestMaxTimeOut: 100,
 		TestUrl:                 "https://google.com",
 		MainProxySettings: *NewProxySettings(

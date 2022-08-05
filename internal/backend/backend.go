@@ -6,6 +6,7 @@ import (
 	"github.com/WQGroup/logger"
 	v1 "github.com/allanpk716/xray_pool/internal/backend/controllers/v1"
 	"github.com/allanpk716/xray_pool/internal/backend/middle"
+	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -18,12 +19,13 @@ type BackEnd struct {
 	httpPort      int
 	running       bool
 	srv           *http.Server
+	manager       *manager.Manager
 	locker        sync.Mutex
 	restartSignal chan interface{}
 }
 
 func NewBackEnd(httpPort int, restartSignal chan interface{}) *BackEnd {
-	return &BackEnd{httpPort: httpPort, restartSignal: restartSignal}
+	return &BackEnd{httpPort: httpPort, restartSignal: restartSignal, manager: manager.NewManager()}
 }
 
 func (b *BackEnd) start() {
