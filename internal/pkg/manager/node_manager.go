@@ -12,7 +12,7 @@ func (m *Manager) NodeLen() int {
 	return len(m.NodeList)
 }
 
-// GetNodeByIndex 获取节点
+// GetNode 获取节点
 func (m *Manager) GetNode(index int) *node.Node {
 	return m.getNode(index - 1)
 }
@@ -52,10 +52,10 @@ func (m *Manager) NodeForEach(funC func(int, *node.Node)) {
 	}
 }
 
-func (m *Manager) TCPing() {
+func (m *Manager) NodesTCPing() {
 	m.NodeForEach(func(i int, n *node.Node) {
 		m.wg.Add(1)
-		go n.TCPing()
+		go n.TCPing(&m.wg)
 	})
 	m.wg.Wait()
 	defer m.Save()

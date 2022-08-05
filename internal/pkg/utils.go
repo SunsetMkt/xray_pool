@@ -3,9 +3,14 @@ package pkg
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/WQGroup/logger"
+	detector "github.com/allanpk716/go-protocol-detector/pkg"
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strconv"
+	"time"
 )
 
 func IsDir(path string) bool {
@@ -109,3 +114,45 @@ func HasIn(index int, indexList []int) bool {
 	}
 	return false
 }
+
+func GetXrayExeName() string {
+
+	xrayExeName := XrayName
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		xrayExeName += ".exe"
+	}
+
+	return xrayExeName
+}
+
+// ScanAlivePortList 扫描本地空闲的端口
+func ScanAlivePortList(portRange string) []int {
+
+	scan := detector.NewScanTools(10, 100*time.Millisecond)
+
+	outInfo, err := scan.Scan(detector.Common,
+		detector.InputInfo{Host: "127.0.0.1", Port: portRange},
+		false)
+	if err != nil {
+		logger.Errorf("scan alive port list error: %s", err.Error())
+		return nil
+	}
+
+	outPort := make([]int, 0)
+	for _, ports := range outInfo.FailedMapString {
+		for _, port := range ports {
+			port, err := strconv.Atoi(port)
+			if err != nil {
+				continue
+			}
+			outPort = append(outPort, port)
+		}
+	}
+
+	return outPort
+}
+
+const (
+	XrayName = "xray"
+)

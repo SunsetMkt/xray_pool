@@ -1,24 +1,30 @@
 package settings
 
 type AppSettings struct {
-	OneNodeTestTimeOut      int    // 单个节点测试超时时间，单位：秒
-	BatchNodeTestMaxTimeOut int    // 批量节点测试的最长超时时间，单位：秒
-	TestUrl                 string // 测试代理访问速度的url
+	XrayPortRange           string `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用
+	XrayInstanceCount       int    `json:"xray_instance_count"`          // Xray 程序的实例数量，简单说就是开启多少个代理
+	XrayOpenSocksAndHttp    bool   `json:"xray_open_socks_and_http"`     // 是否开启 socks 和 http 端口，默认只开启 socks 端口
+	OneNodeTestTimeOut      int    `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
+	BatchNodeTestMaxTimeOut int    `json:"batch_node_test_max_time_out"` // 批量节点测试的最长超时时间，单位：秒
+	TestUrl                 string `json:"test_url"`                     // 测试代理访问速度的url
 	MainProxySettings       ProxySettings
 }
 
 func NewAppSettings() *AppSettings {
 	return &AppSettings{
+		XrayPortRange:           "36000-36200",
+		XrayInstanceCount:       3,
+		XrayOpenSocksAndHttp:    false,
 		OneNodeTestTimeOut:      3,
 		BatchNodeTestMaxTimeOut: 100,
 		TestUrl:                 "https://google.com",
 		MainProxySettings: *NewProxySettings(
-			1080,
 			0,
+			1080,
 			false,
 			true,
 			true,
-			13500,
+			0,
 			"1.1.1.1",
 			"119.29.29.29",
 			"114.114.114.114",

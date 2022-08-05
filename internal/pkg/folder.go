@@ -84,6 +84,6 @@ const (
 )
 
 const (
-	baseXrayFolderName = "xray"
+	baseXrayFolderName = "xray_base"
 	tmpFolderName      = "tmp"
 )

@@ -11,21 +11,19 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"time"
 )
 
 type XrayHelper struct {
 	index         int                    // 第几个 xray 实例
 	xrayCmd       *exec.Cmd              // xray 程序的进程
-	AppSettings   *settings.AppSettings  // 主程序的配置
 	xrayPath      string                 // xray 程序的路径
 	proxySettings settings.ProxySettings // 代理的配置
 	route         *routing.Routing       // 路由
 }
 
-func NewXrayHelper(index int, appSettings *settings.AppSettings, xrayPath string, route *routing.Routing) *XrayHelper {
-	return &XrayHelper{index: index, AppSettings: appSettings, xrayPath: xrayPath, proxySettings: appSettings.MainProxySettings, route: route}
+func NewXrayHelper(index int, proxySettings settings.ProxySettings, route *routing.Routing) *XrayHelper {
+	return &XrayHelper{index: index, proxySettings: proxySettings, route: route}
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
@@ -33,11 +31,7 @@ func (x *XrayHelper) Check() bool {
 
 	// 在这个目录下进行搜索是否存在 Xray 程序
 	nowRootPath := pkg.GetBaseXrayFolderFPath()
-	xrayExeName := XrayName
-	sysType := runtime.GOOS
-	if sysType == "windows" {
-		xrayExeName += ".exe"
-	}
+	xrayExeName := pkg.GetXrayExeName()
 	xrayExeFullPath := filepath.Join(nowRootPath, xrayExeName)
 	if pkg.IsFile(xrayExeFullPath) == false {
 		return false
@@ -60,18 +54,19 @@ func (x *XrayHelper) Check() bool {
 	return true
 }
 
-func (x *XrayHelper) Start(node *node.Node) {
-	testUrl := x.AppSettings.TestUrl
-	testTimeout := x.AppSettings.OneNodeTestTimeOut
-	exe := x.run(node.Protocol)
-	if exe {
+func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) bool {
+
+	if x.run(node.Protocol) == true {
 		if x.proxySettings.HttpPort == 0 {
 			logger.Infof("启动成功, 监听socks端口: %d, 所选节点: %s", x.proxySettings.SocksPort, node.SubID)
 		} else {
 			logger.Infof("启动成功, 监听socks/http端口: %d/%d, 所选节点: %s", x.proxySettings.SocksPort, x.proxySettings.HttpPort, node.SubID)
 		}
-		result, status := x.TestNode(testUrl, x.proxySettings.SocksPort, testTimeout)
+		result, status := x.TestNode(testUrl, x.proxySettings.SocksPort, testTimeOut)
 		logger.Infof("%6s [ %s ] 延迟: %dms", status, testUrl, result)
+		return true
+	} else {
+		return false
 	}
 }
 
@@ -157,5 +152,4 @@ func checkProc(c *exec.Cmd, status chan struct{}) {
 const (
 	GEOIP_RESOURCE_NAME   = "geoip.dat"
 	GEOSite_RESOURCE_NAME = "geosite.dat"
-	XrayName              = "xray"
 )

@@ -51,7 +51,7 @@ func (n *Node) Serialize2Data() {
 }
 
 // TCPing 测试 Node TCP 连接
-func (n *Node) TCPing() {
+func (n *Node) TCPing(wg *sync.WaitGroup) {
 	count := 3
 	var sum float64
 	var timeout = 3 * time.Second
@@ -73,7 +73,11 @@ func (n *Node) TCPing() {
 	} else {
 		n.TestResult = sum / float64(count)
 	}
-	n.wg.Done()
+	if n.wg != nil {
+		n.wg.Done()
+	} else {
+		wg.Done()
+	}
 }
 
 func (n *Node) Show() {
