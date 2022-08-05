@@ -39,9 +39,10 @@ func (m *Manager) StartXray() bool {
 	alivePortIndex := 0
 	startXrayCount := 0
 	for {
-		if startXrayCount >= m.AppSettings.XrayInstanceCount {
+		if startXrayCount >= m.AppSettings.XrayInstanceCount || selectNodeIndex > m.NodeLen() {
 			break
 		}
+
 		// 设置 socks 端口
 		nowProxySettings := m.AppSettings.MainProxySettings
 		socksPort := alivePorts[alivePortIndex]
@@ -67,6 +68,7 @@ func (m *Manager) StartXray() bool {
 		selectNodeIndex++
 	}
 
+	logger.Info("批量启动 xray 完成")
 	return true
 }
 
@@ -74,6 +76,14 @@ func (m *Manager) StopXray() bool {
 
 	for _, xrayHelper := range m.xrayHelperList {
 		xrayHelper.Stop()
+	}
+
+	m.KillAllXray()
+
+	err := os.RemoveAll(pkg.GetTmpFolderFPath())
+	if err != nil {
+		logger.Errorf("remove tmp folder error: %v", err)
+		return false
 	}
 
 	return true
