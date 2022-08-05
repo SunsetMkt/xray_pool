@@ -58,12 +58,22 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) boo
 
 	if x.run(node.Protocol) == true {
 		if x.proxySettings.HttpPort == 0 {
-			logger.Infof("启动成功, 监听socks端口: %d, 所选节点: %s", x.proxySettings.SocksPort, node.SubID)
+			logger.Infof("Xray -- %2d 启动成功, 监听 socks 端口: %d, 所选节点: %s",
+				x.index,
+				x.proxySettings.SocksPort, node.GetName())
 		} else {
-			logger.Infof("启动成功, 监听socks/http端口: %d/%d, 所选节点: %s", x.proxySettings.SocksPort, x.proxySettings.HttpPort, node.SubID)
+			logger.Infof("Xray -- %2d 启动成功, 监听 socks/http 端口: %d/%d, 所选节点: %s",
+				x.index,
+				x.proxySettings.SocksPort, x.proxySettings.HttpPort, node.GetName())
 		}
 		result, status := x.TestNode(testUrl, x.proxySettings.SocksPort, testTimeOut)
-		logger.Infof("%6s [ %s ] 延迟: %dms", status, testUrl, result)
+		logger.Infof("Xray -- %2d %6s [ %s ] 延迟: %dms", x.index, status, testUrl, result)
+
+		if result < 0 {
+			logger.Infof("Xray -- %2d 当前节点: %v 访问 %v 失败, 将不再使用该节点", x.index, node.GetName(), testUrl)
+			return false
+		}
+
 		return true
 	} else {
 		return false

@@ -37,8 +37,11 @@ func (m *Manager) StartXray() bool {
 	// 开始启动 xray
 	selectNodeIndex := 1
 	alivePortIndex := 0
-	for i := 0; i < m.AppSettings.XrayInstanceCount; i++ {
-
+	startXrayCount := 0
+	for {
+		if startXrayCount >= m.AppSettings.XrayInstanceCount {
+			break
+		}
 		// 设置 socks 端口
 		nowProxySettings := m.AppSettings.MainProxySettings
 		socksPort := alivePorts[alivePortIndex]
@@ -51,7 +54,7 @@ func (m *Manager) StartXray() bool {
 			nowProxySettings.HttpPort = httpPort
 		}
 
-		nowXrayHelper := xray_helper.NewXrayHelper(i, nowProxySettings, m.route)
+		nowXrayHelper := xray_helper.NewXrayHelper(startXrayCount, nowProxySettings, m.route)
 		if nowXrayHelper.Check() == false {
 			logger.Errorf("xray Check Error")
 			return false
@@ -59,6 +62,7 @@ func (m *Manager) StartXray() bool {
 
 		if nowXrayHelper.Start(m.GetNode(selectNodeIndex), m.AppSettings.TestUrl, m.AppSettings.OneNodeTestTimeOut) == true {
 			m.xrayHelperList = append(m.xrayHelperList, nowXrayHelper)
+			startXrayCount++
 		}
 		selectNodeIndex++
 	}
@@ -77,6 +81,8 @@ func (m *Manager) StopXray() bool {
 
 func (m *Manager) KillAllXray() {
 
+	logger.Debugln("结束所有的 xray，开始...")
+	defer logger.Debugln("结束所有的 xray，完成")
 	processes, err := ps.Processes()
 	if err != nil {
 		logger.Errorf("get processes error: %v", err)
