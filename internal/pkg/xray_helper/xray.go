@@ -18,12 +18,12 @@ type XrayHelper struct {
 	index         int                    // 第几个 xray 实例
 	xrayCmd       *exec.Cmd              // xray 程序的进程
 	xrayPath      string                 // xray 程序的路径
-	proxySettings settings.ProxySettings // 代理的配置
+	ProxySettings settings.ProxySettings // 代理的配置
 	route         *routing.Routing       // 路由
 }
 
 func NewXrayHelper(index int, proxySettings settings.ProxySettings, route *routing.Routing) *XrayHelper {
-	return &XrayHelper{index: index, proxySettings: proxySettings, route: route}
+	return &XrayHelper{index: index, ProxySettings: proxySettings, route: route}
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
@@ -57,16 +57,16 @@ func (x *XrayHelper) Check() bool {
 func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) (bool, int) {
 
 	if x.run(node.Protocol) == true {
-		if x.proxySettings.HttpPort == 0 {
+		if x.ProxySettings.HttpPort == 0 {
 			logger.Infof("Xray -- %2d 启动成功, 监听 socks 端口: %d, 所选节点: %s",
 				x.index,
-				x.proxySettings.SocksPort, node.GetName())
+				x.ProxySettings.SocksPort, node.GetName())
 		} else {
 			logger.Infof("Xray -- %2d 启动成功, 监听 socks/http 端口: %d/%d, 所选节点: %s",
 				x.index,
-				x.proxySettings.SocksPort, x.proxySettings.HttpPort, node.GetName())
+				x.ProxySettings.SocksPort, x.ProxySettings.HttpPort, node.GetName())
 		}
-		result, status := x.TestNode(testUrl, x.proxySettings.SocksPort, testTimeOut)
+		result, status := x.TestNode(testUrl, x.ProxySettings.SocksPort, testTimeOut)
 		logger.Infof("Xray -- %2d %6s [ %s ] 延迟: %dms", x.index, status, testUrl, result)
 
 		if result < 0 {
@@ -109,7 +109,7 @@ func (x *XrayHelper) run(node protocols.Protocol) bool {
 	stopper := time.NewTimer(time.Millisecond * 300)
 	select {
 	case <-stopper.C:
-		x.proxySettings.PID = x.xrayCmd.Process.Pid
+		x.ProxySettings.PID = x.xrayCmd.Process.Pid
 		return true
 	case <-status:
 		logger.Error("Xray -- %2d 开启xray服务失败, 查看下面报错信息来检查出错问题", x.index)
@@ -129,7 +129,7 @@ func (x *XrayHelper) Stop() {
 			logger.Errorf("Xray -- %2d 停止xray服务失败: %v", x.index, err)
 		}
 		x.xrayCmd = nil
-		x.proxySettings.PID = 0
+		x.ProxySettings.PID = 0
 	}
 	// 日志文件过大清除
 	file, err := os.Stat(x.GetLogFPath())

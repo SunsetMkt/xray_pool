@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
@@ -10,6 +11,7 @@ import (
 	"github.com/tklauser/ps"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -18,12 +20,32 @@ import (
 func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 
 	defer pkg.TimeCost()("GetsValidNodesAndAlivePorts")
+
+	aliveNodeIndexList := make([]int, 0)
+
+	defer func() {
+		for _, nodeIndex := range aliveNodeIndexList {
+			logger.Infof("alive node: %v -- %v", nodeIndex, m.GetNode(nodeIndex).GetName())
+		}
+	}()
+
 	// 首先需要找到当前系统中残留的 xray 程序，结束它们
 	m.KillAllXray()
 	// 然后需要扫描一个连续的端口段，便于后续的分配
-	alivePorts := pkg.ScanAlivePortList(m.AppSettings.XrayPortRange)
+	// 这里需要根据 Node 的数量来推算一个连续的端口段
+	needTestPortCount := m.NodeLen()
+	if m.AppSettings.XrayOpenSocksAndHttp == true {
+		needTestPortCount *= 2
+	}
+	startRange, err := strconv.Atoi(m.AppSettings.XrayPortRange)
+	if err != nil {
+		logger.Errorf("xray port range Atoi error: %v", err)
+		return false, nil, nil
+	}
+	portRange := fmt.Sprintf("%d-%d", startRange, startRange+needTestPortCount)
+	alivePorts := pkg.ScanAlivePortList(portRange)
 	if alivePorts == nil || len(alivePorts) == 0 {
-		logger.Errorf("没有找到可用的端口段: %s", m.AppSettings.XrayPortRange)
+		logger.Errorf("没有找到可用的端口段: %s", portRange)
 		return false, nil, nil
 	}
 	// 默认只需要考虑 socks 的端口，如果需要同时开启 http 端口，则需要2倍
@@ -32,13 +54,12 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 		needMinPortsCount = needMinPortsCount * 2
 	}
 	if len(alivePorts) < needMinPortsCount {
-		logger.Errorf("没有找到足够的端口段: %s", m.AppSettings.XrayPortRange)
+		logger.Errorf("没有找到足够的端口段: %s", portRange)
 		return false, nil, nil
 	}
 	// 是否有足够的空闲、有效的节点，进行了一次粗略的 TCP 排序
 	m.NodesTCPing()
 
-	aliveNodeIndexList := make([]int, 0)
 	checkResultChan := make(chan CheckResult, 1)
 	defer close(checkResultChan)
 	exitRevResultChan := make(chan bool, 1)
@@ -122,6 +143,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 	return true, aliveNodeIndexList, alivePorts
 }
 
+// StartXray 批量启动 Xray 开启代理
 func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
 
 	defer pkg.TimeCost()("StartXray")
@@ -185,6 +207,21 @@ func (m *Manager) StopXray() bool {
 	}
 
 	return true
+}
+
+// GetOpenProxyPorts 获取 Xray 开启的 socks 端口和 http 端口，是否有 http 端口需要看 AppSettings.XrayOpenSocksAndHttp 设置
+func (m *Manager) GetOpenProxyPorts() ([]int, []int) {
+
+	socksPortList := make([]int, 0)
+	httpPortList := make([]int, 0)
+	for _, xrayHelper := range m.xrayHelperList {
+		socksPortList = append(socksPortList, xrayHelper.ProxySettings.SocksPort)
+		if m.AppSettings.XrayOpenSocksAndHttp == true {
+			httpPortList = append(httpPortList, xrayHelper.ProxySettings.HttpPort)
+		}
+	}
+
+	return socksPortList, httpPortList
 }
 
 func (m *Manager) KillAllXray() {

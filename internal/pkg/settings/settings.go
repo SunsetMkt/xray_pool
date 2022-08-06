@@ -1,7 +1,7 @@
 package settings
 
 type AppSettings struct {
-	XrayPortRange           string `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用
+	XrayPortRange           string `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用 36000-  只需要填写起始的端口号，range，会根据 Node 的数量取补全
 	XrayInstanceCount       int    `json:"xray_instance_count"`          // Xray 程序的实例数量，简单说就是开启多少个代理
 	XrayOpenSocksAndHttp    bool   `json:"xray_open_socks_and_http"`     // 是否开启 socks 和 http 端口，默认只开启 socks 端口
 	OneNodeTestTimeOut      int    `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
@@ -13,7 +13,7 @@ type AppSettings struct {
 
 func NewAppSettings() *AppSettings {
 	return &AppSettings{
-		XrayPortRange:           "36000-36200",
+		XrayPortRange:           "36000",
 		XrayInstanceCount:       3,
 		XrayOpenSocksAndHttp:    false,
 		OneNodeTestTimeOut:      6,

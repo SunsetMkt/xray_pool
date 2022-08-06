@@ -47,17 +47,17 @@ func (x *XrayHelper) logConfig() interface{} {
 // inboundsConfig 入站
 func (x *XrayHelper) inboundsConfig() interface{} {
 	listen := "127.0.0.1"
-	if x.proxySettings.AllowLanConn {
+	if x.ProxySettings.AllowLanConn {
 		listen = "0.0.0.0"
 	}
 	data := []interface{}{
 		map[string]interface{}{
 			"tag":      "proxy",
-			"port":     x.proxySettings.SocksPort,
+			"port":     x.ProxySettings.SocksPort,
 			"listen":   listen,
 			"protocol": "socks",
 			"sniffing": map[string]interface{}{
-				"enabled": x.proxySettings.Sniffing,
+				"enabled": x.ProxySettings.Sniffing,
 				"destOverride": []string{
 					"http",
 					"tls",
@@ -65,15 +65,15 @@ func (x *XrayHelper) inboundsConfig() interface{} {
 			},
 			"settings": map[string]interface{}{
 				"auth":      "noauth",
-				"udp":       x.proxySettings.RelayUDP,
+				"udp":       x.ProxySettings.RelayUDP,
 				"userLevel": 0,
 			},
 		},
 	}
-	if x.proxySettings.HttpPort > 0 {
+	if x.ProxySettings.HttpPort > 0 {
 		data = append(data, map[string]interface{}{
 			"tag":      "http",
-			"port":     x.proxySettings.HttpPort,
+			"port":     x.ProxySettings.HttpPort,
 			"listen":   listen,
 			"protocol": "http",
 			"settings": map[string]interface{}{
@@ -81,15 +81,15 @@ func (x *XrayHelper) inboundsConfig() interface{} {
 			},
 		})
 	}
-	if x.proxySettings.DNSPort > 0 {
+	if x.ProxySettings.DNSPort > 0 {
 		data = append(data, map[string]interface{}{
 			"tag":      "dns-in",
-			"port":     x.proxySettings.DNSPort,
+			"port":     x.ProxySettings.DNSPort,
 			"listen":   listen,
 			"protocol": "dokodemo-door",
 			"settings": map[string]interface{}{
 				"userLevel": 0,
-				"address":   x.proxySettings.DNSForeign,
+				"address":   x.ProxySettings.DNSForeign,
 				"network":   "tcp,udp",
 				"port":      53,
 			},
@@ -120,9 +120,9 @@ func (x *XrayHelper) policyConfig() interface{} {
 // dnsConfig DNS
 func (x *XrayHelper) dnsConfig() interface{} {
 	servers := make([]interface{}, 0)
-	if x.proxySettings.DNSDomestic != "" {
+	if x.ProxySettings.DNSDomestic != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": x.proxySettings.DNSDomestic,
+			"address": x.ProxySettings.DNSDomestic,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:cn",
@@ -132,9 +132,9 @@ func (x *XrayHelper) dnsConfig() interface{} {
 			},
 		})
 	}
-	if x.proxySettings.DNSDomesticBackup != "" {
+	if x.ProxySettings.DNSDomesticBackup != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": x.proxySettings.DNSDomesticBackup,
+			"address": x.ProxySettings.DNSDomesticBackup,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:cn",
@@ -144,9 +144,9 @@ func (x *XrayHelper) dnsConfig() interface{} {
 			},
 		})
 	}
-	if x.proxySettings.DNSForeign != "" {
+	if x.ProxySettings.DNSForeign != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": x.proxySettings.DNSForeign,
+			"address": x.ProxySettings.DNSForeign,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:geolocation-!cn",
@@ -165,7 +165,7 @@ func (x *XrayHelper) dnsConfig() interface{} {
 // routingConfig 路由
 func (x *XrayHelper) routingConfig() interface{} {
 	rules := make([]interface{}, 0)
-	if x.proxySettings.DNSPort != 0 {
+	if x.ProxySettings.DNSPort != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type": "field",
 			"inboundTag": []interface{}{
@@ -174,23 +174,23 @@ func (x *XrayHelper) routingConfig() interface{} {
 			"outboundTag": "dns-out",
 		})
 	}
-	if x.proxySettings.DNSForeign != "" {
+	if x.ProxySettings.DNSForeign != "" {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
 			"port":        53,
 			"outboundTag": "proxy",
 			"ip": []string{
-				x.proxySettings.DNSForeign,
+				x.ProxySettings.DNSForeign,
 			},
 		})
 	}
-	if x.proxySettings.DNSDomestic != "" || x.proxySettings.DNSDomesticBackup != "" {
+	if x.ProxySettings.DNSDomestic != "" || x.ProxySettings.DNSDomesticBackup != "" {
 		var ip []string
-		if x.proxySettings.DNSDomestic != "" {
-			ip = append(ip, x.proxySettings.DNSDomestic)
+		if x.ProxySettings.DNSDomestic != "" {
+			ip = append(ip, x.ProxySettings.DNSDomestic)
 		}
-		if x.proxySettings.DNSDomesticBackup != "" {
-			ip = append(ip, x.proxySettings.DNSDomesticBackup)
+		if x.ProxySettings.DNSDomesticBackup != "" {
+			ip = append(ip, x.ProxySettings.DNSDomesticBackup)
 		}
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -245,7 +245,7 @@ func (x *XrayHelper) routingConfig() interface{} {
 		})
 	}
 
-	if x.proxySettings.BypassLANAndMainLand {
+	if x.ProxySettings.BypassLANAndMainLand {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
 			"outboundTag": "direct",
@@ -263,7 +263,7 @@ func (x *XrayHelper) routingConfig() interface{} {
 		})
 	}
 	return map[string]interface{}{
-		"domainStrategy": x.proxySettings.RoutingStrategy,
+		"domainStrategy": x.ProxySettings.RoutingStrategy,
 		"rules":          rules,
 	}
 }
@@ -365,7 +365,7 @@ func (x *XrayHelper) trojanOutbound(trojan *protocols.Trojan) interface{} {
 
 // VMess 出站
 func (x *XrayHelper) vMessOutbound(vmess *protocols.VMess) interface{} {
-	mux := x.proxySettings.Mux
+	mux := x.ProxySettings.Mux
 	streamSettings := map[string]interface{}{
 		"network":  vmess.Net,
 		"security": vmess.Tls,
@@ -505,7 +505,7 @@ func (x *XrayHelper) socksOutbound(socks *protocols.Socks) interface{} {
 
 // VLESS 出站
 func (x *XrayHelper) vLessOutbound(vless *protocols.VLess) interface{} {
-	mux := x.proxySettings.Mux
+	mux := x.ProxySettings.Mux
 	security := vless.GetValue(field.Security)
 	network := vless.GetValue(field.NetworkType)
 	user := map[string]interface{}{
@@ -631,7 +631,7 @@ func (x *XrayHelper) vLessOutbound(vless *protocols.VLess) interface{} {
 
 // VMessAEAD 出站
 func (x *XrayHelper) vMessAEADOutbound(vmess *protocols.VMessAEAD) interface{} {
-	mux := x.proxySettings.Mux
+	mux := x.ProxySettings.Mux
 	security := vmess.GetValue(field.Security)
 	network := vmess.GetValue(field.NetworkType)
 	streamSettings := map[string]interface{}{
