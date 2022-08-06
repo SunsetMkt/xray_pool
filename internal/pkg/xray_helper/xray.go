@@ -54,7 +54,7 @@ func (x *XrayHelper) Check() bool {
 	return true
 }
 
-func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) bool {
+func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) (bool, int) {
 
 	if x.run(node.Protocol) == true {
 		if x.proxySettings.HttpPort == 0 {
@@ -72,12 +72,12 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) boo
 		if result < 0 {
 			x.Stop()
 			logger.Infof("Xray -- %2d 当前节点: %v 访问 %v 失败, 将不再使用该节点", x.index, node.GetName(), testUrl)
-			return false
+			return false, result
 		}
 
-		return true
+		return true, result
 	} else {
-		return false
+		return false, -1
 	}
 }
 
@@ -129,18 +129,7 @@ func (x *XrayHelper) Stop() {
 			logger.Errorf("Xray -- %2d 停止xray服务失败: %v", x.index, err)
 		}
 		x.xrayCmd = nil
-	} else {
-
-		if x.proxySettings.PID != 0 {
-			process, err := os.FindProcess(x.proxySettings.PID)
-			if err == nil {
-				err = process.Kill()
-				if err != nil {
-					logger.Errorf("Xray -- %2d 停止xray服务失败: %v", x.index, err)
-				}
-			}
-			x.proxySettings.PID = 0
-		}
+		x.proxySettings.PID = 0
 	}
 	// 日志文件过大清除
 	file, err := os.Stat(x.GetLogFPath())

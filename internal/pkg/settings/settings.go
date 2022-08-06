@@ -7,6 +7,7 @@ type AppSettings struct {
 	OneNodeTestTimeOut      int    `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
 	BatchNodeTestMaxTimeOut int    `json:"batch_node_test_max_time_out"` // 批量节点测试的最长超时时间，单位：秒
 	TestUrl                 string `json:"test_url"`                     // 测试代理访问速度的url
+	TestUrlThread           int    `json:"test_url_thread"`              // 测试代理访问速度的url的线程数量
 	MainProxySettings       ProxySettings
 }
 
@@ -18,6 +19,7 @@ func NewAppSettings() *AppSettings {
 		OneNodeTestTimeOut:      6,
 		BatchNodeTestMaxTimeOut: 100,
 		TestUrl:                 "https://google.com",
+		TestUrlThread:           10,
 		MainProxySettings: *NewProxySettings(
 			0,
 			1080,

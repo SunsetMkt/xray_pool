@@ -3,25 +3,28 @@ package manager
 import (
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
+	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
+	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_helper"
 	"github.com/panjf2000/ants/v2"
 	"github.com/tklauser/ps"
 	"os"
-
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
-func (m *Manager) StartXray() bool {
+// GetsValidNodesAndAlivePorts 获取有效的节点和端口信息
+func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 
-	m.xrayHelperList = make([]*xray_helper.XrayHelper, 0)
+	defer pkg.TimeCost()("GetsValidNodesAndAlivePorts")
 	// 首先需要找到当前系统中残留的 xray 程序，结束它们
 	m.KillAllXray()
 	// 然后需要扫描一个连续的端口段，便于后续的分配
 	alivePorts := pkg.ScanAlivePortList(m.AppSettings.XrayPortRange)
 	if alivePorts == nil || len(alivePorts) == 0 {
 		logger.Errorf("没有找到可用的端口段: %s", m.AppSettings.XrayPortRange)
-		return false
+		return false, nil, nil
 	}
 	// 默认只需要考虑 socks 的端口，如果需要同时开启 http 端口，则需要2倍
 	needMinPortsCount := m.AppSettings.XrayInstanceCount
@@ -30,26 +33,106 @@ func (m *Manager) StartXray() bool {
 	}
 	if len(alivePorts) < needMinPortsCount {
 		logger.Errorf("没有找到足够的端口段: %s", m.AppSettings.XrayPortRange)
-		return false
+		return false, nil, nil
 	}
-	// 是否有足够的空闲、有效的节点
+	// 是否有足够的空闲、有效的节点，进行了一次粗略的 TCP 排序
 	m.NodesTCPing()
 
-	// 开始启动 xray
-	p, err := ants.NewPoolWithFunc(4, func(inData interface{}) {
+	aliveNodeIndexList := make([]int, 0)
+	checkResultChan := make(chan CheckResult, 1)
+	defer close(checkResultChan)
+	exitRevResultChan := make(chan bool, 1)
+	defer close(exitRevResultChan)
+	go func() {
+		for {
+			select {
+			case revCheckResult := <-checkResultChan:
+				aliveNodeIndexList = append(aliveNodeIndexList, revCheckResult.NodeIndex)
+			case <-exitRevResultChan:
+				return
+			}
+		}
+	}()
+
+	var wg sync.WaitGroup
+	// 然后需要并发取完成 Xray 的启动并且通过代理访问目标网站取进行延迟的评价
+	p, err := ants.NewPoolWithFunc(m.AppSettings.TestUrlThread, func(inData interface{}) {
 		deliveryInfo := inData.(DeliveryInfo)
+
+		var nowXrayHelper *xray_helper.XrayHelper
+		defer func() {
+			if nowXrayHelper != nil {
+				nowXrayHelper.Stop()
+			}
+			deliveryInfo.Wg.Done()
+		}()
+
+		nowXrayHelper = xray_helper.NewXrayHelper(deliveryInfo.StartIndex, deliveryInfo.NowProxySettings, m.route)
+		if nowXrayHelper.Check() == false {
+			logger.Errorf("xray Check Error")
+			return
+		}
+
+		bok, delay := nowXrayHelper.Start(m.GetNode(deliveryInfo.NowNodeIndex), m.AppSettings.TestUrl, m.AppSettings.OneNodeTestTimeOut)
+		if bok == true {
+			// 需要记录当前的 Node Index 信息
+			checkResultChan <- CheckResult{
+				NodeIndex: deliveryInfo.NowNodeIndex,
+				Delay:     delay,
+			}
+		}
 	})
 	if err != nil {
 		logger.Errorf("创建 xray 工作池失败: %v", err)
-		return false
+		return false, nil, nil
 	}
 	defer p.Release()
 
-	selectNodeIndex := 1
+	alivePortIndex := 0
+	m.NodeForEach(func(nIndex int, node *node.Node) {
+
+		// 设置 socks 端口
+		nowProxySettings := m.AppSettings.MainProxySettings
+		socksPort := alivePorts[alivePortIndex]
+		alivePortIndex++
+		nowProxySettings.SocksPort = socksPort
+		// 设置 http 端口
+		if m.AppSettings.XrayOpenSocksAndHttp == true {
+			httpPort := alivePorts[alivePortIndex]
+			alivePortIndex++
+			nowProxySettings.HttpPort = httpPort
+		}
+
+		wg.Add(1)
+		err = p.Invoke(DeliveryInfo{
+			StartIndex:       nIndex,
+			NowProxySettings: nowProxySettings,
+			NowNodeIndex:     nIndex,
+			Wg:               &wg,
+		})
+		if err != nil {
+			logger.Errorf("xray 工作池提交任务失败: %v", err)
+			return
+		}
+	})
+
+	wg.Wait()
+	exitRevResultChan <- true
+
+	return true, aliveNodeIndexList, alivePorts
+}
+
+func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
+
+	defer pkg.TimeCost()("StartXray")
+
+	m.xrayHelperList = make([]*xray_helper.XrayHelper, 0)
+	// 开始启动 xray
+	selectNodeIndex := 0
 	alivePortIndex := 0
 	startXrayCount := 0
 	for {
-		if startXrayCount >= m.AppSettings.XrayInstanceCount || selectNodeIndex > m.NodeLen() {
+		if startXrayCount >= m.AppSettings.XrayInstanceCount || selectNodeIndex > len(aliveNodeIndexList)-1 {
 			break
 		}
 		// 设置 socks 端口
@@ -70,7 +153,8 @@ func (m *Manager) StartXray() bool {
 			return false
 		}
 
-		if nowXrayHelper.Start(m.GetNode(selectNodeIndex), m.AppSettings.TestUrl, m.AppSettings.OneNodeTestTimeOut) == true {
+		bok, _ := nowXrayHelper.Start(m.GetNode(aliveNodeIndexList[selectNodeIndex]), m.AppSettings.TestUrl, m.AppSettings.OneNodeTestTimeOut)
+		if bok == true {
 			m.xrayHelperList = append(m.xrayHelperList, nowXrayHelper)
 			startXrayCount++
 		} else {
@@ -83,7 +167,6 @@ func (m *Manager) StartXray() bool {
 		selectNodeIndex++
 	}
 
-	logger.Info("批量启动 xray 完成")
 	return true
 }
 
@@ -132,4 +215,13 @@ func (m *Manager) KillAllXray() {
 }
 
 type DeliveryInfo struct {
+	StartIndex       int
+	NowProxySettings settings.ProxySettings
+	NowNodeIndex     int
+	Wg               *sync.WaitGroup
+}
+
+type CheckResult struct {
+	NodeIndex int // 当前的 Node Index
+	Delay     int // ms
 }

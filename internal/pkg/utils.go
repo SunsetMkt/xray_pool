@@ -155,6 +155,17 @@ func ScanAlivePortList(portRange string) []int {
 	return outPort
 }
 
+// TimeCost 耗时统计
+func TimeCost() func(funcName string) {
+	start := time.Now()
+	return func(funcName string) {
+		tc := time.Since(start)
+		logger.Infof("-------------------------")
+		logger.Infof("%v Time Cost = %v", funcName, tc)
+		logger.Infof("-------------------------")
+	}
+}
+
 const (
 	XrayName = "xray"
 )
