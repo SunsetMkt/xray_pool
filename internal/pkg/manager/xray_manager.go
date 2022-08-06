@@ -24,9 +24,12 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 	aliveNodeIndexList := make([]int, 0)
 
 	defer func() {
+		logger.Infoln("------------------------------")
+		logger.Infof("Alive Node Count: %v", len(aliveNodeIndexList))
 		for _, nodeIndex := range aliveNodeIndexList {
 			logger.Infof("alive node: %v -- %v", nodeIndex, m.GetNode(nodeIndex).GetName())
 		}
+		logger.Infoln("------------------------------")
 	}()
 
 	// 首先需要找到当前系统中残留的 xray 程序，结束它们
