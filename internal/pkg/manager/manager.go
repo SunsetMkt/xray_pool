@@ -10,6 +10,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/core/subscribe"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_helper"
+	proxy "github.com/yeqown/fasthttp-reverse-proxy/v2"
 	"os"
 	"sync"
 )
@@ -24,6 +25,7 @@ type Manager struct {
 	xrayPoolRunning     bool                      // Xray 程序是否正在运行
 	xrayPoolRunningLock sync.Mutex                // Xray 程序是否正在运行的锁
 	route               *routing.Routing          // 路由
+	reverseProxy        *proxy.ReverseProxy       // 反向代理实例
 	wg                  sync.WaitGroup
 }
 

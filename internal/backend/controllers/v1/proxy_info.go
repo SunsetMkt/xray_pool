@@ -26,18 +26,21 @@ func (cb ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 			cb.proxyPoolLocker.Unlock()
 		}()
 		cb.proxyPoolRunningStatus = "starting"
+		// 检查可用的端口和可用的Node
 		bok, aliveNodeIndexList, alivePorts := cb.manager.GetsValidNodesAndAlivePorts()
 		if bok == false {
 			cb.proxyPoolRunningStatus = "stopped"
 			logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
 			return
 		}
+		// 开启本地的代理
 		bok = cb.manager.StartXray(aliveNodeIndexList, alivePorts)
 		if bok == false {
 			cb.proxyPoolRunningStatus = "stopped"
 			logger.Errorf("StartProxyPoolHandler: StartXray failed")
 			return
 		}
+		// 开启反向代理
 		cb.proxyPoolRunningStatus = "running"
 	}()
 
