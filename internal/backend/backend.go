@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/WQGroup/logger"
 	v1 "github.com/allanpk716/xray_pool/internal/backend/controllers/v1"
-	"github.com/allanpk716/xray_pool/internal/backend/middle"
-	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -16,16 +14,16 @@ import (
 )
 
 type BackEnd struct {
-	httpPort      int
-	running       bool
-	srv           *http.Server
-	manager       *manager.Manager
+	httpPort int
+	running  bool
+	srv      *http.Server
+
 	locker        sync.Mutex
 	restartSignal chan interface{}
 }
 
 func NewBackEnd(httpPort int, restartSignal chan interface{}) *BackEnd {
-	return &BackEnd{httpPort: httpPort, restartSignal: restartSignal, manager: manager.NewManager()}
+	return &BackEnd{httpPort: httpPort, restartSignal: restartSignal}
 }
 
 func (b *BackEnd) start() {
@@ -50,7 +48,9 @@ func (b *BackEnd) start() {
 	// v1路由: /v1/xxx
 	GroupV1 := engine.Group("/" + cbV1.GetVersion())
 	{
-		GroupV1.Use(middle.CheckAuth())
+		//GroupV1.Use(middle.CheckAuth())
+		GroupV1.POST("/start_proxy_pool", cbV1.StartProxyPoolHandler)
+		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
 	}
 	// -------------------------------------------------
 	// 静态文件服务器，加载 html 页面
@@ -78,6 +78,10 @@ func (b *BackEnd) start() {
 		if err := b.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Errorln("Start Server Error:", err)
 		}
+
+		defer func() {
+			cbV1.Close()
+		}()
 	}()
 }
 

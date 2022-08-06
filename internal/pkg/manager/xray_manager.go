@@ -172,7 +172,8 @@ func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
 		nowXrayHelper := xray_helper.NewXrayHelper(startXrayCount, nowProxySettings, m.route)
 		if nowXrayHelper.Check() == false {
 			logger.Errorf("xray Check Error")
-			return false
+			nowXrayHelper.Stop()
+			continue
 		}
 
 		bok, _ := nowXrayHelper.Start(m.GetNode(aliveNodeIndexList[selectNodeIndex]), m.AppSettings.TestUrl, m.AppSettings.OneNodeTestTimeOut)
@@ -189,6 +190,9 @@ func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
 		selectNodeIndex++
 	}
 
+	m.xrayPoolRunningLock.Lock()
+	defer m.xrayPoolRunningLock.Unlock()
+	m.xrayPoolRunning = true
 	return true
 }
 
@@ -200,6 +204,10 @@ func (m *Manager) StopXray() bool {
 
 	m.KillAllXray()
 
+	m.xrayPoolRunningLock.Lock()
+	defer m.xrayPoolRunningLock.Unlock()
+	m.xrayPoolRunning = false
+
 	err := os.RemoveAll(pkg.GetTmpFolderFPath())
 	if err != nil {
 		logger.Errorf("remove tmp folder error: %v", err)
@@ -207,6 +215,12 @@ func (m *Manager) StopXray() bool {
 	}
 
 	return true
+}
+
+func (m *Manager) XrayPoolRunning() bool {
+	m.xrayPoolRunningLock.Lock()
+	defer m.xrayPoolRunningLock.Unlock()
+	return m.xrayPoolRunning
 }
 
 // GetOpenProxyPorts 获取 Xray 开启的 socks 端口和 http 端口，是否有 http 端口需要看 AppSettings.XrayOpenSocksAndHttp 设置

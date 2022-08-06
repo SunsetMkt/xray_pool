@@ -2,6 +2,8 @@ package v1
 
 import (
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/xray_pool/internal/pkg/lock"
+	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
 	"net/http"
 
@@ -9,12 +11,18 @@ import (
 )
 
 type ControllerBase struct {
-	restartSignal chan interface{}
+	manager                *manager.Manager
+	proxyPoolLocker        lock.Lock
+	proxyPoolRunningStatus string
+	restartSignal          chan interface{}
 }
 
 func NewControllerBase(restartSignal chan interface{}) *ControllerBase {
 	cb := &ControllerBase{
-		restartSignal: restartSignal,
+		restartSignal:          restartSignal,
+		manager:                manager.NewManager(),
+		proxyPoolRunningStatus: "stopped",
+		proxyPoolLocker:        lock.NewLock(),
 	}
 
 	return cb
@@ -29,4 +37,9 @@ func (cb *ControllerBase) ErrorProcess(c *gin.Context, funcName string, err erro
 		logger.Errorln(funcName, err.Error())
 		c.JSON(http.StatusInternalServerError, backend.ReplyCommon{Message: err.Error()})
 	}
+}
+
+func (cb ControllerBase) Close() {
+	cb.manager.StopXray()
+	cb.proxyPoolLocker.Close()
 }

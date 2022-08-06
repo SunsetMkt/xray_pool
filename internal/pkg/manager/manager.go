@@ -16,13 +16,15 @@ import (
 
 // Manager 本地所有代理实例的管理者
 type Manager struct {
-	AppSettings    *settings.AppSettings     `json:"app_settings"` // 主程序的配置
-	Subscribes     []*subscribe.Subscribe    `json:"subscribes"`   // 订阅地址
-	NodeList       []*node.Node              `json:"nodes"`        // 存放所有的节点
-	Filter         []*node.Filter            `json:"filter"`       // 存放所有的过滤器
-	xrayHelperList []*xray_helper.XrayHelper // 本地开启多个代理的实例，每个对应着一个 Xray 程序
-	route          *routing.Routing          // 路由
-	wg             sync.WaitGroup
+	AppSettings         *settings.AppSettings     `json:"app_settings"` // 主程序的配置
+	Subscribes          []*subscribe.Subscribe    `json:"subscribes"`   // 订阅地址
+	NodeList            []*node.Node              `json:"nodes"`        // 存放所有的节点
+	Filter              []*node.Filter            `json:"filter"`       // 存放所有的过滤器
+	xrayHelperList      []*xray_helper.XrayHelper // 本地开启多个代理的实例，每个对应着一个 Xray 程序
+	xrayPoolRunning     bool                      // Xray 程序是否正在运行
+	xrayPoolRunningLock sync.Mutex                // Xray 程序是否正在运行的锁
+	route               *routing.Routing          // 路由
+	wg                  sync.WaitGroup
 }
 
 func NewManager() *Manager {
