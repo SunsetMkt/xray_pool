@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type GliderHelper struct {
@@ -41,7 +42,8 @@ func (g *GliderHelper) Start(forwardServerHttpPort int, socksPorts []int) error 
 	for _, socksPort := range socksPorts {
 		runCommand += fmt.Sprintf(" -forward socks5://127.0.0.1:%d", socksPort)
 	}
-	g.gliderCmd = exec.Command(g.gliderPath, runCommand)
+	cmdArgs := strings.Fields(runCommand)
+	g.gliderCmd = exec.Command(g.gliderPath, cmdArgs...)
 	err := g.gliderCmd.Start()
 	if err != nil {
 		return err
