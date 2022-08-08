@@ -41,7 +41,7 @@ func (cb ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 			return
 		}
 
-		cb.manager.ReverseProxyStart()
+		cb.manager.ForwardProxyStart()
 		// 开启反向代理
 		cb.proxyPoolRunningStatus = "running"
 	}()

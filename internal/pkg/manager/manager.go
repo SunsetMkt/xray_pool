@@ -8,29 +8,30 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/routing"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/subscribe"
+	"github.com/allanpk716/xray_pool/internal/pkg/glider_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_helper"
-	"net/http"
 	"os"
 	"sync"
 )
 
 // Manager 本地所有代理实例的管理者
 type Manager struct {
-	AppSettings           *settings.AppSettings     `json:"app_settings"` // 主程序的配置
-	Subscribes            []*subscribe.Subscribe    `json:"subscribes"`   // 订阅地址
-	NodeList              []*node.Node              `json:"nodes"`        // 存放所有的节点
-	Filter                []*node.Filter            `json:"filter"`       // 存放所有的过滤器
-	xrayHelperList        []*xray_helper.XrayHelper // 本地开启多个代理的实例，每个对应着一个 Xray 程序
-	xrayPoolRunning       bool                      // Xray 程序是否正在运行
-	xrayPoolRunningLock   sync.Mutex                // Xray 程序是否正在运行的锁
-	reverseServer         *http.Server              // 反向代理服务器实例
-	reverseServerHttpPort int                       // 反向代理服务器的端口
-	reverseServerLocker   sync.Mutex                // 反向代理服务器的锁
-	reverseServerRunning  bool                      // 反向代理服务器是否正在运行
-	transportManager      *TransportManager         // 代理实例的管理者
-	route                 *routing.Routing          // 路由
-	wg                    sync.WaitGroup
+	AppSettings         *settings.AppSettings     `json:"app_settings"` // 主程序的配置
+	Subscribes          []*subscribe.Subscribe    `json:"subscribes"`   // 订阅地址
+	NodeList            []*node.Node              `json:"nodes"`        // 存放所有的节点
+	Filter              []*node.Filter            `json:"filter"`       // 存放所有的过滤器
+	xrayHelperList      []*xray_helper.XrayHelper // 本地开启多个代理的实例，每个对应着一个 Xray 程序
+	xrayPoolRunning     bool                      // Xray 程序是否正在运行
+	xrayPoolRunningLock sync.Mutex                // Xray 程序是否正在运行的锁
+
+	gliderHelper          *glider_helper.GliderHelper // 正向代理的实例
+	forwardServerLocker   sync.Mutex                  // 正向代理服务器的锁
+	forwardServerHttpPort int                         // 正向代理服务器的端口
+	forwardServerRunning  bool                        // 正向代理服务器是否正在运行
+
+	route *routing.Routing // 路由
+	wg    sync.WaitGroup
 }
 
 func NewManager() *Manager {
@@ -58,6 +59,12 @@ func NewManager() *Manager {
 			n.ParseData()
 		})
 	}
+
+	manager.gliderHelper = glider_helper.NewGliderHelper()
+	if manager.gliderHelper.Check() == false {
+		logger.Panic("glider Check == false")
+	}
+
 	return manager
 }
 

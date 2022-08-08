@@ -1,0 +1,68 @@
+package glider_helper
+
+import (
+	"fmt"
+	"github.com/WQGroup/logger"
+	"github.com/allanpk716/xray_pool/internal/pkg"
+	"github.com/pkg/errors"
+	"os/exec"
+	"path/filepath"
+)
+
+type GliderHelper struct {
+	gliderCmd  *exec.Cmd // 正向代理服务器实例
+	gliderPath string    // glider 程序的路径
+}
+
+func NewGliderHelper() *GliderHelper {
+	return &GliderHelper{}
+}
+
+// Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
+func (g *GliderHelper) Check() bool {
+
+	// 在这个目录下进行搜索是否存在 Xray 程序
+	nowRootPath := pkg.GetBaseThingsFolderFPath()
+	gliderExeName := pkg.GetGliderExeName()
+	gliderExeFullPath := filepath.Join(nowRootPath, gliderExeName)
+	if pkg.IsFile(gliderExeFullPath) == false {
+		logger.Panic(GliderDownloadInfo)
+		return false
+	}
+
+	g.gliderPath = gliderExeFullPath
+	return true
+}
+
+func (g *GliderHelper) Start(forwardServerHttpPort int, socksPorts []int) error {
+
+	// 构建正向代理服务器启动的命令
+	runCommand := fmt.Sprintf("-listen :%d -strategy rr", forwardServerHttpPort)
+	for _, socksPort := range socksPorts {
+		runCommand += fmt.Sprintf(" -forward socks5://127.0.0.1:%d", socksPort)
+	}
+	g.gliderCmd = exec.Command(g.gliderPath, runCommand)
+	err := g.gliderCmd.Start()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (g *GliderHelper) Stop() error {
+	defer func() {
+		g.gliderCmd = nil
+	}()
+
+	if g.gliderCmd != nil {
+		err := g.gliderCmd.Process.Kill()
+		if err != nil {
+			return nil
+		}
+	}
+	return nil
+}
+
+var (
+	GliderDownloadInfo = errors.New(fmt.Sprintf("缺少 Glider 可执行程序，请去 https://github.com/nadoo/glider/releases 下载对应平台的程序，解压放入 %v 文件夹中", pkg.GetBaseThingsFolderFPath()))
+)

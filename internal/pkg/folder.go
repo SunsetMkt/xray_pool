@@ -37,14 +37,14 @@ func GetConfigRootDirFPath() string {
 	return nowConfigFPath
 }
 
-// GetBaseXrayFolderFPath 获取基础的 Xray 程序存放目录
-func GetBaseXrayFolderFPath() string {
+// GetBaseThingsFolderFPath 获取基础的支持程序存放目录
+func GetBaseThingsFolderFPath() string {
 
-	nowPath := filepath.Join(GetConfigRootDirFPath(), baseXrayFolderName)
+	nowPath := filepath.Join(GetConfigRootDirFPath(), baseFolderName)
 	if _, err := os.Stat(nowPath); os.IsNotExist(err) {
 		err = os.MkdirAll(nowPath, os.ModePerm)
 		if err != nil {
-			panic("GetBaseXrayFolderFPath mkdir, Error:" + err.Error())
+			panic("GetBaseThingsFolderFPath mkdir, Error:" + err.Error())
 		}
 	}
 	return nowPath
@@ -53,7 +53,7 @@ func GetBaseXrayFolderFPath() string {
 // GetIndexXrayFolderFPath 根据基础的 Xray 程序生成新的 Index 序列号的 Xray 程序存放目录
 func GetIndexXrayFolderFPath(index int) string {
 
-	nowPath := filepath.Join(GetTmpFolderFPath(), fmt.Sprintf("%s_%d", baseXrayFolderName, index))
+	nowPath := filepath.Join(GetTmpFolderFPath(), fmt.Sprintf("%s_%d", xrayFolderName, index))
 	if _, err := os.Stat(nowPath); os.IsNotExist(err) {
 		err = os.MkdirAll(nowPath, os.ModePerm)
 		if err != nil {
@@ -84,6 +84,7 @@ const (
 )
 
 const (
-	baseXrayFolderName = "xray_base"
-	tmpFolderName      = "tmp"
+	baseFolderName = "base_things"
+	xrayFolderName = "xray"
+	tmpFolderName  = "tmp"
 )

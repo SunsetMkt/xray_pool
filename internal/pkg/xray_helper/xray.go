@@ -2,12 +2,14 @@ package xray_helper
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/routing"
 	"github.com/allanpk716/xray_pool/internal/pkg/protocols"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
+	"github.com/pkg/errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -30,16 +32,18 @@ func NewXrayHelper(index int, proxySettings settings.ProxySettings, route *routi
 func (x *XrayHelper) Check() bool {
 
 	// 在这个目录下进行搜索是否存在 Xray 程序
-	nowRootPath := pkg.GetBaseXrayFolderFPath()
+	nowRootPath := pkg.GetBaseThingsFolderFPath()
 	xrayExeName := pkg.GetXrayExeName()
 	xrayExeFullPath := filepath.Join(nowRootPath, xrayExeName)
 	if pkg.IsFile(xrayExeFullPath) == false {
+		logger.Panic(XrayDownloadInfo)
 		return false
 	}
 	// 检查 geoip.dat geosite.dat 是否存在
 	geoIPResource := filepath.Join(nowRootPath, GEOIP_RESOURCE_NAME)
 	geoSiteResource := filepath.Join(nowRootPath, GEOSite_RESOURCE_NAME)
 	if pkg.IsFile(geoIPResource) == false || pkg.IsFile(geoSiteResource) == false {
+		logger.Panic(XrayDownloadInfo)
 		return false
 	}
 
@@ -48,7 +52,7 @@ func (x *XrayHelper) Check() bool {
 	// Check 的最后就进行数据的复制
 	err := pkg.CopyDir(nowRootPath, pkg.GetIndexXrayFolderFPath(x.index))
 	if err != nil {
-		logger.Errorf("Xray -- %2d 复制 Xray 程序失败: %s", x.index, err.Error())
+		logger.Panicf("Xray -- %2d 复制 Xray 程序失败: %s", x.index, err.Error())
 		return false
 	}
 	return true
@@ -166,4 +170,8 @@ func checkProc(c *exec.Cmd, status chan struct{}) {
 const (
 	GEOIP_RESOURCE_NAME   = "geoip.dat"
 	GEOSite_RESOURCE_NAME = "geosite.dat"
+)
+
+var (
+	XrayDownloadInfo = errors.New(fmt.Sprintf("缺少 Xray 可执行程序或者资源，请去 https://github.com/XTLS/Xray-core/releases 下载对应平台的程序，解压放入 %v 文件夹中", pkg.GetBaseThingsFolderFPath()))
 )

@@ -126,6 +126,17 @@ func GetXrayExeName() string {
 	return xrayExeName
 }
 
+func GetGliderExeName() string {
+
+	xrayExeName := GliderName
+	sysType := runtime.GOOS
+	if sysType == "windows" {
+		xrayExeName += ".exe"
+	}
+
+	return xrayExeName
+}
+
 // ScanAlivePortList 扫描本地空闲的端口
 func ScanAlivePortList(portRange string) []int {
 
@@ -167,5 +178,6 @@ func TimeCost() func(funcName string) {
 }
 
 const (
-	XrayName = "xray"
+	XrayName   = "xray"
+	GliderName = "glider"
 )
