@@ -64,3 +64,7 @@ func (m *Manager) ForwardProxyStop() {
 
 	m.forwardServerRunning = false
 }
+
+func (m *Manager) ForwardProxyPort() int {
+	return m.forwardServerHttpPort
+}

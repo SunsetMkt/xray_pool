@@ -58,6 +58,7 @@ func (cb ControllerBase) GetProxyListHandler(c *gin.Context) {
 	}()
 
 	reply := ReplyProxyList{
+		LBPort:    cb.manager.ForwardProxyPort(),
 		SocksPots: make([]int, 0),
 		HttpPots:  make([]int, 0),
 	}
@@ -73,6 +74,7 @@ type ReplyProxyPool struct {
 }
 
 type ReplyProxyList struct {
+	LBPort    int   `json:"lb_port"`
 	SocksPots []int `json:"socks_pots"`
 	HttpPots  []int `json:"http_pots"`
 }
