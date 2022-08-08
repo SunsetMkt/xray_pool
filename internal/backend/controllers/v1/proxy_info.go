@@ -40,6 +40,8 @@ func (cb ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 			logger.Errorf("StartProxyPoolHandler: StartXray failed")
 			return
 		}
+
+		cb.manager.ReverseProxyStart()
 		// 开启反向代理
 		cb.proxyPoolRunningStatus = "running"
 	}()
@@ -59,7 +61,7 @@ func (cb ControllerBase) GetProxyListHandler(c *gin.Context) {
 		SocksPots: make([]int, 0),
 		HttpPots:  make([]int, 0),
 	}
-	SocksPots, HttpPots := cb.manager.GetOpenProxyPorts()
+	SocksPots, HttpPots := cb.manager.GetOpenedProxyPorts()
 	reply.SocksPots = append(reply.SocksPots, SocksPots...)
 	reply.HttpPots = append(reply.HttpPots, HttpPots...)
 

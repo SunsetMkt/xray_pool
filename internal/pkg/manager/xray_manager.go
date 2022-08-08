@@ -226,8 +226,8 @@ func (m *Manager) XrayPoolRunning() bool {
 	return m.xrayPoolRunning
 }
 
-// GetOpenProxyPorts 获取 Xray 开启的 socks 端口和 http 端口，是否有 http 端口需要看 AppSettings.XrayOpenSocksAndHttp 设置
-func (m *Manager) GetOpenProxyPorts() ([]int, []int) {
+// GetOpenedProxyPorts 获取 Xray 开启的 socks 端口和 http 端口，是否有 http 端口需要看 AppSettings.XrayOpenSocksAndHttp 设置
+func (m *Manager) GetOpenedProxyPorts() ([]int, []int) {
 
 	socksPortList := make([]int, 0)
 	httpPortList := make([]int, 0)

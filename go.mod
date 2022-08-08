@@ -10,14 +10,11 @@ require (
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/panjf2000/ants/v2 v2.5.0
 	github.com/tklauser/ps v0.0.1
-	github.com/valyala/fasthttp v1.30.0
-	github.com/yeqown/fasthttp-reverse-proxy/v2 v2.2.2
 )
 
 require (
 	github.com/3th1nk/cidr v0.0.0-20220718125058-47306b78b56c // indirect
-	github.com/andybalholm/brotli v1.0.2 // indirect
-	github.com/fasthttp/websocket v1.4.3 // indirect
+	github.com/elazarl/goproxy v0.0.0-20220529153421-8ea89ba92021 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
@@ -25,7 +22,6 @@ require (
 	github.com/goccy/go-json v0.9.10 // indirect
 	github.com/jonboulle/clockwork v0.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.13.4 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
@@ -37,12 +33,9 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/sftp v1.13.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/savsgio/gotils v0.0.0-20200608150037-a5f6f5aef16c // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/yeqown/log v1.1.1 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
