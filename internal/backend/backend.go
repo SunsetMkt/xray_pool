@@ -14,16 +14,15 @@ import (
 )
 
 type BackEnd struct {
-	httpPort int
-	running  bool
-	srv      *http.Server
+	running bool
+	srv     *http.Server
 
 	locker        sync.Mutex
 	restartSignal chan interface{}
 }
 
-func NewBackEnd(httpPort int, restartSignal chan interface{}) *BackEnd {
-	return &BackEnd{httpPort: httpPort, restartSignal: restartSignal}
+func NewBackEnd(restartSignal chan interface{}) *BackEnd {
+	return &BackEnd{restartSignal: restartSignal}
 }
 
 func (b *BackEnd) start() {
@@ -71,11 +70,11 @@ func (b *BackEnd) start() {
 	// -------------------------------------------------
 	// listen and serve on 0.0.0.0:8080(default)
 	b.srv = &http.Server{
-		Addr:    fmt.Sprintf(":%d", b.httpPort),
+		Addr:    fmt.Sprintf(":%d", cbV1.GetAppStartPort()),
 		Handler: engine,
 	}
 	go func() {
-		logger.Infoln("Try Start Http Server At Port", b.httpPort)
+		logger.Infoln("Try Start Http Server At Port", cbV1.GetAppStartPort())
 		if err := b.srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			logger.Errorln("Start Server Error:", err)
 		}

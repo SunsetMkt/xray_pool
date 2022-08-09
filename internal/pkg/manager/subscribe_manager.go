@@ -21,7 +21,6 @@ func (m *Manager) AddSubscribe(subscribe *subscribe.Subscribe) {
 	} else {
 		m.Subscribes = append(m.Subscribes, subscribe)
 		m.save()
-
 	}
 }
 

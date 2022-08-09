@@ -77,11 +77,15 @@ func (m *Manager) save() {
 }
 
 // Start 启动
-func (m *Manager) Start() {
+func (m *Manager) Start(targetSiteUrl string) {
 
 	m.xrayPoolRunningLock.Lock()
 	defer m.xrayPoolRunningLock.Unlock()
 
+	if targetSiteUrl != "" {
+		m.AppSettings.TestUrl = targetSiteUrl
+		m.save()
+	}
 	// 检查可用的端口和可用的Node
 	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts()
 	if bok == false {

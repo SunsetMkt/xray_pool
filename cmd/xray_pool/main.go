@@ -6,7 +6,7 @@ func main() {
 
 	restartSignal := make(chan interface{}, 1)
 	defer close(restartSignal)
-	bend := backend.NewBackEnd(19035, restartSignal)
+	bend := backend.NewBackEnd(restartSignal)
 	go bend.Restart()
 	restartSignal <- 1
 	// 阻塞

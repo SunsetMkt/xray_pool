@@ -32,6 +32,10 @@ func (cb ControllerBase) GetVersion() string {
 	return "v1"
 }
 
+func (cb *ControllerBase) GetAppStartPort() int {
+	return cb.manager.AppSettings.AppStartPort
+}
+
 func (cb *ControllerBase) ErrorProcess(c *gin.Context, funcName string, err error) {
 	if err != nil {
 		logger.Errorln(funcName, err.Error())

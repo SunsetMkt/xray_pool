@@ -25,13 +25,19 @@ func (cb *ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 		return
 	}
 
+	startProxyPool := RequestStartProxyPool{}
+	err = c.ShouldBindJSON(&startProxyPool)
+	if err != nil {
+		return
+	}
+
 	go func() {
 
 		defer func() {
 			cb.proxyPoolLocker.Unlock()
 		}()
 		cb.proxyPoolRunningStatus = "starting"
-		cb.manager.Start()
+		cb.manager.Start(startProxyPool.TargetSiteUrl)
 		// 开启反向代理
 		cb.proxyPoolRunningStatus = "running"
 	}()
@@ -79,6 +85,10 @@ func (cb *ControllerBase) GetProxyListHandler(c *gin.Context) {
 	reply.HttpPots = append(reply.HttpPots, HttpPots...)
 
 	c.JSON(http.StatusOK, reply)
+}
+
+type RequestStartProxyPool struct {
+	TargetSiteUrl string `json:"target_site_url"`
 }
 
 type ReplyProxyPool struct {
