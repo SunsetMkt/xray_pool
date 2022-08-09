@@ -35,13 +35,16 @@ func (g *GliderHelper) Check() bool {
 	return true
 }
 
-func (g *GliderHelper) Start(forwardServerHttpPort int, socksPorts []int) error {
+func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, socksPorts []int) error {
 
 	// 构建正向代理服务器启动的命令
 	runCommand := fmt.Sprintf("-listen :%d -strategy rr", forwardServerHttpPort)
 	for _, socksPort := range socksPorts {
 		runCommand += fmt.Sprintf(" -forward socks5://127.0.0.1:%d", socksPort)
 	}
+	// -check http://www.msftconnecttest.com/connecttest.txt#expect=200
+	runCommand += fmt.Sprintf(" -check %s#expect=200", healthCheckUrl)
+
 	cmdArgs := strings.Fields(runCommand)
 	g.gliderCmd = exec.Command(g.gliderPath, cmdArgs...)
 	err := g.gliderCmd.Start()
