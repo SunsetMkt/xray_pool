@@ -51,6 +51,12 @@ func (b *BackEnd) start() {
 		GroupV1.POST("/start_proxy_pool", cbV1.StartProxyPoolHandler)
 		GroupV1.POST("/stop_proxy_pool", cbV1.StopProxyPoolHandler)
 		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
+
+		GroupV1.GET("/subscribe_list", cbV1.SubscribeListHandler)
+		GroupV1.POST("/add_subscribe", cbV1.SubscribeAddHandler)
+		GroupV1.POST("/update_nodes", cbV1.SubscribeUpdateNodesHandler)
+		GroupV1.POST("/update_subscribe", cbV1.SubscribeUpdateHandler)
+		GroupV1.POST("/del_subscribe", cbV1.SubscribeDelHandler)
 	}
 	// -------------------------------------------------
 	// 静态文件服务器，加载 html 页面
