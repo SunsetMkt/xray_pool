@@ -9,11 +9,11 @@ import (
 
 func (m *Manager) AddFilter(key string) {
 	m.Filter = append(m.Filter, node.NewNodeFilter(key))
-	m.Save()
+	m.save()
 }
 
 func (m *Manager) RunFilter(key string) {
-	defer m.Save()
+	defer m.save()
 	newNodeList := make([]*node.Node, 0)
 	if key == "" {
 		m.NodeForEach(func(i int, n *node.Node) {
@@ -58,7 +58,7 @@ func (m *Manager) DelFilter(key string) {
 	if len(indexList) == 0 {
 		return
 	}
-	defer m.Save()
+	defer m.save()
 	newFilterList := make([]*node.Filter, 0)
 	m.FilterForEach(func(i int, filter *node.Filter) {
 		if pkg.HasIn(i, indexList) == false {
@@ -73,7 +73,7 @@ func (m *Manager) SetFilter(key string, isOpen bool) {
 	if len(indexList) == 0 {
 		return
 	}
-	defer m.Save()
+	defer m.save()
 	for _, index := range indexList {
 		if filter := m.GetFilter(index); filter != nil {
 			filter.IsUse = isOpen

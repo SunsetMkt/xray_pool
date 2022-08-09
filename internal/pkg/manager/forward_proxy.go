@@ -5,7 +5,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg"
 )
 
-func (m *Manager) ForwardProxyStart() {
+func (m *Manager) ForwardProxyStart() bool {
 
 	m.forwardServerLocker.Lock()
 	defer func() {
@@ -14,30 +14,33 @@ func (m *Manager) ForwardProxyStart() {
 
 	if m.forwardServerRunning == true {
 		logger.Debugln("Reverse Http Server is already running")
-		return
+		return true
 	}
 
 	socksPorts, httpPorts := m.GetOpenedProxyPorts()
 	if len(socksPorts) == 0 && len(httpPorts) == 0 {
-		logger.Panic("ForwardProxyStart: no open ports to proxy")
+		logger.Errorf("ForwardProxyStart: no open ports to proxy")
+		return false
 	}
 	// 如果不满足，那么就再次扫描一个端口段，找到一个可用的端口给反向代理服务器
 	alivePorts := pkg.ScanAlivePortList("63200-63400")
 	if len(alivePorts) == 0 {
-		logger.Panic("ForwardProxyStart: no open ports to proxy")
+		logger.Errorf("ForwardProxyStart: no open ports to proxy")
+		return false
 	} else {
 		m.forwardServerHttpPort = alivePorts[0]
 	}
 
 	err := m.gliderHelper.Start(m.forwardServerHttpPort, socksPorts)
 	if err != nil {
-		logger.Panicf("ForwardProxyStart: %s", err)
-		return
+		logger.Errorf("ForwardProxyStart: %s", err)
+		return false
 	}
 
 	m.forwardServerRunning = true
-
 	logger.Infof("ForwardProxyStart: http port %d", m.forwardServerHttpPort)
+
+	return true
 }
 
 func (m *Manager) ForwardProxyStop() {
@@ -52,13 +55,13 @@ func (m *Manager) ForwardProxyStop() {
 	}
 
 	if m.gliderHelper == nil {
-		logger.Panic("ForwardProxyStop: gliderHelper is nil")
+		logger.Errorf("ForwardProxyStop: gliderHelper is nil")
 		return
 	}
 
 	err := m.gliderHelper.Stop()
 	if err != nil {
-		logger.Panicf("ForwardProxyStop: %s", err)
+		logger.Errorf("ForwardProxyStop: %s", err)
 		return
 	}
 

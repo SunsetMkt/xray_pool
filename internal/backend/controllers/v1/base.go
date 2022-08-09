@@ -40,6 +40,6 @@ func (cb *ControllerBase) ErrorProcess(c *gin.Context, funcName string, err erro
 }
 
 func (cb ControllerBase) Close() {
-	cb.manager.StopXray()
+	cb.manager.Stop()
 	cb.proxyPoolLocker.Close()
 }

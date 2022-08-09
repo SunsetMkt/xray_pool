@@ -45,7 +45,7 @@ func NewManager() *Manager {
 		route:          routing.NewRouting(),
 	}
 	if _, err := os.Stat(core.AppSettings); os.IsNotExist(err) {
-		manager.Save()
+		manager.save()
 	} else {
 		file, _ := os.Open(core.AppSettings)
 		defer func() {
@@ -68,10 +68,59 @@ func NewManager() *Manager {
 	return manager
 }
 
-// Save 保存数据
-func (m *Manager) Save() {
+// save 保存数据
+func (m *Manager) save() {
 	err := pkg.WriteJSON(m, core.AppSettings)
 	if err != nil {
 		logger.Error(err)
 	}
+}
+
+// Start 启动
+func (m *Manager) Start() {
+
+	m.xrayPoolRunningLock.Lock()
+	defer m.xrayPoolRunningLock.Unlock()
+
+	// 检查可用的端口和可用的Node
+	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts()
+	if bok == false {
+		logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
+		return
+	}
+	// 开启本地的代理
+	bok = m.StartXray(aliveNodeIndexList, alivePorts)
+	if bok == false {
+		logger.Errorf("StartProxyPoolHandler: StartXray failed")
+		return
+	}
+	// 开启 glider 前置代理
+	bok = m.ForwardProxyStart()
+	if bok == false {
+		logger.Errorf("StartProxyPoolHandler: ForwardProxyStart failed")
+		return
+	}
+
+	m.xrayPoolRunning = true
+}
+
+// Stop 停止
+func (m *Manager) Stop() {
+
+	m.xrayPoolRunningLock.Lock()
+	defer m.xrayPoolRunningLock.Unlock()
+
+	m.ForwardProxyStop()
+
+	m.StopXray()
+
+	m.xrayPoolRunning = false
+
+	logger.Infof("Stop: xrayPoolRunning = %v", m.xrayPoolRunning)
+}
+
+func (m *Manager) XrayPoolRunning() bool {
+	m.xrayPoolRunningLock.Lock()
+	defer m.xrayPoolRunningLock.Unlock()
+	return m.xrayPoolRunning
 }

@@ -58,7 +58,7 @@ func (x *XrayHelper) Check() bool {
 	return true
 }
 
-func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) (bool, int) {
+func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int, skipSpeedTest bool) (bool, int) {
 
 	if x.run(node.Protocol) == true {
 		if x.ProxySettings.HttpPort == 0 {
@@ -70,6 +70,11 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int) (bo
 				x.index,
 				x.ProxySettings.SocksPort, x.ProxySettings.HttpPort, node.GetName())
 		}
+
+		if skipSpeedTest == true {
+			return true, 0
+		}
+
 		result, status := x.TestNode(testUrl, x.ProxySettings.SocksPort, testTimeOut)
 		logger.Infof("Xray -- %2d %6s [ %s ] 延迟: %dms", x.index, status, testUrl, result)
 

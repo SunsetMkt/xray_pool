@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/WQGroup/logger v0.0.4
-	github.com/allanpk716/go-protocol-detector v0.11.0
+	github.com/allanpk716/go-protocol-detector v0.11.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/mattn/go-runewidth v0.0.13

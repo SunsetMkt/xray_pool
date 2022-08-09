@@ -1,20 +1,25 @@
 package v1
 
 import (
-	"github.com/WQGroup/logger"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
 // StartProxyPoolHandler 开启代理池
-func (cb ControllerBase) StartProxyPoolHandler(c *gin.Context) {
+func (cb *ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 	var err error
 	defer func() {
 		// 统一的异常处理
 		cb.ErrorProcess(c, "StartProxyPoolHandler", err)
 	}()
 
-	if cb.proxyPoolLocker.Lock() == false || cb.manager.XrayPoolRunning() == true {
+	if cb.proxyPoolLocker.Lock() == false {
+		// 已经在执行，跳过
+		c.JSON(http.StatusOK, ReplyProxyPool{Status: cb.proxyPoolRunningStatus})
+		return
+	}
+
+	if cb.manager.XrayPoolRunning() == true {
 		// 已经在执行，跳过
 		c.JSON(http.StatusOK, ReplyProxyPool{Status: cb.proxyPoolRunningStatus})
 		return
@@ -26,22 +31,7 @@ func (cb ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 			cb.proxyPoolLocker.Unlock()
 		}()
 		cb.proxyPoolRunningStatus = "starting"
-		// 检查可用的端口和可用的Node
-		bok, aliveNodeIndexList, alivePorts := cb.manager.GetsValidNodesAndAlivePorts()
-		if bok == false {
-			cb.proxyPoolRunningStatus = "stopped"
-			logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
-			return
-		}
-		// 开启本地的代理
-		bok = cb.manager.StartXray(aliveNodeIndexList, alivePorts)
-		if bok == false {
-			cb.proxyPoolRunningStatus = "stopped"
-			logger.Errorf("StartProxyPoolHandler: StartXray failed")
-			return
-		}
-
-		cb.manager.ForwardProxyStart()
+		cb.manager.Start()
 		// 开启反向代理
 		cb.proxyPoolRunningStatus = "running"
 	}()
@@ -49,8 +39,29 @@ func (cb ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, ReplyProxyPool{Status: "starting"})
 }
 
+// StopProxyPoolHandler 关闭代理池
+func (cb *ControllerBase) StopProxyPoolHandler(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "StopProxyPoolHandler", err)
+	}()
+
+	if cb.manager.XrayPoolRunning() == false {
+		// 已经在执行，跳过
+		c.JSON(http.StatusOK, ReplyProxyPool{Status: cb.proxyPoolRunningStatus})
+		return
+	}
+
+	cb.manager.Stop()
+
+	cb.proxyPoolRunningStatus = "stopped"
+
+	c.JSON(http.StatusOK, ReplyProxyPool{Status: cb.proxyPoolRunningStatus})
+}
+
 // GetProxyListHandler 获取本地开启的代理列表
-func (cb ControllerBase) GetProxyListHandler(c *gin.Context) {
+func (cb *ControllerBase) GetProxyListHandler(c *gin.Context) {
 	var err error
 	defer func() {
 		// 统一的异常处理
@@ -58,6 +69,7 @@ func (cb ControllerBase) GetProxyListHandler(c *gin.Context) {
 	}()
 
 	reply := ReplyProxyList{
+		Status:    cb.proxyPoolRunningStatus,
 		LBPort:    cb.manager.ForwardProxyPort(),
 		SocksPots: make([]int, 0),
 		HttpPots:  make([]int, 0),
@@ -74,7 +86,8 @@ type ReplyProxyPool struct {
 }
 
 type ReplyProxyList struct {
-	LBPort    int   `json:"lb_port"`
-	SocksPots []int `json:"socks_pots"`
-	HttpPots  []int `json:"http_pots"`
+	Status    string `json:"status"`
+	LBPort    int    `json:"lb_port"`
+	SocksPots []int  `json:"socks_pots"`
+	HttpPots  []int  `json:"http_pots"`
 }

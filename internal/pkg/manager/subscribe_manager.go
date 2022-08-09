@@ -20,7 +20,7 @@ func (m *Manager) AddSubscribe(subscribe *subscribe.Subscribe) {
 		logger.Warn("该订阅链接已存在")
 	} else {
 		m.Subscribes = append(m.Subscribes, subscribe)
-		m.Save()
+		m.save()
 
 	}
 }
@@ -85,7 +85,7 @@ func (m *Manager) DelSubscribe(key string) {
 	if len(indexList) == 0 {
 		return
 	}
-	defer m.Save()
+	defer m.save()
 	newSubList := make([]*subscribe.Subscribe, 0)
 	m.SubscribeForEach(func(i int, subscirbe *subscribe.Subscribe) {
 		if pkg.HasIn(i, indexList) == false {
@@ -104,7 +104,7 @@ func (m *Manager) SetSubscribe(key string, using, url, name string) {
 		logger.Warn("订阅链接不可以批量更改")
 		return
 	}
-	defer m.Save()
+	defer m.save()
 	for _, index := range indexList {
 		sub := m.GetSubscribe(index)
 		switch strings.ToLower(using) {
