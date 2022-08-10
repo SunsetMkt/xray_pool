@@ -49,12 +49,6 @@ func (x *XrayHelper) Check() bool {
 
 	x.xrayPath = xrayExeFullPath
 
-	// Check 的最后就进行数据的复制
-	err := pkg.CopyDir(nowRootPath, pkg.GetIndexXrayFolderFPath(x.index))
-	if err != nil {
-		logger.Panicf("Xray -- %2d 复制 Xray 程序失败: %s", x.index, err.Error())
-		return false
-	}
 	return true
 }
 

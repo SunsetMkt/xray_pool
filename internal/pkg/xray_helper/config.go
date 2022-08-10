@@ -1,6 +1,7 @@
 package xray_helper
 
 import (
+	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/routing"
@@ -14,7 +15,7 @@ import (
 func (x *XrayHelper) GenConfig(node protocols.Protocol) string {
 
 	// 需要根据 base xray 的配置生成当前 Index xray 的配置
-	path := filepath.Join(pkg.GetIndexXrayFolderFPath(x.index), configFileName)
+	path := filepath.Join(pkg.GetTmpFolderFPath(), fmt.Sprintf(configFileName, x.index))
 	var conf = map[string]interface{}{
 		"log":       x.logConfig(),
 		"inbounds":  x.inboundsConfig(),
@@ -31,7 +32,7 @@ func (x *XrayHelper) GenConfig(node protocols.Protocol) string {
 }
 
 func (x *XrayHelper) GetLogFPath() string {
-	path := filepath.Join(pkg.GetIndexXrayFolderFPath(x.index), xrayLogFileName)
+	path := filepath.Join(pkg.GetTmpFolderFPath(), fmt.Sprintf(xrayLogFileName, x.index))
 	return path
 }
 
@@ -740,6 +741,6 @@ func (x *XrayHelper) vMessAEADOutbound(vmess *protocols.VMessAEAD) interface{} {
 }
 
 const (
-	configFileName  = "xray_config.json"
-	xrayLogFileName = "xray_access.log"
+	configFileName  = "xray_config_%d.json"
+	xrayLogFileName = "xray_access_%d.log"
 )
