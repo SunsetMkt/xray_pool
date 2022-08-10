@@ -135,17 +135,19 @@ func (x *XrayHelper) Stop() {
 		x.ProxySettings.PID = 0
 	}
 	// 日志文件过大清除
-	file, err := os.Stat(x.GetLogFPath())
-	if err != nil {
-		logger.Errorf("Xray -- %2d os.Stat日志文件大小: %v", x.index, err.Error())
-		return
-	}
-	if file != nil {
-		fileSize := float64(file.Size()) / (1 << 20)
-		if fileSize > 5 {
-			err := os.Remove(x.GetLogFPath())
-			if err != nil {
-				logger.Errorf("Xray -- %2d 清除日志文件失败: %v", x.index, err)
+	if pkg.IsFile(x.GetLogFPath()) == true {
+		file, err := os.Stat(x.GetLogFPath())
+		if err != nil {
+			logger.Errorf("Xray -- %2d os.Stat日志文件大小: %v", x.index, err.Error())
+			return
+		}
+		if file != nil {
+			fileSize := float64(file.Size()) / (1 << 20)
+			if fileSize > 5 {
+				err := os.Remove(x.GetLogFPath())
+				if err != nil {
+					logger.Errorf("Xray -- %2d 清除日志文件失败: %v", x.index, err)
+				}
 			}
 		}
 	}
