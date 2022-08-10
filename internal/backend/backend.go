@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/WQGroup/logger"
 	v1 "github.com/allanpk716/xray_pool/internal/backend/controllers/v1"
+	"github.com/allanpk716/xray_pool/internal/backend/middle"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -51,7 +52,9 @@ func (b *BackEnd) start() {
 		GroupV1.GET("/system-status", cbV1.SystemStatus)
 		GroupV1.POST("/setup", cbV1.SetUp)
 		GroupV1.POST("/login", cbV1.Login)
-		//GroupV1.Use(middle.CheckAuth())
+		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
+
+		GroupV1.Use(middle.CheckAuth())
 		GroupV1.POST("/logout", cbV1.Logout)
 		GroupV1.POST("/change_pwd", cbV1.ChangePWD)
 		GroupV1.POST("/exit", cbV1.ExitHandler)
@@ -63,7 +66,6 @@ func (b *BackEnd) start() {
 		// xray pool 启动、停止相关
 		GroupV1.POST("/start_proxy_pool", cbV1.StartProxyPoolHandler)
 		GroupV1.POST("/stop_proxy_pool", cbV1.StopProxyPoolHandler)
-		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
 		// 订阅相关
 		GroupV1.GET("/subscribe_list", cbV1.SubscribeListHandler)
 		GroupV1.POST("/add_subscribe", cbV1.SubscribeAddHandler)

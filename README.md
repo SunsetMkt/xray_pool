@@ -28,6 +28,32 @@
 
 ## 如何使用
 
+### Window
+
+1. 下载编译好的程序，放到任意目录中。比如在 `D:\Xray_Pool` 中
+2. 在`D:\Xray_Pool`中新建一个文件夹`base_things`
+3. 去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`base_things`中
+4. 双击启动 `D:\Xray_Pool\xray_pool.exe`
+5. Windows 防火墙会提示有程序访问网络，选择同意
+6. 使用本地浏览器打开 http://127.0.0.1:19035
+7. 进行初始化操作，填写账号、密码，登录
+8. 添加 V2RAY 鸡场提供的订阅源，更新节点
+9. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
+
+### Linux
+
+1. 下载编译好的程序，放到任意目录中。
+2. 在 `/config`中新建一个文件夹`base_things`
+3. 后续参考 Windows 部分
+
+### MacOS
+
+1. 下载编译好的程序，放到任意目录中。
+2. 在 `/.config/xray_pool`中新建一个文件夹`base_things`
+3. 后续参考 Windows 部分
+
+### Docker
+
 待实现
 
 ## API 接口
