@@ -59,6 +59,24 @@ func (cb *ControllerBase) Close() {
 	}
 }
 
+func (cb *ControllerBase) SystemStatus(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "SystemStatus", err)
+	}()
+
+	replySystemStatus := ReplySystemStatus{}
+	if cb.manager.AppSettings.UserName != "" && cb.manager.AppSettings.Password != "" {
+		replySystemStatus.IsSetup = true
+	} else {
+		replySystemStatus.IsSetup = false
+	}
+
+	c.JSON(http.StatusOK, replySystemStatus)
+
+}
+
 func (cb *ControllerBase) SetUp(c *gin.Context) {
 	var err error
 	defer func() {
@@ -141,7 +159,7 @@ func (cb *ControllerBase) ChangePWD(c *gin.Context) {
 	}
 
 	if changePWD.OldPassword == "" || changePWD.NewPassword == "" {
-		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "old password or new password error"})
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "old password or new password is empty"})
 		return
 	}
 
@@ -191,6 +209,10 @@ func (cb *ControllerBase) ClearTmpFolder(c *gin.Context) {
 		Status:        "ok",
 		TmpFolderPath: pkg.GetTmpFolderFPath(),
 	})
+}
+
+type ReplySystemStatus struct {
+	IsSetup bool `json:"is_setup"`
 }
 
 type RequestSetup struct {

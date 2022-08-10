@@ -49,6 +49,7 @@ func (b *BackEnd) start() {
 	// v1路由: /v1/xxx
 	GroupV1 := engine.Group("/" + cbV1.GetVersion())
 	{
+		GroupV1.GET("/system-status", cbV1.SystemStatus)
 		GroupV1.POST("/setup", cbV1.SetUp)
 		GroupV1.POST("/login", cbV1.Login)
 		GroupV1.Use(middle.CheckAuth())
