@@ -13,6 +13,12 @@ func (cb *ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 		cb.ErrorProcess(c, "StartProxyPoolHandler", err)
 	}()
 
+	startProxyPool := RequestStartProxyPool{}
+	err = c.ShouldBindJSON(&startProxyPool)
+	if err != nil {
+		return
+	}
+
 	if cb.proxyPoolLocker.Lock() == false {
 		// 已经在执行，跳过
 		c.JSON(http.StatusOK, ReplyProxyPool{Status: cb.proxyPoolRunningStatus})
@@ -22,12 +28,6 @@ func (cb *ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 	if cb.manager.XrayPoolRunning() == true {
 		// 已经在执行，跳过
 		c.JSON(http.StatusOK, ReplyProxyPool{Status: cb.proxyPoolRunningStatus})
-		return
-	}
-
-	startProxyPool := RequestStartProxyPool{}
-	err = c.ShouldBindJSON(&startProxyPool)
-	if err != nil {
 		return
 	}
 
