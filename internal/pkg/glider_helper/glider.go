@@ -69,5 +69,5 @@ func (g *GliderHelper) Stop() error {
 }
 
 var (
-	GliderDownloadInfo = errors.New(fmt.Sprintf("缺少 Glider 可执行程序，请去 https://github.com/nadoo/glider/releases 下载对应平台的程序，解压放入 %v 文件夹中", pkg.GetBaseThingsFolderFPath()))
+	GliderDownloadInfo = errors.New(fmt.Sprintf("缺少 Glider 可执行程序，请去 https://github.com/nadoo/glider/releases 下载对应平台的程序，解压放入 %v 文件夹中", pkg.GetBaseThingsFolderAbsFPath()))
 )

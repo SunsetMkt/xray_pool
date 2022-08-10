@@ -50,6 +50,11 @@ func GetBaseThingsFolderFPath() string {
 	return nowPath
 }
 
+func GetBaseThingsFolderAbsFPath() string {
+	absPath, _ := filepath.Abs(GetBaseThingsFolderFPath())
+	return absPath
+}
+
 // GetIndexXrayFolderFPath 根据基础的 Xray 程序生成新的 Index 序列号的 Xray 程序存放目录
 func GetIndexXrayFolderFPath(index int) string {
 

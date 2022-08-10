@@ -172,5 +172,5 @@ const (
 )
 
 var (
-	XrayDownloadInfo = errors.New(fmt.Sprintf("缺少 Xray 可执行程序或者资源，请去 https://github.com/XTLS/Xray-core/releases 下载对应平台的程序，解压放入 %v 文件夹中", pkg.GetBaseThingsFolderFPath()))
+	XrayDownloadInfo = errors.New(fmt.Sprintf("缺少 Xray 可执行程序或者资源，请去 https://github.com/XTLS/Xray-core/releases 下载对应平台的程序，解压放入 %v 文件夹中", pkg.GetBaseThingsFolderAbsFPath()))
 )
