@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
+	"github.com/allanpk716/xray_pool/internal/pkg/common"
 	"github.com/allanpk716/xray_pool/internal/pkg/lock"
 	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
@@ -58,6 +59,105 @@ func (cb *ControllerBase) Close() {
 	}
 }
 
+func (cb *ControllerBase) SetUp(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "SetUp", err)
+	}()
+
+	setup := RequestSetup{}
+	err = c.ShouldBindJSON(&setup)
+	if err != nil {
+		return
+	}
+
+	if cb.manager.AppSettings.UserName == "" && cb.manager.AppSettings.Password == "" {
+		// 可以执行 Setup 流程
+		cb.manager.AppSettings.UserName = setup.UserName
+		cb.manager.AppSettings.Password = setup.Password
+		cb.manager.Save()
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
+		return
+	} else {
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "already set up"})
+	}
+}
+
+func (cb *ControllerBase) Login(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "Login", err)
+	}()
+
+	login := RequestLogin{}
+	err = c.ShouldBindJSON(&login)
+	if err != nil {
+		return
+	}
+
+	if cb.manager.AppSettings.UserName == "" ||
+		cb.manager.AppSettings.Password == "" {
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "username or password error"})
+		return
+	}
+
+	if cb.manager.AppSettings.UserName == login.UserName &&
+		cb.manager.AppSettings.Password == login.Password {
+		// 登录成功
+		nowToken := pkg.RandStringBytesMaskImprSrcSB(32)
+		common.SetAccessToken(nowToken)
+		c.JSON(http.StatusOK, ReplyLogin{Message: "ok", Token: nowToken})
+		return
+	} else {
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "username or password error"})
+		return
+	}
+}
+
+func (cb *ControllerBase) Logout(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "Logout", err)
+	}()
+
+	common.SetAccessToken("")
+	c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
+}
+
+func (cb *ControllerBase) ChangePWD(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "ChangePWD", err)
+	}()
+
+	changePWD := RequestChangePWD{}
+	err = c.ShouldBindJSON(&changePWD)
+	if err != nil {
+		return
+	}
+
+	if changePWD.OldPassword == "" || changePWD.NewPassword == "" {
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "old password or new password error"})
+		return
+	}
+
+	if changePWD.OldPassword != cb.manager.AppSettings.Password {
+		c.JSON(http.StatusOK, backend.ReplyCommon{Message: "old password error"})
+		return
+	}
+
+	cb.manager.AppSettings.Password = changePWD.NewPassword
+	cb.manager.Save()
+
+	// 需要重新登录
+	common.SetAccessToken("")
+	c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
+}
+
 // ExitHandler 退出 APP 的逻辑
 func (cb *ControllerBase) ExitHandler(c *gin.Context) {
 	cb.exitSignal <- true
@@ -91,6 +191,26 @@ func (cb *ControllerBase) ClearTmpFolder(c *gin.Context) {
 		Status:        "ok",
 		TmpFolderPath: pkg.GetTmpFolderFPath(),
 	})
+}
+
+type RequestSetup struct {
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
+}
+
+type RequestLogin struct {
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
+}
+
+type ReplyLogin struct {
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
+type RequestChangePWD struct {
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }
 
 type ReplyClearTmpFolder struct {
