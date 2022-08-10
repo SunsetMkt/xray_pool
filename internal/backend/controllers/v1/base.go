@@ -15,11 +15,13 @@ type ControllerBase struct {
 	proxyPoolLocker        lock.Lock
 	proxyPoolRunningStatus string
 	restartSignal          chan interface{}
+	exitSignal             chan interface{}
 }
 
-func NewControllerBase(restartSignal chan interface{}) *ControllerBase {
+func NewControllerBase(restartSignal, exitSignal chan interface{}) *ControllerBase {
 	cb := &ControllerBase{
 		restartSignal:          restartSignal,
+		exitSignal:             exitSignal,
 		manager:                manager.NewManager(),
 		proxyPoolRunningStatus: "stopped",
 		proxyPoolLocker:        lock.NewLock(),
@@ -43,7 +45,17 @@ func (cb *ControllerBase) ErrorProcess(c *gin.Context, funcName string, err erro
 	}
 }
 
+// Close 关闭 HTTP 服务器
 func (cb *ControllerBase) Close() {
-	cb.manager.Stop()
-	cb.proxyPoolLocker.Close()
+	if cb != nil {
+		if cb.manager != nil {
+			cb.manager.Stop()
+		}
+		cb.proxyPoolLocker.Close()
+	}
+}
+
+// ExitHandler 退出 APP 的逻辑
+func (cb *ControllerBase) ExitHandler(c *gin.Context) {
+	cb.exitSignal <- true
 }

@@ -9,20 +9,21 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 )
 
 type BackEnd struct {
-	running bool
-	srv     *http.Server
-
+	running       bool
+	srv           *http.Server
 	locker        sync.Mutex
 	restartSignal chan interface{}
+	exitSignal    chan interface{}
 }
 
-func NewBackEnd(restartSignal chan interface{}) *BackEnd {
-	return &BackEnd{restartSignal: restartSignal}
+func NewBackEnd(restartSignal, exitSignal chan interface{}) *BackEnd {
+	return &BackEnd{restartSignal: restartSignal, exitSignal: exitSignal}
 }
 
 func (b *BackEnd) start() {
@@ -43,11 +44,13 @@ func (b *BackEnd) start() {
 	// 默认所有都通过
 	engine.Use(cors.Default())
 
-	cbV1 := v1.NewControllerBase(b.restartSignal)
+	cbV1 := v1.NewControllerBase(b.restartSignal, b.exitSignal)
 	// v1路由: /v1/xxx
 	GroupV1 := engine.Group("/" + cbV1.GetVersion())
 	{
 		//GroupV1.Use(middle.CheckAuth())
+		GroupV1.POST("/exit", cbV1.ExitHandler)
+
 		GroupV1.POST("/start_proxy_pool", cbV1.StartProxyPoolHandler)
 		GroupV1.POST("/stop_proxy_pool", cbV1.StopProxyPoolHandler)
 		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
@@ -131,6 +134,20 @@ func (b *BackEnd) Restart() {
 				stopFunc()
 				b.start()
 			}
+		case <-b.exitSignal:
+			{
+				stopFunc()
+				logger.Infoln("Http Server Exit.")
+				os.Exit(0)
+				return
+			}
 		}
 	}
+}
+
+func (b *BackEnd) Close() {
+	defer b.locker.Unlock()
+	b.locker.Lock()
+
+	b.exitSignal <- true
 }
