@@ -28,7 +28,7 @@ func NewControllerBase(restartSignal chan interface{}) *ControllerBase {
 	return cb
 }
 
-func (cb ControllerBase) GetVersion() string {
+func (cb *ControllerBase) GetVersion() string {
 	return "v1"
 }
 
@@ -43,7 +43,7 @@ func (cb *ControllerBase) ErrorProcess(c *gin.Context, funcName string, err erro
 	}
 }
 
-func (cb ControllerBase) Close() {
+func (cb *ControllerBase) Close() {
 	cb.manager.Stop()
 	cb.proxyPoolLocker.Close()
 }
