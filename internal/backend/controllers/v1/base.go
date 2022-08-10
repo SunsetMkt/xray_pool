@@ -10,6 +10,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -178,6 +179,9 @@ func (cb *ControllerBase) ChangePWD(c *gin.Context) {
 
 // ExitHandler 退出 APP 的逻辑
 func (cb *ControllerBase) ExitHandler(c *gin.Context) {
+
+	c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
+	time.Sleep(1 * time.Second)
 	cb.exitSignal <- true
 }
 
