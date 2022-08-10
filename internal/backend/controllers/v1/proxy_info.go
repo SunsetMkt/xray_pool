@@ -75,14 +75,14 @@ func (cb *ControllerBase) GetProxyListHandler(c *gin.Context) {
 	}()
 
 	reply := ReplyProxyList{
-		Status:    cb.proxyPoolRunningStatus,
-		LBPort:    cb.manager.ForwardProxyPort(),
-		SocksPots: make([]int, 0),
-		HttpPots:  make([]int, 0),
+		Status:     cb.proxyPoolRunningStatus,
+		LBPort:     cb.manager.ForwardProxyPort(),
+		SocksPorts: make([]int, 0),
+		HttpPorts:  make([]int, 0),
 	}
 	SocksPots, HttpPots := cb.manager.GetOpenedProxyPorts()
-	reply.SocksPots = append(reply.SocksPots, SocksPots...)
-	reply.HttpPots = append(reply.HttpPots, HttpPots...)
+	reply.SocksPorts = append(reply.SocksPorts, SocksPots...)
+	reply.HttpPorts = append(reply.HttpPorts, HttpPots...)
 
 	c.JSON(http.StatusOK, reply)
 }
@@ -96,8 +96,8 @@ type ReplyProxyPool struct {
 }
 
 type ReplyProxyList struct {
-	Status    string `json:"status"`
-	LBPort    int    `json:"lb_port"`
-	SocksPots []int  `json:"socks_pots"`
-	HttpPots  []int  `json:"http_pots"`
+	Status     string `json:"status"`
+	LBPort     int    `json:"lb_port"`
+	SocksPorts []int  `json:"socks_ports"`
+	HttpPorts  []int  `json:"http_ports"`
 }
