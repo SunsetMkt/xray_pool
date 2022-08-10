@@ -30,8 +30,8 @@ type Manager struct {
 	forwardServerHttpPort int                         // 正向代理服务器的端口
 	forwardServerRunning  bool                        // 正向代理服务器是否正在运行
 
-	route *routing.Routing // 路由
-	wg    sync.WaitGroup
+	routing *routing.Routing // 路由
+	wg      sync.WaitGroup
 }
 
 func NewManager() *Manager {
@@ -42,10 +42,10 @@ func NewManager() *Manager {
 		NodeList:       make([]*node.Node, 0),
 		Filter:         make([]*node.Filter, 0),
 		xrayHelperList: make([]*xray_helper.XrayHelper, 0),
-		route:          routing.NewRouting(),
+		routing:        routing.NewRouting(),
 	}
 	if _, err := os.Stat(core.AppSettings); os.IsNotExist(err) {
-		manager.save()
+		manager.Save()
 	} else {
 		file, _ := os.Open(core.AppSettings)
 		defer func() {
@@ -68,8 +68,8 @@ func NewManager() *Manager {
 	return manager
 }
 
-// save 保存数据
-func (m *Manager) save() {
+// Save 保存数据
+func (m *Manager) Save() {
 	err := pkg.WriteJSON(m, core.AppSettings)
 	if err != nil {
 		logger.Error(err)
@@ -84,7 +84,7 @@ func (m *Manager) Start(targetSiteUrl string) {
 
 	if targetSiteUrl != "" {
 		m.AppSettings.TestUrl = targetSiteUrl
-		m.save()
+		m.Save()
 	}
 	// 检查可用的端口和可用的Node
 	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts()

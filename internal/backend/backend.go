@@ -51,6 +51,10 @@ func (b *BackEnd) start() {
 		//GroupV1.Use(middle.CheckAuth())
 		GroupV1.POST("/exit", cbV1.ExitHandler)
 
+		GroupV1.GET("/settings", cbV1.SettingsHandler)
+		GroupV1.PUT("/settings", cbV1.SettingsHandler)
+		GroupV1.GET("/def_settings", cbV1.DefSettingsHandler)
+
 		GroupV1.POST("/start_proxy_pool", cbV1.StartProxyPoolHandler)
 		GroupV1.POST("/stop_proxy_pool", cbV1.StopProxyPoolHandler)
 		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)

@@ -91,7 +91,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 			deliveryInfo.Wg.Done()
 		}()
 
-		nowXrayHelper = xray_helper.NewXrayHelper(deliveryInfo.StartIndex, deliveryInfo.NowProxySettings, m.route)
+		nowXrayHelper = xray_helper.NewXrayHelper(deliveryInfo.StartIndex, deliveryInfo.NowProxySettings, m.routing)
 		if nowXrayHelper.Check() == false {
 			logger.Errorf("xray Check Error")
 			return
@@ -181,7 +181,7 @@ func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
 
 		startOne := func(startXrayCount, selectNodeIndex int, nowProxySettings settings.ProxySettings) {
 			defer startWg.Done()
-			nowXrayHelper := xray_helper.NewXrayHelper(startXrayCount, nowProxySettings, m.route)
+			nowXrayHelper := xray_helper.NewXrayHelper(startXrayCount, nowProxySettings, m.routing)
 			if nowXrayHelper.Check() == false {
 				logger.Errorf("xray Check Error")
 				nowXrayHelper.Stop()

@@ -41,7 +41,7 @@ func (m *Manager) addNode(n *node.Node) bool {
 func (m *Manager) AddNode(n *node.Node) bool {
 	ok := false
 	if ok = m.addNode(n); ok {
-		m.save()
+		m.Save()
 	}
 	return ok
 }
@@ -58,7 +58,7 @@ func (m *Manager) NodesTCPing() {
 		go n.TCPing(&m.wg)
 	})
 	m.wg.Wait()
-	defer m.save()
+	defer m.Save()
 	m.NodeSort(func(n1 *node.Node, n2 *node.Node) bool {
 		return n1.TestResult < n2.TestResult
 	})
@@ -110,7 +110,7 @@ func (m *Manager) Sort(mode int) {
 	default:
 		return
 	}
-	defer m.save()
+	defer m.Save()
 }
 
 func (m *Manager) DelNode(key string) {
@@ -118,7 +118,7 @@ func (m *Manager) DelNode(key string) {
 	if len(indexList) == 0 {
 		return
 	}
-	defer m.save()
+	defer m.Save()
 	newNodeList := make([]*node.Node, 0)
 	m.NodeForEach(func(i int, n *node.Node) {
 		if pkg.HasIn(i, indexList) {
@@ -130,7 +130,7 @@ func (m *Manager) DelNode(key string) {
 }
 
 func (m *Manager) DelNodeById(id string) {
-	defer m.save()
+	defer m.Save()
 	newNodeList := make([]*node.Node, 0)
 	m.NodeForEach(func(i int, n *node.Node) {
 		if n.SubID == id {
