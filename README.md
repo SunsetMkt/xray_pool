@@ -20,7 +20,11 @@
 
 为了对外暴露一个负载均衡的 HTTP 代理端口（负载均衡策略是 round robin），所以使用了 [glider](https://github.com/nadoo/glider) 这个软件。
 
-![image-20220809165339675](README.assets/image-20220809165339675.png)
+<img src="README.assets/image-20220809165339675.png" alt="image-20220809165339675" style="zoom: 50%;" />
+
+## 启动的流程
+
+<img src="README.assets/image-20220810082834014.png" alt="image-20220810082834014" style="zoom: 50%;" />
 
 ## 如何使用
 
