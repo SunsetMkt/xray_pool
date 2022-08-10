@@ -51,20 +51,24 @@ func (b *BackEnd) start() {
 		//GroupV1.Use(middle.CheckAuth())
 		GroupV1.POST("/exit", cbV1.ExitHandler)
 		GroupV1.POST("/clear_tmp_folder", cbV1.ClearTmpFolder)
-
+		// 基础设置相关
 		GroupV1.GET("/settings", cbV1.SettingsHandler)
 		GroupV1.PUT("/settings", cbV1.SettingsHandler)
 		GroupV1.GET("/def_settings", cbV1.DefSettingsHandler)
-
+		// xray pool 启动、停止相关
 		GroupV1.POST("/start_proxy_pool", cbV1.StartProxyPoolHandler)
 		GroupV1.POST("/stop_proxy_pool", cbV1.StopProxyPoolHandler)
 		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
-
+		// 订阅相关
 		GroupV1.GET("/subscribe_list", cbV1.SubscribeListHandler)
 		GroupV1.POST("/add_subscribe", cbV1.SubscribeAddHandler)
 		GroupV1.POST("/update_nodes", cbV1.SubscribeUpdateNodesHandler)
 		GroupV1.POST("/update_subscribe", cbV1.SubscribeUpdateHandler)
 		GroupV1.POST("/del_subscribe", cbV1.SubscribeDelHandler)
+		// 路由规则相关
+		GroupV1.POST("/routing_add", cbV1.RoutingAddHandler)
+		GroupV1.GET("/routing_list", cbV1.RoutingListHandler)
+		GroupV1.POST("/routing_delete", cbV1.RoutingDeleteHandler)
 	}
 	// -------------------------------------------------
 	// 静态文件服务器，加载 html 页面
