@@ -50,6 +50,7 @@ func (b *BackEnd) start() {
 	{
 		//GroupV1.Use(middle.CheckAuth())
 		GroupV1.POST("/exit", cbV1.ExitHandler)
+		GroupV1.POST("/clear_tmp_folder", cbV1.ClearTmpFolder)
 
 		GroupV1.GET("/settings", cbV1.SettingsHandler)
 		GroupV1.PUT("/settings", cbV1.SettingsHandler)

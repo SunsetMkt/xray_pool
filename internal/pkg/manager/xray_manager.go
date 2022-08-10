@@ -218,12 +218,6 @@ func (m *Manager) StopXray() bool {
 
 	m.KillAllXray()
 
-	err := os.RemoveAll(pkg.GetTmpFolderFPath())
-	if err != nil {
-		logger.Errorf("remove tmp folder error: %v", err)
-		return false
-	}
-
 	return true
 }
 

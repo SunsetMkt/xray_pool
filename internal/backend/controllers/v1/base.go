@@ -1,11 +1,14 @@
 package v1
 
 import (
+	"fmt"
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/lock"
 	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -58,4 +61,39 @@ func (cb *ControllerBase) Close() {
 // ExitHandler 退出 APP 的逻辑
 func (cb *ControllerBase) ExitHandler(c *gin.Context) {
 	cb.exitSignal <- true
+}
+
+func (cb *ControllerBase) ClearTmpFolder(c *gin.Context) {
+
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "ClearTmpFolder", err)
+	}()
+
+	if cb.manager.XrayPoolRunning() == true {
+		// 已经在执行，跳过
+		c.JSON(http.StatusOK, ReplyClearTmpFolder{
+			Status:        cb.proxyPoolRunningStatus,
+			TmpFolderPath: pkg.GetTmpFolderFPath(),
+		})
+		return
+	}
+
+	err = os.RemoveAll(pkg.GetTmpFolderFPath())
+	if err != nil {
+		err = fmt.Errorf("remove tmp folder error: %v", err)
+		logger.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, ReplyClearTmpFolder{
+		Status:        "ok",
+		TmpFolderPath: pkg.GetTmpFolderFPath(),
+	})
+}
+
+type ReplyClearTmpFolder struct {
+	Status        string `json:"status"`
+	TmpFolderPath string `json:"tmp_folder_path"`
 }
