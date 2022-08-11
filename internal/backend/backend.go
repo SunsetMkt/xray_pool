@@ -68,6 +68,7 @@ func (b *BackEnd) start() {
 		GroupV1.POST("/stop_proxy_pool", cbV1.StopProxyPoolHandler)
 		// 订阅相关
 		GroupV1.GET("/subscribe_list", cbV1.SubscribeListHandler)
+		GroupV1.GET("/node_list", cbV1.NodesListHandler)
 		GroupV1.POST("/add_subscribe", cbV1.SubscribeAddHandler)
 		GroupV1.POST("/update_nodes", cbV1.SubscribeUpdateNodesHandler)
 		GroupV1.POST("/update_subscribe", cbV1.SubscribeUpdateHandler)
