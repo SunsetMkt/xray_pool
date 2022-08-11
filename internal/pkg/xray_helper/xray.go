@@ -21,6 +21,7 @@ type XrayHelper struct {
 	xrayCmd       *exec.Cmd              // xray 程序的进程
 	xrayPath      string                 // xray 程序的路径
 	ProxySettings settings.ProxySettings // 代理的配置
+	Node          *node.Node             // 节点的信息
 	route         *routing.Routing       // 路由
 }
 
@@ -54,6 +55,7 @@ func (x *XrayHelper) Check() bool {
 
 func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int, skipSpeedTest bool) (bool, int) {
 
+	x.Node = node
 	if x.run(node.Protocol) == true {
 		if x.ProxySettings.HttpPort == 0 {
 			logger.Infof("Xray -- %2d 启动成功, 监听 socks 端口: %d, 所选节点: %s",
@@ -126,6 +128,7 @@ func (x *XrayHelper) run(node protocols.Protocol) bool {
 // Stop 停止服务
 func (x *XrayHelper) Stop() {
 
+	x.Node = nil
 	if x.xrayCmd != nil {
 		err := x.xrayCmd.Process.Kill()
 		if err != nil {

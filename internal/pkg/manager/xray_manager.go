@@ -218,22 +218,30 @@ func (m *Manager) StopXray() bool {
 
 	m.KillAllXray()
 
+	m.xrayHelperList = make([]*xray_helper.XrayHelper, 0)
+
 	return true
 }
 
 // GetOpenedProxyPorts 获取 Xray 开启的 socks 端口和 http 端口，是否有 http 端口需要看 AppSettings.XrayOpenSocksAndHttp 设置
-func (m *Manager) GetOpenedProxyPorts() ([]int, []int) {
+func (m *Manager) GetOpenedProxyPorts() []OpenResult {
 
-	socksPortList := make([]int, 0)
-	httpPortList := make([]int, 0)
+	openResultList := make([]OpenResult, 0)
 	for _, xrayHelper := range m.xrayHelperList {
-		socksPortList = append(socksPortList, xrayHelper.ProxySettings.SocksPort)
+
+		now := OpenResult{}
+		now.SocksPort = xrayHelper.ProxySettings.SocksPort
 		if m.AppSettings.XrayOpenSocksAndHttp == true {
-			httpPortList = append(httpPortList, xrayHelper.ProxySettings.HttpPort)
+			now.HttpPort = xrayHelper.ProxySettings.HttpPort
+		}
+		if xrayHelper.Node != nil {
+			now.Name = xrayHelper.Node.GetName()
+			now.ProtoModel = xrayHelper.Node.GetProtocolMode().String()
+			openResultList = append(openResultList, now)
 		}
 	}
 
-	return socksPortList, httpPortList
+	return openResultList
 }
 
 func (m *Manager) KillAllXray() {
@@ -273,4 +281,11 @@ type DeliveryInfo struct {
 type CheckResult struct {
 	NodeIndex int // 当前的 Node Index
 	Delay     int // ms
+}
+
+type OpenResult struct {
+	Name       string `json:"name"`
+	ProtoModel string `json:"proto_model"`
+	SocksPort  int    `json:"socks_port"`
+	HttpPort   int    `json:"http_port"`
 }

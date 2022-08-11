@@ -17,8 +17,8 @@ func (m *Manager) ForwardProxyStart() bool {
 		return true
 	}
 
-	socksPorts, httpPorts := m.GetOpenedProxyPorts()
-	if len(socksPorts) == 0 && len(httpPorts) == 0 {
+	openResultList := m.GetOpenedProxyPorts()
+	if len(openResultList) == 0 {
 		logger.Errorf("ForwardProxyStart: no open ports to proxy")
 		return false
 	}
@@ -31,6 +31,10 @@ func (m *Manager) ForwardProxyStart() bool {
 		m.forwardServerHttpPort = alivePorts[0]
 	}
 
+	socksPorts := make([]int, 0)
+	for _, result := range openResultList {
+		socksPorts = append(socksPorts, result.SocksPort)
+	}
 	err := m.gliderHelper.Start(m.AppSettings.TestUrl, m.forwardServerHttpPort, socksPorts, m.AppSettings.GliderStrategy)
 	if err != nil {
 		logger.Errorf("ForwardProxyStart: %s", err)
