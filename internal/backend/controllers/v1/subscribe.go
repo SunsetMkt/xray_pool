@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/subscribe"
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
 	"github.com/gin-gonic/gin"
@@ -101,6 +102,27 @@ func (cb *ControllerBase) SubscribeDelHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
 }
 
+// NodesListHandler 获取所有的 Node 节点
+func (cb *ControllerBase) NodesListHandler(c *gin.Context) {
+	var err error
+	defer func() {
+		// 统一的异常处理
+		cb.ErrorProcess(c, "NodesListHandler", err)
+	}()
+
+	var nodeList ReplyNodeList
+	nodeList.NodeInfoList = make([]NodeInfo, 0)
+	cb.manager.NodeForEach(func(nIndex int, node *node.Node) {
+		nodeInfo := NodeInfo{
+			Name:       node.GetName(),
+			ProtoModel: node.GetProtocolMode().String(),
+		}
+		nodeList.NodeInfoList = append(nodeList.NodeInfoList, nodeInfo)
+	})
+
+	c.JSON(http.StatusOK, nodeList)
+}
+
 type ReplySubscribeList struct {
 	SubscribeList []subscribe.Subscribe `json:"subscribe_list"`
 }
@@ -119,4 +141,13 @@ type RequestSubscribeUpdate struct {
 
 type RequestSubscribeDelete struct {
 	Index string `json:"index"` // 索引从 1 开始，而不是 0，需要从 List 列表中获取的时候 +1
+}
+
+type ReplyNodeList struct {
+	NodeInfoList []NodeInfo `json:"node_info_list"`
+}
+
+type NodeInfo struct {
+	Name       string `json:"name"`
+	ProtoModel string `json:"proto_model"`
 }
