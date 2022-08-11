@@ -1,17 +1,25 @@
 package settings
 
 type AppSettings struct {
-	UserName                string        `json:"user_name"`
-	Password                string        `json:"password"`
-	AppStartPort            int           `json:"app_start_port"`               // 本程序启动的端口，用于 WebUI 登录
-	XrayPortRange           string        `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用 36000-  只需要填写起始的端口号，range，会根据 Node 的数量取补全
-	XrayInstanceCount       int           `json:"xray_instance_count"`          // Xray 程序的实例数量，简单说就是开启多少个代理
-	XrayOpenSocksAndHttp    bool          `json:"xray_open_socks_and_http"`     // 是否开启 socks 和 http 端口，默认只开启 socks 端口
-	OneNodeTestTimeOut      int           `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
-	BatchNodeTestMaxTimeOut int           `json:"batch_node_test_max_time_out"` // 批量节点测试的最长超时时间，单位：秒
-	TestUrl                 string        `json:"test_url"`                     // 测试代理访问速度的url
-	TestUrlThread           int           `json:"test_url_thread"`              // 测试代理访问速度的url的线程数量
-	MainProxySettings       ProxySettings `json:"main_proxy_settings"`
+	UserName                string `json:"user_name"`
+	Password                string `json:"password"`
+	AppStartPort            int    `json:"app_start_port"`               // 本程序启动的端口，用于 WebUI 登录
+	XrayPortRange           string `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用 36000-  只需要填写起始的端口号，range，会根据 Node 的数量取补全
+	XrayInstanceCount       int    `json:"xray_instance_count"`          // Xray 程序的实例数量，简单说就是开启多少个代理
+	XrayOpenSocksAndHttp    bool   `json:"xray_open_socks_and_http"`     // 是否开启 socks 和 http 端口，默认只开启 socks 端口
+	OneNodeTestTimeOut      int    `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
+	BatchNodeTestMaxTimeOut int    `json:"batch_node_test_max_time_out"` // 批量节点测试的最长超时时间，单位：秒
+	TestUrl                 string `json:"test_url"`                     // 测试代理访问速度的url
+	TestUrlThread           int    `json:"test_url_thread"`              // 测试代理访问速度的url的线程数量
+	/*
+		Glider 负载均衡策略：
+			rr: round robin
+			ha: high availability
+			lha: latency based high availability
+			dh: destination hashing
+	*/
+	GliderStrategy    string        `json:"glider_strategy"`
+	MainProxySettings ProxySettings `json:"main_proxy_settings"`
 }
 
 func NewAppSettings() *AppSettings {
@@ -26,6 +34,7 @@ func NewAppSettings() *AppSettings {
 		BatchNodeTestMaxTimeOut: 100,
 		TestUrl:                 "https://google.com",
 		TestUrlThread:           10,
+		GliderStrategy:          "rr",
 		MainProxySettings: *NewProxySettings(
 			0,
 			1080,

@@ -35,10 +35,10 @@ func (g *GliderHelper) Check() bool {
 	return true
 }
 
-func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, socksPorts []int) error {
+func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, socksPorts []int, GliderStrategy string) error {
 
 	// 构建正向代理服务器启动的命令
-	runCommand := fmt.Sprintf("-listen :%d -strategy rr", forwardServerHttpPort)
+	runCommand := fmt.Sprintf("-listen :%d -strategy %s", forwardServerHttpPort, GliderStrategy)
 	for _, socksPort := range socksPorts {
 		runCommand += fmt.Sprintf(" -forward socks5://127.0.0.1:%d", socksPort)
 	}
