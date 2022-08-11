@@ -64,8 +64,16 @@ type ProxySettings struct {
 	DNSDomestic          string // 国内的 DNS
 	DNSDomesticBackup    string // 国内的 DNS 备用
 	BypassLANAndMainLand bool   // 绕过局域网和大陆
-	RoutingStrategy      string // 路由策略
-	Mux                  bool   // 多路复用
+	/*
+		路由策略 "AsIs" | "IPIfNonMatch" | "IPOnDemand"
+			"AsIs"：只使用域名进行路由选择。默认值。
+			"IPIfNonMatch"：当域名没有匹配任何规则时，将域名解析成 IP（A 记录或 AAAA 记录）再次进行匹配；
+			当一个域名有多个 A 记录时，会尝试匹配所有的 A 记录，直到其中一个与某个规则匹配为止；
+			解析后的 IP 仅在路由选择时起作用，转发的数据包中依然使用原始域名；
+			"IPOnDemand"：当匹配时碰到任何基于 IP 的规则，将域名立即解析为 IP 进行匹配；
+	*/
+	RoutingStrategy string
+	Mux             bool // 多路复用
 }
 
 func NewProxySettings(httpPort int, socksPort int, allowLanConn bool, sniffing bool, relayUDP bool, DNSPort int, DNSForeign string, DNSDomestic string, DNSDomesticBackup string, bypassLANAndMainLand bool, routingStrategy string, mux bool) *ProxySettings {
