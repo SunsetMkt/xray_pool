@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/WQGroup/logger"
 	v1 "github.com/allanpk716/xray_pool/internal/backend/controllers/v1"
-	"github.com/allanpk716/xray_pool/internal/backend/middle"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
@@ -54,7 +53,7 @@ func (b *BackEnd) start() {
 		GroupV1.POST("/login", cbV1.Login)
 		GroupV1.GET("/proxy_list", cbV1.GetProxyListHandler)
 
-		GroupV1.Use(middle.CheckAuth())
+		//GroupV1.Use(middle.CheckAuth())
 		GroupV1.POST("/logout", cbV1.Logout)
 		GroupV1.POST("/change_pwd", cbV1.ChangePWD)
 		GroupV1.POST("/exit", cbV1.ExitHandler)

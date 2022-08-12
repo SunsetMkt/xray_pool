@@ -23,6 +23,7 @@ type XrayHelper struct {
 	ProxySettings settings.ProxySettings // 代理的配置
 	Node          *node.Node             // 节点的信息
 	route         *routing.Routing       // 路由
+	targetUrl     string                 // 目标 url
 }
 
 func NewXrayHelper(index int, proxySettings settings.ProxySettings, route *routing.Routing) *XrayHelper {
@@ -55,6 +56,7 @@ func (x *XrayHelper) Check() bool {
 
 func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int, skipSpeedTest bool) (bool, int) {
 
+	x.targetUrl = testUrl
 	x.Node = node
 	if x.run(node.Protocol) == true {
 		if x.ProxySettings.HttpPort == 0 {
@@ -128,6 +130,7 @@ func (x *XrayHelper) run(node protocols.Protocol) bool {
 // Stop 停止服务
 func (x *XrayHelper) Stop() {
 
+	x.targetUrl = ""
 	x.Node = nil
 	if x.xrayCmd != nil {
 		err := x.xrayCmd.Process.Kill()

@@ -230,7 +230,11 @@ func (x *XrayHelper) routingConfig() interface{} {
 			"domain":      domains,
 		})
 	}
+	// 这里需要根据 xray 的 targetUrl 进行 临时的规则附加设置
 	ips, domains = x.route.GetRulesGroupData(routing.TypeProxy)
+	if x.targetUrl != "" {
+		domains = append(domains, x.targetUrl)
+	}
 	if len(ips) != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
