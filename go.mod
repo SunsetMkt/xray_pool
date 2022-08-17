@@ -15,10 +15,15 @@ require (
 
 require (
 	github.com/3th1nk/cidr v0.0.0-20220718125058-47306b78b56c // indirect
+	github.com/EDDYCJY/fake-useragent v0.2.0 // indirect
+	github.com/PuerkitoBio/goquery v1.7.1 // indirect
+	github.com/allanpk716/fake-useragent v0.2.1 // indirect
+	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
+	github.com/go-rod/rod v0.109.1 // indirect
 	github.com/goccy/go-json v0.9.10 // indirect
 	github.com/jonboulle/clockwork v0.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -35,6 +40,9 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
+	github.com/ysmood/goob v0.4.0 // indirect
+	github.com/ysmood/gson v0.7.1 // indirect
+	github.com/ysmood/leakless v0.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect

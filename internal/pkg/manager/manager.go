@@ -53,14 +53,13 @@ func NewManager() *Manager {
 		}()
 		err = json.NewDecoder(file).Decode(manager)
 		if err != nil {
-			logger.Error(err)
+			logger.Panicf("Decode Config xray_pool_config.json, %v", err)
 		}
 		manager.NodeForEach(func(i int, n *node.Node) {
 			n.ParseData()
 		})
 	}
-
-	nowXrayHelper := xray_helper.NewXrayHelper(0, manager.AppSettings.MainProxySettings, manager.routing)
+	nowXrayHelper := xray_helper.NewXrayHelper(0, manager.AppSettings, manager.AppSettings.MainProxySettings, manager.routing, nil)
 	defer nowXrayHelper.Stop()
 	if nowXrayHelper.Check() == false {
 		logger.Panic("NewXrayHelper Check == false")

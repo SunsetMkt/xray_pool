@@ -9,6 +9,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/core/routing"
 	"github.com/allanpk716/xray_pool/internal/pkg/protocols"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
+	"github.com/go-rod/rod"
 	"github.com/pkg/errors"
 	"os"
 	"os/exec"
@@ -20,14 +21,21 @@ type XrayHelper struct {
 	index         int                    // 第几个 xray 实例
 	xrayCmd       *exec.Cmd              // xray 程序的进程
 	xrayPath      string                 // xray 程序的路径
+	AppSettings   *settings.AppSettings  // 主程序的设置信息
 	ProxySettings settings.ProxySettings // 代理的配置
 	Node          *node.Node             // 节点的信息
 	route         *routing.Routing       // 路由
 	targetUrl     string                 // 目标 url
+	browser       *rod.Browser           // 浏览器实例
 }
 
-func NewXrayHelper(index int, proxySettings settings.ProxySettings, route *routing.Routing) *XrayHelper {
-	return &XrayHelper{index: index, ProxySettings: proxySettings, route: route}
+func NewXrayHelper(index int, appSettings *settings.AppSettings, ProxySettings settings.ProxySettings, route *routing.Routing, browser *rod.Browser) *XrayHelper {
+	return &XrayHelper{index: index,
+		AppSettings:   appSettings,
+		ProxySettings: ProxySettings,
+		route:         route,
+		browser:       browser,
+	}
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
@@ -73,9 +81,14 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int, ski
 			return true, 0
 		}
 
-		result, status := x.TestNode(testUrl, x.ProxySettings.SocksPort, testTimeOut)
+		result := 0
+		status := ""
+		if x.AppSettings.TestUrlHardWay == true {
+			result, status = x.TestNode(testUrl, x.ProxySettings.SocksPort, testTimeOut)
+		} else {
+			result, status = x.TestNodeByRod(x.AppSettings, x.browser, testUrl, testTimeOut)
+		}
 		logger.Infof("Xray -- %2d %6s [ %s ] 延迟: %dms", x.index, status, testUrl, result)
-
 		if result < 0 {
 			x.Stop()
 			logger.Infof("Xray -- %2d 当前节点: %v 访问 %v 失败, 将不再使用该节点", x.index, node.GetName(), testUrl)

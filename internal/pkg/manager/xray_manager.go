@@ -5,8 +5,10 @@ import (
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
+	"github.com/allanpk716/xray_pool/internal/pkg/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_helper"
+	"github.com/go-rod/rod"
 	"github.com/panjf2000/ants/v2"
 	"github.com/tklauser/ps"
 	"os"
@@ -30,6 +32,11 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 			logger.Infof("alive node: %v -- %v", nodeIndex, m.GetNode(nodeIndex).GetName())
 		}
 		logger.Infoln("------------------------------")
+	}()
+
+	browser := rod_helper.NewBrowser()
+	defer func() {
+		_ = browser.Close()
 	}()
 
 	// 首先需要找到当前系统中残留的 xray 程序，结束它们
@@ -91,7 +98,11 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 			deliveryInfo.Wg.Done()
 		}()
 
-		nowXrayHelper = xray_helper.NewXrayHelper(deliveryInfo.StartIndex, deliveryInfo.NowProxySettings, m.routing)
+		nowXrayHelper = xray_helper.NewXrayHelper(deliveryInfo.StartIndex,
+			deliveryInfo.AppSettings,
+			deliveryInfo.NowProxySettings,
+			m.routing,
+			deliveryInfo.Browser)
 		if nowXrayHelper.Check() == false {
 			logger.Errorf("xray Check Error")
 			return
@@ -134,7 +145,9 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 
 		wg.Add(1)
 		err = p.Invoke(DeliveryInfo{
+			Browser:          browser,
 			StartIndex:       nIndex,
+			AppSettings:      m.AppSettings,
 			NowProxySettings: nowProxySettings,
 			NowNodeIndex:     nIndex,
 			Wg:               &wg,
@@ -179,9 +192,9 @@ func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
 			nowProxySettings.HttpPort = httpPort
 		}
 
-		startOne := func(startXrayCount, selectNodeIndex int, nowProxySettings settings.ProxySettings) {
+		startOne := func(startXrayCount, selectNodeIndex int, appSettings *settings.AppSettings) {
 			defer startWg.Done()
-			nowXrayHelper := xray_helper.NewXrayHelper(startXrayCount, nowProxySettings, m.routing)
+			nowXrayHelper := xray_helper.NewXrayHelper(startXrayCount, appSettings, nowProxySettings, m.routing, nil)
 			if nowXrayHelper.Check() == false {
 				logger.Errorf("xray Check Error")
 				nowXrayHelper.Stop()
@@ -199,7 +212,7 @@ func (m *Manager) StartXray(aliveNodeIndexList, alivePorts []int) bool {
 		}
 
 		startWg.Add(1)
-		go startOne(startXrayCount, selectNodeIndex, nowProxySettings)
+		go startOne(startXrayCount, selectNodeIndex, m.AppSettings)
 
 		startXrayCount++
 		selectNodeIndex++
@@ -272,7 +285,9 @@ func (m *Manager) KillAllXray() {
 }
 
 type DeliveryInfo struct {
+	Browser          *rod.Browser
 	StartIndex       int
+	AppSettings      *settings.AppSettings
 	NowProxySettings settings.ProxySettings
 	NowNodeIndex     int
 	Wg               *sync.WaitGroup

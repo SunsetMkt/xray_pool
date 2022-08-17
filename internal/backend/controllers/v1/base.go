@@ -32,6 +32,8 @@ func NewControllerBase(restartSignal, exitSignal chan interface{}) *ControllerBa
 		proxyPoolLocker:        lock.NewLock(),
 	}
 
+	cb.manager.Save()
+
 	return cb
 }
 
