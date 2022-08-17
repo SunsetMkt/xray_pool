@@ -83,7 +83,7 @@ func (x *XrayHelper) Start(node *node.Node, testUrl string, testTimeOut int, ski
 
 		result := 0
 		status := ""
-		if x.AppSettings.TestUrlHardWay == true {
+		if x.AppSettings.TestUrlHardWay == false {
 			result, status = x.TestNode(testUrl, x.ProxySettings.SocksPort, testTimeOut)
 		} else {
 			result, status = x.TestNodeByRod(x.AppSettings, x.browser, testUrl, testTimeOut)
