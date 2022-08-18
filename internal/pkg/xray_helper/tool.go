@@ -69,24 +69,26 @@ func (x *XrayHelper) TestNodeByRod(appSettings *settings.AppSettings,
 	if appSettings.TestUrlStatusCode != 0 {
 		// 需要判断
 		if statusCode != appSettings.TestUrlStatusCode {
-			return -1, "Error"
+			return -1, "Error statusCode"
 		}
 	}
 
 	for _, word := range appSettings.TestUrlFailedWords {
 
 		if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
-			return -1, "Error"
+			return -1, "Error FailedWord " + word
 		}
 	}
 
-	FailedRegex := regexp.MustCompile(appSettings.TestUrlFailedRegex)
-	matches := FailedRegex.FindAllString(pageHtmlString, -1)
-	if matches == nil || len(matches) == 0 {
-		// 没有找到匹配的内容，那么认为是成功的
-	} else {
-		// 匹配到了失败的内容，那么认为是失败的
-		return -1, "Error"
+	if appSettings.TestUrlFailedRegex != "" {
+		FailedRegex := regexp.MustCompile(appSettings.TestUrlFailedRegex)
+		matches := FailedRegex.FindAllString(pageHtmlString, -1)
+		if matches == nil || len(matches) == 0 {
+			// 没有找到匹配的内容，那么认为是成功的
+		} else {
+			// 匹配到了失败的内容，那么认为是失败的
+			return -1, "Error FailedRegex"
+		}
 	}
 
 	return speedResult, "OK"

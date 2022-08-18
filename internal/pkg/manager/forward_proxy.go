@@ -35,7 +35,7 @@ func (m *Manager) ForwardProxyStart() bool {
 	for _, result := range openResultList {
 		socksPorts = append(socksPorts, result.SocksPort)
 	}
-	err := m.gliderHelper.Start(m.AppSettings.TestUrl, m.forwardServerHttpPort, socksPorts, m.AppSettings.GliderStrategy)
+	err := m.gliderHelper.Start(m.AppSettings.HealthCheckUrl, m.forwardServerHttpPort, socksPorts, m.AppSettings.GliderStrategy)
 	if err != nil {
 		logger.Errorf("ForwardProxyStart: %s", err)
 		return false

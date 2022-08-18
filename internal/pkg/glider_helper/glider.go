@@ -43,8 +43,9 @@ func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, s
 		runCommand += fmt.Sprintf(" -forward socks5://127.0.0.1:%d", socksPort)
 	}
 	// -check http://www.msftconnecttest.com/connecttest.txt#expect=200
-	runCommand += fmt.Sprintf(" -check %s#expect=200", healthCheckUrl)
-
+	if healthCheckUrl != "" {
+		runCommand += fmt.Sprintf(" -check %s#expect=200", healthCheckUrl)
+	}
 	cmdArgs := strings.Fields(runCommand)
 	g.gliderCmd = exec.Command(g.gliderPath, cmdArgs...)
 	err := g.gliderCmd.Start()
