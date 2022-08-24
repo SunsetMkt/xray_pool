@@ -14,7 +14,7 @@ export interface MainProxySettings {
   Mux: boolean;
 }
 
-export interface Settings {
+export interface ApiResponseSettings {
   app_start_port: number;
   xray_port_range: string;
   xray_instance_count: number;

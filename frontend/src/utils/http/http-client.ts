@@ -3,6 +3,7 @@
  */
 
 import axios from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 
 const axiosInstance = axios.create({
   timeout: 60000, // 超时时间
@@ -12,7 +13,7 @@ const axiosInstance = axios.create({
 /**
  * 注册拦截器
  */
-const registerInterceptor = (interceptor) => {
+const registerInterceptor = (interceptor: any) => {
   const { onRequestFullFilled, onRequestRejected, onResponseFullFilled, onResponseRejected } = interceptor;
   if (onRequestFullFilled || onRequestRejected) {
     axiosInstance.interceptors.request.use(onRequestFullFilled, onRequestRejected);
@@ -26,8 +27,8 @@ const registerInterceptor = (interceptor) => {
  * 根据目录自动注册拦截器
  * @param contextModules
  */
-const registerInterceptorsFromDirectory = (contextModules) => {
-  const handlers = contextModules.keys().reduce((cur, key) => {
+const registerInterceptorsFromDirectory = (contextModules: any) => {
+  const handlers = contextModules.keys().reduce((cur: any, key: any) => {
     cur.push(contextModules(key).default);
     return cur;
   }, []);
@@ -35,7 +36,7 @@ const registerInterceptorsFromDirectory = (contextModules) => {
 };
 
 // 通用请求方法
-const createRequest = (url = '', data = {}, type = 'GET', config = {}) => {
+const createRequest = (url = '', data = {}, type = 'GET', config: AxiosRequestConfig = {}) => {
   config.headers = config.headers || {};
   const axiosConfig = Object.assign(config, {
     method: type.toUpperCase(),
