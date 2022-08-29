@@ -1,29 +1,20 @@
 import { onMounted, reactive } from 'vue';
-import type { SubscribeModel } from '@/interfaces/subscribe';
 import SettingsApi from '@/apis/SettingsApi';
 import type { ApiResponseSettings } from '@/interfaces/settings';
-import SubscribeApi from '@/apis/SubscribeApi';
 
 export interface SetupState {
   model: ApiResponseSettings | null;
   currentStep: number;
-  subscribeList: SubscribeModel[] | null;
 }
 
 export const setupState = reactive<SetupState>({
   model: null,
   currentStep: 1,
-  subscribeList: [],
 });
-
-export const getSubscribeList = async () => {
-  const [res] = await SubscribeApi.getList();
-  setupState.subscribeList = res;
-};
 
 export const useSetup = () => {
   const getDefaultSettings = async () => {
-    const [res]: ApiResponseSettings[] = await SettingsApi.get();
+    const [res]: ApiResponseSettings[] = await SettingsApi.getDefaultSettings();
     setupState.model = res;
     return res;
   };
@@ -31,6 +22,10 @@ export const useSetup = () => {
   onMounted(getDefaultSettings);
 };
 
-export const finishSetup = () => {
+export const finishSetup = async () => {
+  const [, err] = await SettingsApi.update(setupState.model);
+  if (err !== null) {
+    window.$message.error(err.message);
+  }
   window.$message.success('初始化完成');
 };

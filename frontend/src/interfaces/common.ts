@@ -1,1 +1,1 @@
-export type ApiResponse<T> = [T, any?];
+export type ApiResponse<T> = [T, any] | [null, any];

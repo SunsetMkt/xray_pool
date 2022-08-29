@@ -4,6 +4,7 @@
 
 import axios from 'axios';
 import type { AxiosRequestConfig } from 'axios';
+import type { ApiResponse } from '@/interfaces/common';
 
 const axiosInstance = axios.create({
   timeout: 60000, // 超时时间
@@ -36,7 +37,12 @@ const registerInterceptorsFromDirectory = (contextModules: any) => {
 };
 
 // 通用请求方法
-const createRequest = (url = '', data = {}, type = 'GET', config: AxiosRequestConfig = {}) => {
+const createRequest = (
+  url = '',
+  data = {},
+  type = 'GET',
+  config: AxiosRequestConfig = {}
+): Promise<ApiResponse<any>> => {
   config.headers = config.headers || {};
   const axiosConfig = Object.assign(config, {
     method: type.toUpperCase(),
@@ -52,7 +58,7 @@ const createRequest = (url = '', data = {}, type = 'GET', config: AxiosRequestCo
     axiosInstance
       .request(axiosConfig)
       // 分别处理直接返回的数据源和{result: 1, message: '', data: {}|[]}形式的数据源
-      .then((response) => [response.data, null])
+      .then((response): [any, null] => [response.data, null])
       .catch((error) => [null, error])
   );
 };

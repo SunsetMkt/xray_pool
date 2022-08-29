@@ -1,6 +1,6 @@
 <template>
   <n-form
-    v-if="state.model"
+    v-if="state.subscribeList"
     ref="formRef"
     :model="form"
     :rules="rules"

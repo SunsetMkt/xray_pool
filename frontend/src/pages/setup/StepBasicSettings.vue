@@ -12,23 +12,23 @@
       maxWidth: '640px',
     }"
   >
-    <n-form-item label="Xray启动起始端口" path="app_start_port">
-      <n-input-number v-model:value="state.model.app_start_port" clearable />
+    <n-form-item label="Xray启动起始端口" path="xray_port_range">
+      <n-input-number v-model:value="state.model.xray_port_range" />
     </n-form-item>
 
     <n-form-item label="Xray 是否开启 HTTP 端口" path="xray_open_socks_and_http">
       <n-switch v-model:value="state.model.xray_open_socks_and_http" />
     </n-form-item>
 
-    <n-form-item label="单个节点 的测试超时时间" path="one_node_test_time_out">
+    <n-form-item label="单个节点 的测试超时时间（秒）" path="one_node_test_time_out">
       <n-input-number v-model:value="state.model.one_node_test_time_out" clearable>
-        <template #suffix> 秒 </template>
+        <!--        <template #suffix> 秒 </template>-->
       </n-input-number>
     </n-form-item>
 
-    <n-form-item label="批量节点测试总超时时间" path="batch_node_test_max_time_out">
+    <n-form-item label="批量节点测试总超时时间（秒）" path="batch_node_test_max_time_out">
       <n-input-number v-model:value="state.model.batch_node_test_max_time_out" clearable>
-        <template #suffix> 秒 </template>
+        <!--        <template #suffix> 秒 </template>-->
       </n-input-number>
     </n-form-item>
 
