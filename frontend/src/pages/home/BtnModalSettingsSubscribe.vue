@@ -1,15 +1,24 @@
 <template>
   <n-button @click="showModal = true" type="primary"> 订阅管理 </n-button>
   <n-modal v-model:show="showModal">
-    <n-card style="width: 600px" title="订阅管理" :bordered="false" size="huge" role="dialog" aria-modal="true">
-      <settings-subscribe />
-    </n-card>
+    <div class="flex flex-col bg-white p-3" style="width: 600px; max-height: 90vh; overflow: hidden">
+      <div class="font-bold text-xl">订阅管理</div>
+
+      <n-divider class="!my-3" />
+
+      <div class="flex-1 overflow-y-auto overflow-x-hidden">
+        <settings-subscribe />
+
+        <node-list-panel class="mt-2" />
+      </div>
+    </div>
   </n-modal>
 </template>
 
 <script lang="ts" setup>
 import { ref } from 'vue';
 import SettingsSubscribe from '@/pages/home/SettingsSubscribe.vue';
+import NodeListPanel from '@/pages/home/NodeListPanel.vue';
 
 const showModal = ref(false);
 </script>

@@ -27,7 +27,7 @@
   </n-form>
 
   <div class="font-bold">订阅源列表</div>
-  <n-list class="border-1 mt-2" hoverable clickable>
+  <n-list class="border-1 mt-2 overflow-y-auto" hoverable clickable style="height: 200px">
     <n-list-item v-for="(item, i) in state.subscribeList" :key="item.name">
       <div class="flex row">
         <div class="flex-1">

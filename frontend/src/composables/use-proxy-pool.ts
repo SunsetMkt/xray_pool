@@ -1,4 +1,5 @@
 import { computed, onMounted, reactive } from 'vue';
+import { useIntervalFn } from '@vueuse/core';
 import type { ApiResponseProxyList } from '@/interfaces/proxy-pool';
 import ProxyPoolApi from '@/apis/ProxyPoolApi';
 import { settingsState } from '@/composables/use-settings';
@@ -38,5 +39,6 @@ export const stopProxyPool = async () => {
 };
 
 export const useProxyPool = () => {
+  useIntervalFn(getProxyList, 1000);
   onMounted(getProxyList);
 };

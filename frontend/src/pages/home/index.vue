@@ -4,6 +4,8 @@
 
     <settings-xray-pool class="border-1 p-2 mt-2" />
 
+    <proxy-pool-operations class="mt-2" />
+
     <load-balance-panel class="border-1 p-2 mt-2" />
 
     <div class="mt-2">
@@ -19,6 +21,7 @@ import LoadBalancePanel from '@/pages/home/LoadBalancePanel.vue';
 import { useProxyPool } from '@/composables/use-proxy-pool';
 import BtnModalSettingsSubscribe from '@/pages/home/BtnModalSettingsSubscribe.vue';
 import BtnModalSettingsAdvanced from '@/pages/home/BtnModalSettingsAdvanced.vue';
+import ProxyPoolOperations from '@/pages/home/ProxyPoolOperations.vue';
 
 useProxyPool();
 </script>
