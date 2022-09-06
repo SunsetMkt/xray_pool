@@ -29,7 +29,7 @@ type XrayAIO struct {
 	nodes            []*node.Node           // 节点列表
 	socksPorts       []int                  // socks 端口列表
 	httpPorts        []int                  // http 端口列表
-	runningLock      sync.Locker
+	runningLock      sync.Mutex
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
