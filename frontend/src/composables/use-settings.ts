@@ -1,4 +1,4 @@
-import { computed, onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive, watch } from 'vue';
 import type { ApiResponseSettings } from '@/interfaces/settings';
 import SettingsApi from '@/apis/SettingsApi';
 
@@ -13,8 +13,15 @@ export interface SettingsState {
 export const settingsState = reactive<SettingsState>({
   settings: null,
   model: null,
-  mode: 'normal',
+  mode: (localStorage.getItem('settingMode') as SettingsMode) || 'normal',
 });
+
+watch(
+  () => settingsState.mode,
+  () => {
+    localStorage.setItem('settingMode', settingsState.mode);
+  }
+);
 
 export const isNormalMode = computed(() => settingsState.mode === 'normal');
 export const isProMode = computed(() => settingsState.mode === 'pro');
@@ -32,7 +39,7 @@ export const updateSettings = async () => {
     window.$message.error(err.message);
   }
   await getSettings();
-  window.$message.success('更新成功');
+  // window.$message.success('更新成功');
 };
 
 export const formRules = {};

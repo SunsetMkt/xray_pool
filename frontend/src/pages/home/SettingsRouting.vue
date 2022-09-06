@@ -14,11 +14,15 @@
         <n-select
           v-model:value="settingsState.model.main_proxy_settings.RoutingStrategy"
           :options="routingStrategyOptions"
+          @update:value="updateSettings"
         />
       </n-form-item>
 
       <n-form-item label="直连局域网和大陆" path="main_proxy_settings.BypassLANAndMainLand">
-        <n-switch v-model:value="settingsState.model.main_proxy_settings.BypassLANAndMainLand" />
+        <n-switch
+          v-model:value="settingsState.model.main_proxy_settings.BypassLANAndMainLand"
+          @update:value="updateSettings"
+        />
       </n-form-item>
     </n-form>
 
@@ -62,7 +66,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { settingsState } from '@/composables/use-settings';
+import { settingsState, updateSettings } from '@/composables/use-settings';
 import RoutingApi from '@/apis/RoutingApi';
 import type { RoutingResponseModel, RoutingType } from '@/interfaces/Routing';
 
@@ -103,7 +107,10 @@ const getRoutingRules = async () => {
 };
 
 const removeRule = async (index: number) => {
-  const [, err] = await RoutingApi.remove(index + 1);
+  const [, err] = await RoutingApi.remove({
+    routing_type: routingType.value,
+    index_list: [index + 1],
+  });
   if (err) {
     window.$message.error(err.message);
     return;
@@ -118,7 +125,7 @@ const addRule = async () => {
     return;
   }
   const [, err] = await RoutingApi.add({
-    routing_type: 'domain',
+    routing_type: routingType.value,
     rules: [newRule.value],
   });
   if (err) {

@@ -7,7 +7,7 @@ class SubscribeApi extends BaseApi {
 
   add = (data: any): Promise<ApiResponse<any>> => this.http('/v1/add_subscribe', data, 'POST');
 
-  remove = (index: number): Promise<ApiResponse<any>> => this.http('/v1/del_subscribe', { index }, 'POST');
+  remove = (index: number): Promise<ApiResponse<any>> => this.http('/v1/del_subscribe', { index: `${index}` }, 'POST');
 
   update = (data: any): Promise<ApiResponse<any>> => this.http('/v1/update_subscribe', data, 'POST');
 

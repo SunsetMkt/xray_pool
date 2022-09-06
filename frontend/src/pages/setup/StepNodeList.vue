@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="font-bold">节点列表</div>
-    <n-list class="border-1 mt-2" hoverable clickable>
+
+    <div v-if="state.nodeList?.length === 0" class="text-gray-500">当前没有可用节点</div>
+    <n-list v-else class="border-1 mt-2" hoverable clickable>
       <n-list-item v-for="item in state.nodeList" :key="item.name">
         <div class="flex row">
           <div class="flex-1">{{ item.name }}</div>

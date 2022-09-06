@@ -1,8 +1,10 @@
 <template>
   <div>
     <div class="flex row justify-between">
-      <div>负载均衡端口(HTTP/Socks5): {{ proxyPoolState?.proxyList?.lib_port }}</div>
-      <div>负载均衡策略：</div>
+      <div>负载均衡端口(HTTP/Socks5): {{ proxyPoolState?.proxyList?.lib_port || '-' }}</div>
+      <div>
+        负载均衡策略：<span class="font-bold">{{ settingsState.settings?.glider_strategy }}</span>
+      </div>
     </div>
 
     <n-table class="mt-1" :bordered="false" :single-line="false" size="small">
@@ -26,4 +28,5 @@
 
 <script setup lang="ts">
 import { proxyPoolState } from '@/composables/use-proxy-pool';
+import { settingsState } from '@/composables/use-settings';
 </script>

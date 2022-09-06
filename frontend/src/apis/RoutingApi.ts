@@ -7,7 +7,7 @@ class RoutingApi extends BaseApi {
 
   add = (data: any): Promise<ApiResponse<any>> => this.http('/v1/routing_add', data, 'POST');
 
-  remove = (index: number): Promise<ApiResponse<any>> => this.http('/v1/routing_delete', { index }, 'POST');
+  remove = (data: any): Promise<ApiResponse<any>> => this.http('/v1/routing_delete', data, 'POST');
 }
 
 export default new RoutingApi();

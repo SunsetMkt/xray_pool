@@ -22,6 +22,8 @@ import { useProxyPool } from '@/composables/use-proxy-pool';
 import BtnModalSettingsSubscribe from '@/pages/home/BtnModalSettingsSubscribe.vue';
 import BtnModalSettingsAdvanced from '@/pages/home/BtnModalSettingsAdvanced.vue';
 import ProxyPoolOperations from '@/pages/home/ProxyPoolOperations.vue';
+import { useSettings } from '@/composables/use-settings';
 
 useProxyPool();
+useSettings();
 </script>

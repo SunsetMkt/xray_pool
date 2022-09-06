@@ -26,7 +26,8 @@
   </n-form>
 
   <div class="font-bold">订阅源列表</div>
-  <n-list class="border-1 mt-2" hoverable clickable>
+  <div v-if="state.subscribeList?.length === 0" class="text-gray-500">当前没有订阅源，请通过上方表单添加</div>
+  <n-list v-else class="border-1 mt-2" hoverable clickable>
     <n-list-item v-for="(item, i) in state.subscribeList" :key="item.name">
       <div class="flex row">
         <div class="flex-1">

@@ -5,7 +5,7 @@ class SettingsApi extends BaseApi {
 
   getDefaultSettings = () => this.http('/v1/def_settings');
 
-  update = (data: any) => this.http('/v1/settings', data, 'POST');
+  update = (data: any) => this.http('/v1/settings', data, 'PUT');
 }
 
 export default new SettingsApi();

@@ -23,5 +23,6 @@ export interface ApiResponseSettings {
   batch_node_test_max_time_out: number;
   test_url: string;
   test_url_thread: number;
+  glider_strategy: 'rr' | 'ha' | 'lha' | 'dh';
   main_proxy_settings: MainProxySettings;
 }
