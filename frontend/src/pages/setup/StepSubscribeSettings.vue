@@ -1,6 +1,5 @@
 <template>
   <n-form
-    v-if="state.model"
     ref="formRef"
     :model="form"
     :rules="rules"

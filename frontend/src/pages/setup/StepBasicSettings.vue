@@ -40,4 +40,6 @@
 
 <script setup lang="ts">
 import { setupState as state } from '@/pages/setup/use-setup';
+
+const rules = {};
 </script>

@@ -5,6 +5,6 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { isStopped } from '@/composables/use-proxy-pool';
 </script>
