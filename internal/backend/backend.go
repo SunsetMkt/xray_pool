@@ -44,6 +44,12 @@ func (b *BackEnd) start() {
 	// 默认所有都通过
 	engine.Use(cors.Default())
 
+	// 本地启动前端调试的时候使用，替换为本地打开浏览器的地址即可
+	//corsConfig := cors.DefaultConfig()
+	//corsConfig.AllowOrigins = []string{"http://127.0.0.1:5173"}
+	//corsConfig.AllowCredentials = true
+	//engine.Use(cors.New(corsConfig))
+
 	cbV1 := v1.NewControllerBase(b.restartSignal, b.exitSignal)
 	// v1路由: /v1/xxx
 	GroupV1 := engine.Group("/" + cbV1.GetVersion())
