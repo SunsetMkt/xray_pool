@@ -1,4 +1,4 @@
-package xray_helper
+package xray_aio
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 )
 
 // TestNode 获取节点代理访问外网的延迟
-func (x *XrayHelper) TestNode(url string, port int, timeout int) (int, string) {
+func (x *XrayAIO) TestNode(url string, port int, timeout int) (int, string) {
 	start := time.Now()
 	res, e := x.GetBySocks5Proxy(url, "127.0.0.1", port, time.Duration(timeout)*time.Second)
 	elapsed := time.Since(start)
@@ -28,7 +28,7 @@ func (x *XrayHelper) TestNode(url string, port int, timeout int) (int, string) {
 }
 
 // GetBySocks5Proxy 通过Socks5代理访问网站
-func (x *XrayHelper) GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*http.Response, error) {
+func (x *XrayAIO) GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*http.Response, error) {
 	proxy := func(_ *http.Request) (*url.URL, error) {
 		return url.Parse(fmt.Sprintf("socks5://%s:%d", proxyAddress, proxyPort))
 	}
@@ -40,14 +40,14 @@ func (x *XrayHelper) GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int
 	return client.Get(objUrl)
 }
 
-func (x *XrayHelper) TestNodeByRod(appSettings *settings.AppSettings,
+func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
 	browser *rod.Browser,
 	targetUrl string,
 	timeout int) (int, string) {
 
 	start := time.Now()
 	page, statusCode, _, err := rod_helper.NewPageNavigate(browser,
-		fmt.Sprintf("http://127.0.0.1:%d", x.ProxySettings.HttpPort),
+		fmt.Sprintf("http://127.0.0.1:%d", x.OneProxySettings.HttpPort),
 		targetUrl, time.Duration(timeout)*time.Second)
 	if err != nil {
 		return -1, "Error"

@@ -17,6 +17,16 @@ func (m *Manager) GetNode(index int) *node.Node {
 	return m.getNode(index - 1)
 }
 
+// GetNodes 获取节点
+func (m *Manager) GetNodes() []*node.Node {
+
+	nodes := make([]*node.Node, 0)
+	m.NodeForEach(func(i int, n *node.Node) {
+		nodes = append(nodes, n)
+	})
+	return nodes
+}
+
 // getNode 获取节点
 func (m *Manager) getNode(i int) *node.Node {
 	if i < m.NodeLen() && i >= 0 {

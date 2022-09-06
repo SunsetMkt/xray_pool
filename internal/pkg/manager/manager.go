@@ -10,39 +10,36 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/core/subscribe"
 	"github.com/allanpk716/xray_pool/internal/pkg/glider_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
-	"github.com/allanpk716/xray_pool/internal/pkg/xray_helper"
+	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
 	"os"
 	"sync"
 )
 
 // Manager 本地所有代理实例的管理者
 type Manager struct {
-	AppSettings         *settings.AppSettings     `json:"app_settings"` // 主程序的配置
-	Subscribes          []*subscribe.Subscribe    `json:"subscribes"`   // 订阅地址
-	NodeList            []*node.Node              `json:"nodes"`        // 存放所有的节点
-	Filter              []*node.Filter            `json:"filter"`       // 存放所有的过滤器
-	xrayHelperList      []*xray_helper.XrayHelper // 本地开启多个代理的实例，每个对应着一个 Xray 程序
-	xrayPoolRunning     bool                      // Xray 程序是否正在运行
-	xrayPoolRunningLock sync.Mutex                // Xray 程序是否正在运行的锁
-
+	AppSettings           *settings.AppSettings       `json:"app_settings"` // 主程序的配置
+	Subscribes            []*subscribe.Subscribe      `json:"subscribes"`   // 订阅地址
+	NodeList              []*node.Node                `json:"nodes"`        // 存放所有的节点
+	Filter                []*node.Filter              `json:"filter"`       // 存放所有的过滤器
+	xrayPoolRunning       bool                        // Xray 程序是否正在运行
+	xrayPoolRunningLock   sync.Mutex                  // Xray 程序是否正在运行的锁
+	xrayAIO               *xray_aio.XrayAIO           // Xray 程序的管理者
 	gliderHelper          *glider_helper.GliderHelper // 正向代理的实例
 	forwardServerLocker   sync.Mutex                  // 正向代理服务器的锁
 	forwardServerHttpPort int                         // 正向代理服务器的端口
 	forwardServerRunning  bool                        // 正向代理服务器是否正在运行
-
-	routing *routing.Routing // 路由
-	wg      sync.WaitGroup
+	routing               *routing.Routing            // 路由
+	wg                    sync.WaitGroup
 }
 
 func NewManager() *Manager {
 
 	manager := &Manager{
-		AppSettings:    settings.NewAppSettings(),
-		Subscribes:     make([]*subscribe.Subscribe, 0),
-		NodeList:       make([]*node.Node, 0),
-		Filter:         make([]*node.Filter, 0),
-		xrayHelperList: make([]*xray_helper.XrayHelper, 0),
-		routing:        routing.NewRouting(),
+		AppSettings: settings.NewAppSettings(),
+		Subscribes:  make([]*subscribe.Subscribe, 0),
+		NodeList:    make([]*node.Node, 0),
+		Filter:      make([]*node.Filter, 0),
+		routing:     routing.NewRouting(),
 	}
 	if _, err := os.Stat(core.AppSettings); os.IsNotExist(err) {
 		manager.Save()
@@ -59,7 +56,7 @@ func NewManager() *Manager {
 			n.ParseData()
 		})
 	}
-	nowXrayHelper := xray_helper.NewXrayHelper(0, manager.AppSettings, manager.AppSettings.MainProxySettings, manager.routing, nil)
+	nowXrayHelper := xray_aio.NewXrayOne(0, nil, manager.AppSettings, manager.AppSettings.MainProxySettings, manager.routing, nil)
 	defer nowXrayHelper.Stop()
 	if nowXrayHelper.Check() == false {
 		logger.Panic("NewXrayHelper Check == false")
