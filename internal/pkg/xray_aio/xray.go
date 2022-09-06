@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 )
 
 type XrayAIO struct {
@@ -28,6 +29,7 @@ type XrayAIO struct {
 	nodes            []*node.Node           // 节点列表
 	socksPorts       []int                  // socks 端口列表
 	httpPorts        []int                  // http 端口列表
+	runningLock      sync.Locker
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
@@ -56,6 +58,9 @@ func (x *XrayAIO) Check() bool {
 
 // Stop 停止服务
 func (x *XrayAIO) Stop() {
+
+	x.runningLock.Lock()
+	defer x.runningLock.Unlock()
 
 	x.targetUrl = ""
 	if x.xrayCmd != nil {

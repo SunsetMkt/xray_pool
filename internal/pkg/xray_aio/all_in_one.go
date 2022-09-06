@@ -29,6 +29,9 @@ func NewXrayAIO(inNodes []*node.Node, appSettings *settings.AppSettings, route *
 
 func (x *XrayAIO) StartMix() bool {
 
+	x.runningLock.Lock()
+	defer x.runningLock.Unlock()
+
 	// 判断是否所有的 node 的协议都支持
 	for _, nowNode := range x.nodes {
 		nowNodeProtocol := nowNode
@@ -73,6 +76,9 @@ func (x *XrayAIO) StartMix() bool {
 
 // GetOpenedProxyPorts 获取 Xray 开启的 socks 端口和 http 端口，是否有 http 端口需要看 AppSettings.XrayOpenSocksAndHttp 设置
 func (x *XrayAIO) GetOpenedProxyPorts() []OpenResult {
+
+	x.runningLock.Lock()
+	defer x.runningLock.Unlock()
 
 	openResultList := make([]OpenResult, 0)
 

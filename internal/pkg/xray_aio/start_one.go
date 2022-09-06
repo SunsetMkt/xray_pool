@@ -31,6 +31,9 @@ func NewXrayOne(index int, inNode *node.Node, appSettings *settings.AppSettings,
 // StartOne 启动一个独立的 xray
 func (x *XrayAIO) StartOne(testUrl string, testTimeOut int, skipSpeedTest bool) (bool, int) {
 
+	x.runningLock.Lock()
+	defer x.runningLock.Unlock()
+
 	nowNode := x.nodes[0]
 	x.targetUrl = testUrl
 	if x.runOne() == true {
