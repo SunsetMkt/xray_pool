@@ -211,7 +211,12 @@ func (m *Manager) StopXray() bool {
 }
 
 func (m *Manager) GetOpenedProxyPorts() []xray_aio.OpenResult {
-	return m.xrayAIO.GetOpenedProxyPorts()
+
+	if m.xrayAIO != nil {
+		return m.xrayAIO.GetOpenedProxyPorts()
+	} else {
+		return []xray_aio.OpenResult{}
+	}
 }
 
 func (m *Manager) KillAllXray() {
