@@ -83,6 +83,9 @@ func (x *XrayAIO) Stop() {
 			}
 		}
 	}
+
+	// 清理传递进来的节点信息
+	x.nodes = make([]*node.Node, 0)
 }
 
 func readInfo(r *bufio.Reader, lines *[]string) {
