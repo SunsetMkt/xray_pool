@@ -4,6 +4,7 @@ type AppSettings struct {
 	UserName                string   `json:"user_name"`
 	Password                string   `json:"password"`
 	AppStartPort            int      `json:"app_start_port"`               // 本程序启动的端口，用于 WebUI 登录
+	ManualLbPort            int      `json:"manual_lb_port"`               // 手动指定的负载均衡端口，如果为 0 则自动分配
 	XrayPortRange           string   `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用 36000-  只需要填写起始的端口号，range，会根据 Node 的数量取补全
 	XrayInstanceCount       int      `json:"xray_instance_count"`          // Xray 程序的实例数量，简单说就是开启多少个代理
 	XrayOpenSocksAndHttp    bool     `json:"xray_open_socks_and_http"`     // 是否开启 socks 和 http 端口，默认只开启 socks 端口
@@ -32,6 +33,7 @@ func NewAppSettings() *AppSettings {
 		UserName:                "",
 		Password:                "",
 		AppStartPort:            19035,
+		ManualLbPort:            0,
 		XrayPortRange:           "36000",
 		XrayInstanceCount:       3,
 		XrayOpenSocksAndHttp:    false,

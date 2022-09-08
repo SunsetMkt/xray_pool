@@ -22,13 +22,19 @@ func (m *Manager) ForwardProxyStart() bool {
 		logger.Errorf("ForwardProxyStart: no open ports to proxy")
 		return false
 	}
-	// 如果不满足，那么就再次扫描一个端口段，找到一个可用的端口给反向代理服务器
-	alivePorts := pkg.ScanAlivePortList("63200-63400")
-	if len(alivePorts) == 0 {
-		logger.Errorf("ForwardProxyStart: no open ports to proxy")
-		return false
+
+	if m.AppSettings.ManualLbPort == 0 {
+		// 自动
+		// 如果不满足，那么就再次扫描一个端口段，找到一个可用的端口给反向代理服务器
+		alivePorts := pkg.ScanAlivePortList("63200-63400")
+		if len(alivePorts) == 0 {
+			logger.Errorf("ForwardProxyStart: no open ports to proxy")
+			return false
+		} else {
+			m.forwardServerHttpPort = alivePorts[0]
+		}
 	} else {
-		m.forwardServerHttpPort = alivePorts[0]
+		m.forwardServerHttpPort = m.AppSettings.ManualLbPort
 	}
 
 	socksPorts := make([]int, 0)
