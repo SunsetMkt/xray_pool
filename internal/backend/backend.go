@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/xray_pool/frontend/dist"
 	v1 "github.com/allanpk716/xray_pool/internal/backend/controllers/v1"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -85,15 +86,11 @@ func (b *BackEnd) start() {
 	}
 	// -------------------------------------------------
 	// 静态文件服务器，加载 html 页面
-	//engine.GET("/", func(c *gin.Context) {
-	//	c.Header("content-type", "text/html;charset=utf-8")
-	//	c.String(http.StatusOK, string(dist.SpaIndexHtml))
-	//})
-	//engine.StaticFS(dist.SpaFolderJS, dist.Assets(dist.SpaFolderName+dist.SpaFolderJS, dist.SpaJS))
-	//engine.StaticFS(dist.SpaFolderCSS, dist.Assets(dist.SpaFolderName+dist.SpaFolderCSS, dist.SpaCSS))
-	//engine.StaticFS(dist.SpaFolderFonts, dist.Assets(dist.SpaFolderName+dist.SpaFolderFonts, dist.SpaFonts))
-	//engine.StaticFS(dist.SpaFolderIcons, dist.Assets(dist.SpaFolderName+dist.SpaFolderIcons, dist.SpaIcons))
-	//engine.StaticFS(dist.SpaFolderImages, dist.Assets(dist.SpaFolderName+dist.SpaFolderImages, dist.SpaImages))
+	engine.GET("/", func(c *gin.Context) {
+		c.Header("content-type", "text/html;charset=utf-8")
+		c.String(http.StatusOK, string(dist.SpaIndexHtml))
+	})
+	engine.StaticFS(dist.SpaFolderName, dist.Assets(dist.SpaFolderName, dist.SpaJS))
 	// -------------------------------------------------
 	engine.Any("/api", func(c *gin.Context) {
 		c.Redirect(http.StatusMovedPermanently, "/")
