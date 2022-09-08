@@ -1,6 +1,7 @@
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
 import type { SubscribeItem, SubscribeNodeItem } from '@/interfaces/subscribe';
 import SubscribeApi from '@/apis/SubscribeApi';
+import ProxyPoolApi from '@/apis/ProxyPoolApi';
 
 export interface SubscribeState {
   subscribeList: SubscribeItem[] | null;
@@ -22,4 +23,16 @@ export const getNodeList = async () => {
   const [res] = await SubscribeApi.getNodeList();
   if (res === null) return;
   subscribeState.nodeList = res.node_info_list;
+};
+
+export const updateLoading = ref(false);
+export const updateNodeList = async () => {
+  updateLoading.value = true;
+  const [, err] = await ProxyPoolApi.updateNodeList();
+  if (err === null) {
+    await getNodeList();
+  } else {
+    window.$message.error(err.message);
+  }
+  updateLoading.value = false;
 };

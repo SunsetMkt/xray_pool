@@ -51,7 +51,7 @@
 import { onMounted, reactive, ref } from 'vue';
 import type { FormInst } from 'naive-ui';
 import SubscribeApi from '@/apis/SubscribeApi';
-import { getSubscribeList, subscribeState as state } from '@/composables/use-subscribe';
+import { getSubscribeList, subscribeState as state, updateNodeList } from '@/composables/use-subscribe';
 
 const formRef = ref<FormInst | null>(null);
 const form = reactive({
@@ -83,6 +83,7 @@ const addSubscribe = async () => {
       form.name = '';
       form.url = '';
       getSubscribeList();
+      updateNodeList();
     }
   });
 };
@@ -93,6 +94,7 @@ const removeSubscribe = async (id: number) => {
     window.$message.success('删除成功');
   }
   getSubscribeList();
+  updateNodeList();
 };
 
 onMounted(() => {

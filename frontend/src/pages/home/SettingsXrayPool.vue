@@ -23,12 +23,16 @@
       <n-input v-model:value="settingsState.model.test_url" @blur="updateSettings" />
     </n-form-item>
 
-    <n-form-item label="启动 Xray 的实例数量" path="test_url">
-      <div class="w-full">
-        <n-input-number v-model:value="settingsState.model.xray_instance_count" @blur="updateSettings" />
-        <div class="text-gray-500">PS：数量决定了同时开启节点的数量</div>
-      </div>
+    <n-form-item v-if="isProMode" label="健康检测网站" path="health_check_url">
+      <n-input v-model:value="settingsState.model.health_check_url" @blur="updateSettings" />
     </n-form-item>
+
+    <!--    <n-form-item label="启动 Xray 的实例数量" path="test_url">-->
+    <!--      <div class="w-full">-->
+    <!--        <n-input-number v-model:value="settingsState.model.xray_instance_count" @blur="updateSettings" />-->
+    <!--        <div class="text-gray-500">PS：数量决定了同时开启节点的数量</div>-->
+    <!--      </div>-->
+    <!--    </n-form-item>-->
 
     <n-form-item v-if="isNormalMode" label="本机性能" path="test_url_thread">
       <n-radio-group v-model:value="settingsState.model.test_url_thread" name="radiogroup" @change="updateSettings">
@@ -72,13 +76,86 @@
       </n-input-number>
     </n-form-item>
 
-    <n-form-item v-if="isProMode" label="测速目标网站时，使用的并发线程数" path="test_url_thread">
-      <n-input-number class="w-full" v-model:value="settingsState.model.test_url_thread" @blur="updateSettings" />
+    <n-form-item v-if="isProMode" path="test_url_thread">
+      <template #label>
+        <div>
+          <span>测速目标网站时，使用的并发线程数</span>
+          <n-tooltip>
+            <template #trigger>
+              <n-icon><help-circle /></n-icon>
+            </template>
+            <span>请根据实际带宽设置并发线程，否则可能导致测速不准</span>
+          </n-tooltip>
+        </div>
+      </template>
+      <div class="w-full">
+        <n-input-number class="w-full" v-model:value="settingsState.model.test_url_thread" @blur="updateSettings" />
+      </div>
+    </n-form-item>
+
+    <n-form-item v-if="isProMode" path="test_url_hard_way">
+      <template #label>
+        <div>
+          <span>启动浏览器进行测速</span>
+          <n-tooltip>
+            <template #trigger>
+              <n-icon><help-circle /></n-icon>
+            </template>
+            <span>应对一些网站的反爬虫策略</span>
+          </n-tooltip>
+        </div>
+      </template>
+      <n-switch v-model:value="settingsState.model.test_url_hard_way" @change="updateSettings" />
+    </n-form-item>
+
+    <n-form-item v-if="isProMode" path="test_url_failed_words">
+      <template #label>
+        <div>
+          <span>测速失败的关键字</span>
+          <n-tooltip>
+            <template #trigger>
+              <n-icon><help-circle /></n-icon>
+            </template>
+            <span>如果测速目标网站返回结果中包含这些关键字，则认为测速失败，不区分大小写</span>
+          </n-tooltip>
+        </div>
+      </template>
+      <n-select
+        class="w-full"
+        v-model:value="settingsState.model.test_url_failed_words"
+        multiple
+        tag
+        :options="[]"
+        placeholder="输入后按回车新增一条关键字"
+        @update:value="updateSettings"
+      />
+    </n-form-item>
+
+    <n-form-item v-if="isProMode" label="测速失败的关键字（正则）" path="test_url_failed_regex">
+      <div class="w-full">
+        <n-input class="w-full" v-model:value="settingsState.model.test_url_failed_regex" @blur="updateSettings" />
+      </div>
+    </n-form-item>
+
+    <n-form-item v-if="isProMode" path="test_url_status_code">
+      <template #label>
+        <div>
+          <span>期望返回的HTTP状态码</span>
+          <n-tooltip>
+            <template #trigger>
+              <n-icon><help-circle /></n-icon>
+            </template>
+            <span>若返回的状态码不一致，则认为测速失败</span>
+          </n-tooltip>
+        </div>
+      </template>
+      <n-input-number class="w-full" v-model:value="settingsState.model.test_url_status_code" @blur="updateSettings" />
     </n-form-item>
   </n-form>
 </template>
 
 <script setup lang="ts">
+import { HelpCircle } from '@vicons/ionicons5';
 import { settingsState, formRules, isProMode, isNormalMode, updateSettings } from '@/composables/use-settings';
 
 const gliderStrategyOptions = [

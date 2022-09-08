@@ -7,3 +7,7 @@
 
   font-weight: normal;
 }
+
+.n-form-item-feedback-wrapper:empty {
+    min-height: 5px;
+}

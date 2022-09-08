@@ -8,6 +8,8 @@ class ProxyPoolApi extends BaseApi {
   start = (data: any): Promise<ApiResponse<any>> => this.http('/v1/start_proxy_pool', data, 'POST');
 
   stop = (): Promise<ApiResponse<any>> => this.http('/v1/stop_proxy_pool', {}, 'POST');
+
+  updateNodeList = (): Promise<ApiResponse<any>> => this.http('/v1/update_nodes', {}, 'POST');
 }
 
 export default new ProxyPoolApi();

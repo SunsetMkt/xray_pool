@@ -22,7 +22,12 @@ export interface ApiResponseSettings {
   one_node_test_time_out: number;
   batch_node_test_max_time_out: number;
   test_url: string;
+  health_check_url: string;
   test_url_thread: number;
+  test_url_hard_way: boolean;
+  test_url_failed_words: string[];
+  test_url_failed_regex: string;
+  test_url_status_code: string;
   glider_strategy: 'rr' | 'ha' | 'lha' | 'dh';
   main_proxy_settings: MainProxySettings;
 }

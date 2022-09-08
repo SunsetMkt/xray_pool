@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="flex row justify-between">
-      <div>负载均衡端口(HTTP/Socks5): {{ proxyPoolState?.proxyList?.lib_port || '-' }}</div>
+      <div>
+        负载均衡端口(HTTP/Socks5): <span class="font-bold">{{ proxyPoolState?.proxyList?.lb_port || '-' }}</span>
+      </div>
       <div>
         负载均衡策略：<span class="font-bold">{{ settingsState.settings?.glider_strategy }}</span>
       </div>
