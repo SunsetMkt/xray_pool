@@ -23,6 +23,7 @@ export const getProxyList = async () => {
 };
 
 export const startProxyPool = async () => {
+  if (!settingsState.model) return;
   const [, err] = await ProxyPoolApi.start({ target_site_url: settingsState.model?.test_url });
   if (err !== null) {
     window.$message.error(err.message);

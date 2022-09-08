@@ -16,6 +16,7 @@ export interface MainProxySettings {
 
 export interface ApiResponseSettings {
   app_start_port: number;
+  manual_lb_port: number;
   xray_port_range: string;
   xray_instance_count: number;
   xray_open_socks_and_http: boolean;

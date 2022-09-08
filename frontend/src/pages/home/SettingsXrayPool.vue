@@ -37,9 +37,9 @@
     <n-form-item v-if="isNormalMode" label="本机性能" path="test_url_thread">
       <n-radio-group v-model:value="settingsState.model.test_url_thread" name="radiogroup" @change="updateSettings">
         <n-space>
-          <n-radio :value="3"> 弱鸡 </n-radio>
-          <n-radio :value="10"> 一般 </n-radio>
-          <n-radio :value="20"> 很猛 </n-radio>
+          <n-radio :value="3"> 弱鸡（3线程） </n-radio>
+          <n-radio :value="10"> 一般（10线程） </n-radio>
+          <n-radio :value="20"> 很猛（20线程） </n-radio>
         </n-space>
       </n-radio-group>
     </n-form-item>
@@ -50,6 +50,10 @@
         :options="gliderStrategyOptions"
         @update:value="updateSettings"
       ></n-select>
+    </n-form-item>
+
+    <n-form-item v-if="isProMode" label="自定义负载均衡端口（0为动态端口）" path="manual_lb_port">
+      <n-input-number class="w-full" v-model:value="settingsState.model.manual_lb_port" @blur="updateSettings" />
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="Xray启动起始端口" path="xray_port_range">
@@ -125,6 +129,7 @@
         v-model:value="settingsState.model.test_url_failed_words"
         multiple
         tag
+        filterable
         :options="[]"
         placeholder="输入后按回车新增一条关键字"
         @update:value="updateSettings"
