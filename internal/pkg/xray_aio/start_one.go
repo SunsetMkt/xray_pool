@@ -60,7 +60,7 @@ func (x *XrayAIO) StartOne(testUrl string, testTimeOut int, skipSpeedTest bool) 
 		}
 		logger.Infof("Xray -- %2d %6s [ %s ] 延迟: %dms", x.index, status, testUrl, result)
 		if result < 0 {
-			x.Stop()
+			//x.Stop()
 			logger.Infof("Xray -- %2d 当前节点: %v 访问 %v 失败, 将不再使用该节点", x.index, nowNode.GetName(), testUrl)
 			return false, result
 		}
