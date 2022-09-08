@@ -35,7 +35,7 @@
           <div class="text-gray-500">{{ item.url }}</div>
         </div>
 
-        <n-popconfirm @positive-click="removeSubscribe(i)">
+        <n-popconfirm placement="left" @positive-click="removeSubscribe(i)">
           <template #trigger>
             <n-button size="tiny" type="error">删除</n-button>
           </template>

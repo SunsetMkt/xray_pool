@@ -1,8 +1,8 @@
 <template>
   <div>
-    <header class="border-1 p-2 flex flex-row justify-between items-center">
-      <div>
-        XrayPool 运行状态：
+    <header class="flex flex-row justify-between items-center">
+      <div class="font-bold">
+        运行状态：
         <span v-if="isRunning" class="text-green-500">运行中</span>
         <span v-else-if="isStarting" class="text-gray-500">正在启动...</span>
         <span v-else-if="isStopped" class="text-red-500">已停止</span>

@@ -1,13 +1,19 @@
-@import "./base.css";
+@import './base.css';
+
+body {
+  background: #f2f2f2;
+}
 
 #app {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 2rem;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
 
   font-weight: normal;
+  background: #fff;
+  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
 }
 
 .n-form-item-feedback-wrapper:empty {
-    min-height: 5px;
+  min-height: 5px;
 }
