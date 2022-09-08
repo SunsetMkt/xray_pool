@@ -2,7 +2,6 @@ package dist
 
 import (
 	"embed"
-	_ "embed"
 	"io/fs"
 	"net/http"
 )
