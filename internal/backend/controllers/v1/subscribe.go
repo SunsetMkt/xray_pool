@@ -97,6 +97,14 @@ func (cb *ControllerBase) SubscribeDelHandler(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	// 需要先删除这个订阅源的所有节点，然后再删除这个订阅源
+	// 字符串转 int
+	subIndex, err := strconv.Atoi(subscribeDelete.Index)
+	if err != nil {
+		return
+	}
+	nowSub := cb.manager.GetSubscribe(subIndex)
+	cb.manager.DelNodeById(nowSub.ID())
 	cb.manager.DelSubscribe(subscribeDelete.Index)
 
 	c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
