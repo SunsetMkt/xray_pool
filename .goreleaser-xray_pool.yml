@@ -1,4 +1,4 @@
-project_name: chinesesubfinder
+project_name: xray_pool
 
 env:
   - GO111MODULE=on
@@ -7,6 +7,7 @@ before:
   hooks:
     - go mod tidy
     - sudo apt-get update -y
+    - sudo apt-get install gcc libgtk-3-dev libayatana-appindicator3-dev
 builds:
   - id: windows-build
     goos:
