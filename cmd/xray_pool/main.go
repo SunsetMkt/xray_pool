@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/backend"
@@ -8,7 +9,6 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/common"
 	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/getlantern/systray"
-	"github.com/getlantern/systray/example/icon"
 	"github.com/skratchdot/open-golang/open"
 	"os"
 )
@@ -34,7 +34,7 @@ func onReady() {
 		m := manager.NewManager()
 		AppStartPort = m.AppSettings.AppStartPort
 	}
-	systray.SetIcon(icon.Data)
+	systray.SetIcon(mainICON)
 	systray.SetTitle("XrayPool")
 	systray.SetTooltip("XrayPool - 代理池")
 	mMainWindow := systray.AddMenuItem("主程序", "打开主程序窗体")
@@ -54,10 +54,13 @@ func onReady() {
 	}()
 
 	// Sets the icon of a menu item. Only available on Mac and Windows.
-	mQuit.SetIcon(icon.Data)
+	//mQuit.SetIcon(icon.Data)
 }
 
 func onExit() {
 	// clean up here
 	_ = os.RemoveAll(pkg.GetTmpFolderFPath())
 }
+
+//go:embed icon/swimming_pool.ico
+var mainICON []byte
