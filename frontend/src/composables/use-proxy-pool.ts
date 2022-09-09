@@ -1,7 +1,7 @@
 import { computed, onMounted, reactive } from 'vue';
 import { useIntervalFn } from '@vueuse/core';
-import type { ApiResponseProxyList } from '@/interfaces/proxy-pool';
 import ProxyPoolApi from '@/apis/ProxyPoolApi';
+import type { ApiResponseProxyList } from '@/apis/ProxyPoolApi';
 import { settingsState } from '@/composables/use-settings';
 
 export interface ProxyPoolState {

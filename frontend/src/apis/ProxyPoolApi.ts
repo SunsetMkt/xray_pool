@@ -1,9 +1,21 @@
 import BaseApi from './BaseApi';
 import type { ApiResponse, ApiResponseCommon } from '@/interfaces/common';
-import type { ApiResponseProxyList } from '@/interfaces/proxy-pool';
 
-interface ApiRequestStartProxyPool {
+export interface ApiRequestStartProxyPool {
   target_site_url: string;
+}
+
+export interface ProxyItem {
+  name: string;
+  proto_mode: string;
+  socks_port: number;
+  http_port: number;
+}
+
+export interface ApiResponseProxyList {
+  status: 'starting' | 'running' | 'stopped';
+  lb_port: number;
+  open_result_list: ProxyItem[];
 }
 
 class ProxyPoolApi extends BaseApi {

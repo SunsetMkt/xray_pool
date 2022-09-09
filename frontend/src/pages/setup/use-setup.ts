@@ -1,6 +1,6 @@
 import { onMounted, reactive } from 'vue';
 import SettingsApi from '@/apis/SettingsApi';
-import type { ApiResponseSettings } from '@/interfaces/settings';
+import type { ApiResponseSettings } from '@/apis/SettingsApi';
 
 export interface SetupState {
   model: ApiResponseSettings | null;

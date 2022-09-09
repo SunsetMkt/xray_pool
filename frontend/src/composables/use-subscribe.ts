@@ -1,5 +1,5 @@
 import { reactive, ref } from 'vue';
-import type { SubscribeItem, SubscribeNodeItem } from '@/interfaces/subscribe';
+import type { SubscribeItem, SubscribeNodeItem } from '@/apis/SubscribeApi';
 import SubscribeApi from '@/apis/SubscribeApi';
 import ProxyPoolApi from '@/apis/ProxyPoolApi';
 

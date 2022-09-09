@@ -1,5 +1,5 @@
 import { computed, onMounted, reactive, watch } from 'vue';
-import type { ApiResponseSettings } from '@/interfaces/settings';
+import type { ApiResponseSettings } from '@/apis/SettingsApi';
 import SettingsApi from '@/apis/SettingsApi';
 
 export type SettingsMode = 'normal' | 'pro';

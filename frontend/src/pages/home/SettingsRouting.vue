@@ -68,7 +68,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { settingsState, updateSettings } from '@/composables/use-settings';
 import RoutingApi from '@/apis/RoutingApi';
-import type { RoutingResponseModel, RoutingType } from '@/interfaces/Routing';
+import type { ApiResponseRoutingList, RoutingType } from '@/apis/RoutingApi';
 
 const routingStrategyOptions = [
   { label: 'AsIs', value: 'AsIs' },
@@ -76,7 +76,7 @@ const routingStrategyOptions = [
   { label: 'IPOnDemand', value: 'IPOnDemand' },
 ];
 
-const rules = ref<RoutingResponseModel | null>(null);
+const rules = ref<ApiResponseRoutingList | null>(null);
 const routingType = ref<RoutingType>('Proxy');
 const newRule = ref('');
 

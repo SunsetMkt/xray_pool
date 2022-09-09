@@ -1,6 +1,6 @@
 import { computed, reactive } from 'vue';
 import { useIntervalFn } from '@vueuse/core';
-import type { ApiResponseSystemStatus } from '@/interfaces/common';
+import type { ApiResponseSystemStatus } from '@/apis/CommonApi';
 import CommonApi from '@/apis/CommonApi';
 
 export interface SystemState {
