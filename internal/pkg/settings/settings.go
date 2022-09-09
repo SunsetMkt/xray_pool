@@ -1,5 +1,7 @@
 package settings
 
+import "github.com/allanpk716/xray_pool/internal/pkg/common"
+
 type AppSettings struct {
 	UserName                string   `json:"user_name"`
 	Password                string   `json:"password"`
@@ -32,7 +34,7 @@ func NewAppSettings() *AppSettings {
 	return &AppSettings{
 		UserName:                "",
 		Password:                "",
-		AppStartPort:            19038,
+		AppStartPort:            common.DefAppStartPort,
 		ManualLbPort:            0,
 		XrayPortRange:           "36000",
 		XrayInstanceCount:       3,

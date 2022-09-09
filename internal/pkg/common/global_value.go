@@ -24,3 +24,5 @@ var (
 	accessToken      = ""
 	mutexAccessToken sync.Mutex
 )
+
+const DefAppStartPort = 19038

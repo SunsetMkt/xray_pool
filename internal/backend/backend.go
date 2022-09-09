@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"sync"
 	"time"
 )
@@ -157,7 +156,7 @@ func (b *BackEnd) Restart() {
 			{
 				stopFunc()
 				logger.Infoln("Http Server Exit.")
-				os.Exit(0)
+				//os.Exit(0)
 				return
 			}
 		}
