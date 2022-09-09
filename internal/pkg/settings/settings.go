@@ -32,7 +32,7 @@ func NewAppSettings() *AppSettings {
 	return &AppSettings{
 		UserName:                "",
 		Password:                "",
-		AppStartPort:            19035,
+		AppStartPort:            19038,
 		ManualLbPort:            0,
 		XrayPortRange:           "36000",
 		XrayInstanceCount:       3,
