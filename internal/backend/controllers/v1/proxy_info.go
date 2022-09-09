@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/allanpk716/xray_pool/internal/pkg/common"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -82,6 +83,7 @@ func (cb *ControllerBase) GetProxyListHandler(c *gin.Context) {
 
 	reply := ReplyProxyList{
 		Status:         cb.proxyPoolRunningStatus,
+		AppVersion:     common.GetAppVersion(),
 		LBPort:         cb.manager.ForwardProxyPort(),
 		OpenResultList: make([]xray_aio.OpenResult, 0),
 	}
@@ -101,6 +103,7 @@ type ReplyProxyPool struct {
 
 type ReplyProxyList struct {
 	Status         string                `json:"status"`
+	AppVersion     string                `json:"app_version"`
 	LBPort         int                   `json:"lb_port"`
 	OpenResultList []xray_aio.OpenResult `json:"open_result_list"`
 }

@@ -15,6 +15,10 @@ import (
 
 var exitSignal = make(chan interface{}, 1)
 
+func init() {
+	common.SetAppVersion(AppVersion)
+}
+
 func main() {
 
 	restartSignal := make(chan interface{}, 1)
@@ -64,3 +68,8 @@ func onExit() {
 
 //go:embed icon/swimming_pool.ico
 var mainICON []byte
+
+/*
+	使用 git tag 来做版本描述，然后在编译的时候传入版本号信息到这个变量上
+*/
+var AppVersion = "unknow"
