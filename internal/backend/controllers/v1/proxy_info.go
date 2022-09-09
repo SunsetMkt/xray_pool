@@ -38,9 +38,14 @@ func (cb *ControllerBase) StartProxyPoolHandler(c *gin.Context) {
 			cb.proxyPoolLocker.Unlock()
 		}()
 		cb.proxyPoolRunningStatus = "starting"
-		cb.manager.Start(startProxyPool.TargetSiteUrl)
-		// 开启反向代理
-		cb.proxyPoolRunningStatus = "running"
+		brunok := cb.manager.Start(startProxyPool.TargetSiteUrl)
+		if brunok == true {
+			// 开启反向代理
+			cb.proxyPoolRunningStatus = "running"
+		} else {
+			cb.manager.Stop()
+			cb.proxyPoolRunningStatus = "stopped"
+		}
 	}()
 
 	c.JSON(http.StatusOK, ReplyProxyPool{Status: "starting"})

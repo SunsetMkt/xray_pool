@@ -1,4 +1,4 @@
-package dist
+package frontend
 
 import (
 	"embed"
@@ -6,10 +6,10 @@ import (
 	"net/http"
 )
 
-//go:embed index.html
+//go:embed dist/index.html
 var SpaIndexHtml []byte
 
-//go:embed assets
+//go:embed dist/assets
 var SpaJS embed.FS
 
 func Assets(dirName string, emFS embed.FS) http.FileSystem {
@@ -22,5 +22,6 @@ func Assets(dirName string, emFS embed.FS) http.FileSystem {
 }
 
 const (
-	SpaFolderName = "assets"
+	SpaRelativePath = "assets"
+	SpaFolderName   = "dist/assets"
 )

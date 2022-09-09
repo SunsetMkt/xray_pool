@@ -79,7 +79,7 @@ func (m *Manager) Save() {
 }
 
 // Start 启动
-func (m *Manager) Start(targetSiteUrl string) {
+func (m *Manager) Start(targetSiteUrl string) bool {
 
 	m.xrayPoolRunningLock.Lock()
 	defer m.xrayPoolRunningLock.Unlock()
@@ -92,22 +92,23 @@ func (m *Manager) Start(targetSiteUrl string) {
 	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts()
 	if bok == false {
 		logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
-		return
+		return false
 	}
 	// 开启本地的代理
 	bok = m.StartXray(aliveNodeIndexList, alivePorts)
 	if bok == false {
 		logger.Errorf("StartProxyPoolHandler: StartXray failed")
-		return
+		return false
 	}
 	// 开启 glider 前置代理
 	bok = m.ForwardProxyStart()
 	if bok == false {
 		logger.Errorf("StartProxyPoolHandler: ForwardProxyStart failed")
-		return
+		return false
 	}
 
 	m.xrayPoolRunning = true
+	return false
 }
 
 // Stop 停止
