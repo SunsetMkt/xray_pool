@@ -1,0 +1,40 @@
+project_name: xray_pool
+
+env:
+  - GO111MODULE=on
+
+before:
+  hooks:
+    - go mod tidy
+    - sudo apt-get update -y
+    - sudo apt-get install gcc libgtk-3-dev libayatana-appindicator3-dev
+builds:
+  - id: windows-build
+    goos:
+      - windows
+    goarch:
+      - amd64
+    main: ./cmd/xray_pool/main.go
+    ldflags:
+      - -s -w --extldflags "-static -fpic" -X main.AppVersion=v{{ .Version }} -H=windowsgui
+
+archives:
+  - id: archive
+    name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^TestData:"
+      - "^TestCode:"

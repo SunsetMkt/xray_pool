@@ -20,7 +20,18 @@ func GetAccessToken() string {
 	return accessToken
 }
 
+func SetAppVersion(newVersion string) {
+	appVersion = newVersion
+}
+
+func GetAppVersion() string {
+	return appVersion
+}
+
 var (
 	accessToken      = ""
 	mutexAccessToken sync.Mutex
+	appVersion       = "unknown"
 )
+
+const DefAppStartPort = 19038
