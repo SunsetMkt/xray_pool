@@ -2,7 +2,7 @@
 
 ## 前言
 
-本软件的目标是短平快的提供一个多协议支持的代理池，针对目标网站筛选出有效的节点去访问，输出一个使用负载均衡策的 HTTP 端口（暂时默认：round robin）。
+本软件的目标是短平快的提供一个多协议支持的代理池，针对**目标网站**筛选出**有效**的**节点**去访问，输出一个使用负载均衡策的 HTTP/Socks5 端口（暂时默认：round robin）。
 
 当然也是可以当 V2rayN 来使用的，开启 Xray 多个代理节点后，无需因为一个节点的故障，手动去切换节点。
 
@@ -57,7 +57,7 @@
 3. 去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`base_things`中
 4. 双击启动 `D:\Xray_Pool\xray_pool.exe`
 5. Windows 防火墙会提示有程序访问网络，选择同意
-6. 使用本地浏览器打开 http://127.0.0.1:19035
+6. 使用本地浏览器打开 http://127.0.0.1:19038
 8. 添加 V2RAY 鸡场提供的订阅源，更新节点
 9. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
 
@@ -85,7 +85,7 @@
 
 因为接口是动态的，那么支持外部的程序通过 http api 获取这些信息
 
-Url: `127.0.0.1:19035/v1/proxy_list`
+Url: `127.0.0.1:19038/v1/proxy_list`
 
 请求方式：GET
 
