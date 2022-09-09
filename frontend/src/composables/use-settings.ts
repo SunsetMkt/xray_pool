@@ -34,6 +34,7 @@ export const getSettings = async () => {
 };
 
 export const updateSettings = async () => {
+  if (settingsState.model === null) return;
   const [, err] = await SettingsApi.update(settingsState.model);
   if (err !== null) {
     window.$message.error(err.message);

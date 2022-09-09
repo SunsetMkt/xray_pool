@@ -15,8 +15,9 @@ const loading = ref(false);
 
 const startProxyPool = async () => {
   loading.value = true;
+  if (settingsState.settings === null) return;
   const [, err] = await ProxyPoolApi.start({
-    target_site_url: settingsState?.settings?.test_url,
+    target_site_url: settingsState.settings.test_url,
   });
   if (err) {
     window.$message.error(err.message);

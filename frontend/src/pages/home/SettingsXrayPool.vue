@@ -9,6 +9,7 @@
     require-mark-placement="right-hanging"
     size="small"
     :key="settingsState.mode"
+    :disabled="!isStopped"
   >
     <n-form-item>
       <n-radio-group v-model:value="settingsState.mode" name="radiogroup">
@@ -162,6 +163,7 @@
 <script setup lang="ts">
 import { HelpCircle } from '@vicons/ionicons5';
 import { settingsState, formRules, isProMode, isNormalMode, updateSettings } from '@/composables/use-settings';
+import { isStopped } from '@/composables/use-proxy-pool';
 
 const gliderStrategyOptions = [
   { label: 'rr(round robin)', value: 'rr' },

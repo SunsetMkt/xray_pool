@@ -23,6 +23,7 @@ export const useSetup = () => {
 };
 
 export const finishSetup = async () => {
+  if (setupState.model === null) return;
   const [, err] = await SettingsApi.update(setupState.model);
   if (err !== null) {
     window.$message.error(err.message);
