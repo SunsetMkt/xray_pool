@@ -70,7 +70,7 @@
 #### MacOS
 
 1. 下载编译好的程序，放到任意目录中。
-2. 在 `/.config/xray_pool`中新建一个文件夹`base_things`
+2. 在 `/Users/<user>/.config/xray_pool`中新建一个文件夹`base_things`
 3. 后续参考 Windows 部分
 
 #### Docker
