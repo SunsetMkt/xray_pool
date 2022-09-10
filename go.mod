@@ -4,12 +4,16 @@ go 1.17
 
 require (
 	github.com/WQGroup/logger v0.0.4
+	github.com/allanpk716/fake-useragent v0.2.1
 	github.com/allanpk716/go-protocol-detector v0.11.1
+	github.com/getlantern/systray v1.2.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
+	github.com/go-rod/rod v0.109.1
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/panjf2000/ants/v2 v2.5.0
 	github.com/pkg/errors v0.9.1
+	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/tklauser/ps v0.0.1
 )
 
@@ -17,7 +21,6 @@ require (
 	github.com/3th1nk/cidr v0.0.0-20220718125058-47306b78b56c // indirect
 	github.com/EDDYCJY/fake-useragent v0.2.0 // indirect
 	github.com/PuerkitoBio/goquery v1.7.1 // indirect
-	github.com/allanpk716/fake-useragent v0.2.1 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/getlantern/context v0.0.0-20190109183933-c447772a6520 // indirect
 	github.com/getlantern/errors v0.0.0-20190325191628-abdb3e3e36f7 // indirect
@@ -25,12 +28,10 @@ require (
 	github.com/getlantern/hex v0.0.0-20190417191902-c6586a6fe0b7 // indirect
 	github.com/getlantern/hidden v0.0.0-20190325191715-f02dbb02be55 // indirect
 	github.com/getlantern/ops v0.0.0-20190325191751-d70cb0d6f85f // indirect
-	github.com/getlantern/systray v1.2.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
-	github.com/go-rod/rod v0.109.1 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/goccy/go-json v0.9.10 // indirect
 	github.com/jonboulle/clockwork v0.3.0 // indirect
@@ -47,7 +48,6 @@ require (
 	github.com/pkg/sftp v1.13.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
-	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/ysmood/goob v0.4.0 // indirect

@@ -10,6 +10,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -75,6 +76,9 @@ func (cb *ControllerBase) SystemStatus(c *gin.Context) {
 	} else {
 		replySystemStatus.IsSetup = false
 	}
+
+	replySystemStatus.OS = runtime.GOOS
+	replySystemStatus.ARCH = runtime.GOARCH
 
 	c.JSON(http.StatusOK, replySystemStatus)
 
@@ -218,7 +222,9 @@ func (cb *ControllerBase) ClearTmpFolder(c *gin.Context) {
 }
 
 type ReplySystemStatus struct {
-	IsSetup bool `json:"is_setup"`
+	IsSetup bool   `json:"is_setup"`
+	OS      string `json:"os"`   // 系统版本
+	ARCH    string `json:"arch"` // 架构
 }
 
 type RequestSetup struct {
