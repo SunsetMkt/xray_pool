@@ -11,6 +11,7 @@ import (
 	"github.com/getlantern/systray"
 	"github.com/skratchdot/open-golang/open"
 	"os"
+	"runtime"
 )
 
 var exitSignal = make(chan interface{}, 1)
@@ -39,7 +40,11 @@ func onReady() {
 		AppStartPort = m.AppSettings.AppStartPort
 	}
 	systray.SetIcon(mainICON)
-	systray.SetTitle("XrayPool")
+
+	if runtime.GOOS == "darwin" {
+		// macos 的时候，就不设置 title 了，不然太占位置了
+		systray.SetTitle("XrayPool")
+	}
 	systray.SetTooltip("XrayPool - 代理池")
 	mMainWindow := systray.AddMenuItem("主程序", "打开主程序窗体")
 	mQuit := systray.AddMenuItem("退出", "退出程序，清理缓存")
