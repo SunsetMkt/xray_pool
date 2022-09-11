@@ -14,6 +14,7 @@ export interface ProxyItem {
 
 export interface ApiResponseProxyList {
   status: 'starting' | 'running' | 'stopped';
+  app_version: string;
   lb_port: number;
   open_result_list: ProxyItem[];
 }
