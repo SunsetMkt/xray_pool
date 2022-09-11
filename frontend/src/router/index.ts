@@ -10,9 +10,14 @@ const router = createRouter({
     },
 
     {
-      path: '/setup',
-      component: () => import('../pages/setup/index.vue'),
+      path: '/prepare',
+      component: () => import('../pages/prepare/index.vue'),
     },
+
+    // {
+    //   path: '/setup',
+    //   component: () => import('../pages/setup/index.vue'),
+    // },
   ],
 });
 

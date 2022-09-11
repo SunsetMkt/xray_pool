@@ -26,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+import { watchEffect } from 'vue';
+import { useRouter } from 'vue-router';
 import SettingsXrayPool from '@/pages/home/SettingsXrayPool.vue';
 import LoadBalancePanel from '@/pages/home/LoadBalancePanel.vue';
 import { isRunning, isStarting, isStopped, proxyPoolState, useProxyPool } from '@/composables/use-proxy-pool';
@@ -33,7 +35,20 @@ import BtnModalSettingsSubscribe from '@/pages/home/BtnModalSettingsSubscribe.vu
 import BtnModalSettingsAdvanced from '@/pages/home/BtnModalSettingsAdvanced.vue';
 import ProxyPoolOperations from '@/pages/home/ProxyPoolOperations.vue';
 import { useSettings } from '@/composables/use-settings';
+import { isSetup, systemState, useSystem } from '@/composables/use-system';
+
+const router = useRouter();
 
 useProxyPool();
 useSettings();
+const { stopInterval } = useSystem();
+
+watchEffect(() => {
+  if (systemState.status === null) return;
+  if (isSetup.value) {
+    stopInterval();
+  } else {
+    router.push('/prepare');
+  }
+});
 </script>

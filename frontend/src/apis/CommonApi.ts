@@ -3,6 +3,10 @@ import type { ApiResponse } from '@/interfaces/common';
 
 export interface ApiResponseSystemStatus {
   is_setup: boolean;
+  os: string;
+  arch: string;
+  glider_downloaded: boolean;
+  xray_downloaded: boolean;
 }
 
 class CommonApi extends BaseApi {
