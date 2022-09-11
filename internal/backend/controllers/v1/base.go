@@ -8,6 +8,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/lock"
 	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/allanpk716/xray_pool/internal/pkg/types/backend"
+	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
 	"net/http"
 	"os"
 	"runtime"
@@ -80,7 +81,9 @@ func (cb *ControllerBase) SystemStatus(c *gin.Context) {
 	replySystemStatus.OS = runtime.GOOS
 	replySystemStatus.ARCH = runtime.GOARCH
 	replySystemStatus.GliderDownloaded = cb.manager.CheckGliderStatus()
-	replySystemStatus.XrayDownloaded = cb.manager.CheckXrayStatus()
+
+	nowXrayHelper := xray_aio.NewXrayOne(0, nil, cb.manager.AppSettings, cb.manager.AppSettings.MainProxySettings, nil, nil)
+	replySystemStatus.XrayDownloaded = nowXrayHelper.Check()
 
 	c.JSON(http.StatusOK, replySystemStatus)
 
