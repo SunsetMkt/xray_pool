@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="text-gray-500">版本：{{ proxyPoolState.proxyList?.app_version }}</div>
     <header class="flex flex-row justify-between items-center">
       <div class="font-bold">
         运行状态：
@@ -27,7 +28,7 @@
 <script setup lang="ts">
 import SettingsXrayPool from '@/pages/home/SettingsXrayPool.vue';
 import LoadBalancePanel from '@/pages/home/LoadBalancePanel.vue';
-import { isRunning, isStarting, isStopped, useProxyPool } from '@/composables/use-proxy-pool';
+import { isRunning, isStarting, isStopped, proxyPoolState, useProxyPool } from '@/composables/use-proxy-pool';
 import BtnModalSettingsSubscribe from '@/pages/home/BtnModalSettingsSubscribe.vue';
 import BtnModalSettingsAdvanced from '@/pages/home/BtnModalSettingsAdvanced.vue';
 import ProxyPoolOperations from '@/pages/home/ProxyPoolOperations.vue';

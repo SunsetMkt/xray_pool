@@ -45,7 +45,7 @@
       </n-radio-group>
     </n-form-item>
 
-    <n-form-item v-if="isProMode" label="负载均衡策略" path="glider_strategy">
+    <n-form-item label="负载均衡策略" path="glider_strategy">
       <n-select
         v-model:value="settingsState.model.glider_strategy"
         :options="gliderStrategyOptions"

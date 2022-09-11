@@ -1,5 +1,5 @@
 <template>
-  <n-button @click="showModal = true" type="primary" v-bind="$attrs"> 高级设置 </n-button>
+  <n-button @click="showModal = true" type="primary" v-bind="$attrs" :disabled="!isStopped"> 高级设置 </n-button>
   <n-modal v-model:show="showModal">
     <div class="flex flex-col bg-white p-3" style="width: 600px; max-height: 90vh; overflow: hidden">
       <div class="font-bold text-xl">高级设置</div>
@@ -25,6 +25,7 @@
 import { ref } from 'vue';
 import SettingsCore from '@/pages/home/SettingsCore.vue';
 import SettingsRouting from '@/pages/home/SettingsRouting.vue';
+import { isStopped } from '@/composables/use-proxy-pool';
 
 const showModal = ref(false);
 </script>
