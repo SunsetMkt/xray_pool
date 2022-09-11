@@ -79,6 +79,8 @@ func (cb *ControllerBase) SystemStatus(c *gin.Context) {
 
 	replySystemStatus.OS = runtime.GOOS
 	replySystemStatus.ARCH = runtime.GOARCH
+	replySystemStatus.GliderDownloaded = cb.manager.CheckGliderStatus()
+	replySystemStatus.XrayDownloaded = cb.manager.CheckXrayStatus()
 
 	c.JSON(http.StatusOK, replySystemStatus)
 
@@ -222,9 +224,11 @@ func (cb *ControllerBase) ClearTmpFolder(c *gin.Context) {
 }
 
 type ReplySystemStatus struct {
-	IsSetup bool   `json:"is_setup"`
-	OS      string `json:"os"`   // 系统版本
-	ARCH    string `json:"arch"` // 架构
+	IsSetup          bool   `json:"is_setup"`
+	OS               string `json:"os"`                // 系统版本
+	ARCH             string `json:"arch"`              // 架构
+	GliderDownloaded bool   `json:"glider_downloaded"` // 是否已经下载了 glider
+	XrayDownloaded   bool   `json:"xray_downloaded"`   // 是否已经下载了 xray
 }
 
 type RequestSetup struct {

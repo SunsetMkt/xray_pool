@@ -22,17 +22,20 @@ func NewGliderHelper() *GliderHelper {
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
 func (g *GliderHelper) Check() bool {
 
-	// 在这个目录下进行搜索是否存在 Xray 程序
-	nowRootPath := pkg.GetBaseThingsFolderFPath()
-	gliderExeName := pkg.GetGliderExeName()
-	gliderExeFullPath := filepath.Join(nowRootPath, gliderExeName)
-	if pkg.IsFile(gliderExeFullPath) == false {
-		logger.Panic(GliderDownloadInfo)
-		return false
+	if g.gliderPath == "" {
+		// 在这个目录下进行搜索是否存在 Xray 程序
+		nowRootPath := pkg.GetBaseThingsFolderFPath()
+		gliderExeName := pkg.GetGliderExeName()
+		gliderExeFullPath := filepath.Join(nowRootPath, gliderExeName)
+		if pkg.IsFile(gliderExeFullPath) == false {
+			logger.Error(GliderDownloadInfo)
+			return false
+		}
+		g.gliderPath = gliderExeFullPath
+		return true
+	} else {
+		return true
 	}
-
-	g.gliderPath = gliderExeFullPath
-	return true
 }
 
 func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, socksPorts []int, GliderStrategy string) error {

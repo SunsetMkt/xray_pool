@@ -70,6 +70,14 @@ func NewManager() *Manager {
 	return manager
 }
 
+func (m *Manager) CheckGliderStatus() bool {
+	return m.gliderHelper.Check()
+}
+
+func (m *Manager) CheckXrayStatus() bool {
+	return m.xrayAIO.Check()
+}
+
 // Save 保存数据
 func (m *Manager) Save() {
 	err := pkg.WriteJSON(m, core.AppSettings)
