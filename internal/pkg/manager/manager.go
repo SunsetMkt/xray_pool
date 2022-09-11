@@ -58,14 +58,14 @@ func NewManager() *Manager {
 	}
 	nowXrayHelper := xray_aio.NewXrayOne(0, nil, manager.AppSettings, manager.AppSettings.MainProxySettings, manager.routing, nil)
 	defer nowXrayHelper.Stop()
-	if nowXrayHelper.Check() == false {
-		logger.Panic("NewXrayHelper Check == false")
-	}
+	//if nowXrayHelper.Check() == false {
+	//	logger.Panic("NewXrayHelper Check == false")
+	//}
 
 	manager.gliderHelper = glider_helper.NewGliderHelper()
-	if manager.gliderHelper.Check() == false {
-		logger.Panic("glider Check == false")
-	}
+	//if manager.gliderHelper.Check() == false {
+	//	logger.Panic("glider Check == false")
+	//}
 
 	return manager
 }
