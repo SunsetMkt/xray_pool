@@ -7,6 +7,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/backend"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/common"
+	"github.com/allanpk716/xray_pool/internal/pkg/logger_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/manager"
 	"github.com/getlantern/systray"
 	"github.com/skratchdot/open-golang/open"
@@ -21,6 +22,10 @@ func init() {
 }
 
 func main() {
+
+	logger.Infoln("Start XrayPool...")
+
+	go logger_helper.Listen()
 
 	restartSignal := make(chan interface{}, 1)
 	defer close(restartSignal)

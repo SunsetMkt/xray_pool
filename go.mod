@@ -3,7 +3,7 @@ module github.com/allanpk716/xray_pool
 go 1.17
 
 require (
-	github.com/WQGroup/logger v0.0.4
+	github.com/WQGroup/logger v0.0.6
 	github.com/allanpk716/fake-useragent v0.2.1
 	github.com/allanpk716/go-protocol-detector v0.11.1
 	github.com/getlantern/systray v1.2.1
@@ -11,6 +11,8 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-rod/rod v0.109.1
 	github.com/mattn/go-runewidth v0.0.13
+	github.com/mochi-co/mqtt v1.3.2
+	github.com/nxadm/tail v1.4.8
 	github.com/panjf2000/ants/v2 v2.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
@@ -22,6 +24,7 @@ require (
 	github.com/EDDYCJY/fake-useragent v0.2.0 // indirect
 	github.com/PuerkitoBio/goquery v1.7.1 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/getlantern/context v0.0.0-20190109183933-c447772a6520 // indirect
 	github.com/getlantern/errors v0.0.0-20190325191628-abdb3e3e36f7 // indirect
 	github.com/getlantern/golog v0.0.0-20190830074920-4ef2e798c2d7 // indirect
@@ -34,6 +37,7 @@ require (
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/goccy/go-json v0.9.10 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jonboulle/clockwork v0.3.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kr/fs v0.1.0 // indirect
@@ -47,6 +51,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.2 // indirect
 	github.com/pkg/sftp v1.13.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rs/xid v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/t-tomalak/logrus-easy-formatter v0.0.0-20190827215021-c074f06c5816 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
@@ -59,5 +64,6 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
