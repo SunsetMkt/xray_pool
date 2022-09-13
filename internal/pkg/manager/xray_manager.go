@@ -29,6 +29,9 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 		logger.Infoln("------------------------------")
 		logger.Infof("Alive Node Count: %v", len(aliveNodeIndexList))
 		for _, nodeIndex := range aliveNodeIndexList {
+			if nodeIndex <= 0 {
+				continue
+			}
 			logger.Infof("alive node: %v -- %v", nodeIndex, m.GetNode(nodeIndex).GetName())
 		}
 		logger.Infoln("------------------------------")
@@ -71,13 +74,19 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 	m.NodesTCPing()
 
 	checkResultChan := make(chan CheckResult, 1)
-	defer close(checkResultChan)
+	defer func() {
+		close(checkResultChan)
+	}()
 	exitRevResultChan := make(chan bool, 1)
 	defer close(exitRevResultChan)
+	println("GetsValidNodesAndAlivePorts start")
 	go func() {
 		for {
 			select {
-			case revCheckResult := <-checkResultChan:
+			case revCheckResult, bok := <-checkResultChan:
+				if bok == false {
+					continue
+				}
 				aliveNodeIndexList = append(aliveNodeIndexList, revCheckResult.NodeIndex)
 			case <-exitRevResultChan:
 				return
