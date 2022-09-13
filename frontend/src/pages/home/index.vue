@@ -16,9 +16,11 @@
 
     <settings-xray-pool class="border-1 p-2 mt-2" />
 
-    <div class="mt-2">
+    <div class="mt-2 flex flex-row">
       <btn-modal-settings-subscribe />
       <btn-modal-settings-advanced class="ml-2" />
+      <div class="flex-1"></div>
+      <btn-dialog-log />
     </div>
 
     <load-balance-panel v-if="isRunning" class="border-1 p-2 mt-2" />
@@ -36,11 +38,14 @@ import BtnModalSettingsAdvanced from '@/pages/home/BtnModalSettingsAdvanced.vue'
 import ProxyPoolOperations from '@/pages/home/ProxyPoolOperations.vue';
 import { useSettings } from '@/composables/use-settings';
 import { isSetup, systemState, useSystem } from '@/composables/use-system';
+import { useMqtt } from '@/composables/use-mqtt';
+import BtnDialogLog from '@/pages/home/BtnDialogLog.vue';
 
 const router = useRouter();
 
 useProxyPool();
 useSettings();
+useMqtt();
 const { stopInterval } = useSystem();
 
 watchEffect(() => {

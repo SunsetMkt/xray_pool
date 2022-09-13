@@ -8,6 +8,8 @@
     }
   },
 
+  "skipLibCheck": true,
+
   "references": [
     {
       "path": "./tsconfig.config.json"
