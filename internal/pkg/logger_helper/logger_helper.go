@@ -15,13 +15,10 @@ import (
 // Listen 需要在 logger 使用一次后再调用这个函数
 func Listen() {
 
+	var err error
 	logger.Infoln("Start Listen Log File...")
 
-	go initMQTTServer()
-
 	logQueue = make([]string, 0)
-
-	var err error
 	tailInstance, err = tail.TailFile(logger.CurrentFileName(), tail.Config{Follow: true, Poll: true})
 	if err != nil {
 		logger.Panic(err)
@@ -63,6 +60,33 @@ func Listen() {
 		}
 	}()
 
+	// Create the new MQTT Server.
+	mqttServer = mqtt.NewServer(nil)
+	// Create a TCP listener on a standard port.
+	tcp := listeners.NewTCP("t1", ":19039")
+	// Add the listener to the mqttServer with default options (nil).
+	err = mqttServer.AddListener(tcp, nil)
+	if err != nil {
+		logger.Panic(err)
+	}
+	go func() {
+		err = mqttServer.Serve()
+		if err != nil {
+			logger.Panic(err)
+		}
+	}()
+	// 连接
+	mqttServer.Events.OnConnect = func(cl events.Client, pk events.Packet) {
+		fmt.Printf("<< OnConnect client connected %s\n", cl.ID)
+		AddClientStatus(cl.ID)
+		go sendLog(cl.ID)
+	}
+	// 取消订阅主题
+	mqttServer.Events.OnDisconnect = func(cl events.Client, err error) {
+		fmt.Printf("<< OnDisconnect client disconnected %s: %v\n", cl.ID, err)
+		DelClientStatus(cl.ID)
+	}
+
 	select {}
 }
 
@@ -73,38 +97,6 @@ func readLogOut() {
 }
 
 func initMQTTServer() {
-
-	// Create the new MQTT Server.
-	mqttServer = mqtt.NewServer(nil)
-	// Create a TCP listener on a standard port.
-	tcp := listeners.NewTCP("t1", ":19039")
-	// Add the listener to the mqttServer with default options (nil).
-	err := mqttServer.AddListener(tcp, nil)
-	if err != nil {
-		logger.Panic(err)
-	}
-
-	go func() {
-		err = mqttServer.Serve()
-		if err != nil {
-			logger.Panic(err)
-		}
-	}()
-
-	// 连接
-	mqttServer.Events.OnConnect = func(cl events.Client, pk events.Packet) {
-
-		fmt.Printf("<< OnConnect client connected %s\n", cl.ID)
-		AddClientStatus(cl.ID)
-
-		go sendLog(cl.ID)
-	}
-	// 取消订阅主题
-	mqttServer.Events.OnDisconnect = func(cl events.Client, err error) {
-
-		fmt.Printf("<< OnDisconnect client disconnected %s: %v\n", cl.ID, err)
-		DelClientStatus(cl.ID)
-	}
 
 	select {}
 }
