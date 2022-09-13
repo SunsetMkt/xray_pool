@@ -29,6 +29,9 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 		logger.Infoln("------------------------------")
 		logger.Infof("Alive Node Count: %v", len(aliveNodeIndexList))
 		for _, nodeIndex := range aliveNodeIndexList {
+			if nodeIndex <= 0 {
+				continue
+			}
 			logger.Infof("alive node: %v -- %v", nodeIndex, m.GetNode(nodeIndex).GetName())
 		}
 		logger.Infoln("------------------------------")
