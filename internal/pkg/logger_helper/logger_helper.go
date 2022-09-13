@@ -63,9 +63,10 @@ func Listen() {
 	// Create the new MQTT Server.
 	mqttServer = mqtt.NewServer(nil)
 	// Create a TCP listener on a standard port.
-	tcp := listeners.NewTCP("t1", ":19039")
+	ws := listeners.NewWebsocket("t1", ":19039")
+	//tcp := listeners.NewTCP("t1", ":19039")
 	// Add the listener to the mqttServer with default options (nil).
-	err = mqttServer.AddListener(tcp, nil)
+	err = mqttServer.AddListener(ws, nil)
 	if err != nil {
 		logger.Panic(err)
 	}
