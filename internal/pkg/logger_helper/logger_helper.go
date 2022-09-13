@@ -97,11 +97,6 @@ func readLogOut() {
 	}
 }
 
-func initMQTTServer() {
-
-	select {}
-}
-
 func Add2LogQueue(message string) {
 	logQueueLock.Lock()
 	defer logQueueLock.Unlock()

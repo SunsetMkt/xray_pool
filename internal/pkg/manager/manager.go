@@ -108,7 +108,7 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 	}
 
 	m.xrayPoolRunning = true
-	return false
+	return true
 }
 
 // Stop 停止
