@@ -103,13 +103,18 @@ func Add2LogQueue(message string) {
 	logQueue = append(logQueue, message)
 }
 
-func GetOneLogQueue(index int) string {
+// GetMultiLineLogQueue 从起始 Index 向后获取所有的日志
+func GetMultiLineLogQueue(startIndex int) []string {
 	logQueueLock.Lock()
 	defer logQueueLock.Unlock()
-	if index < len(logQueue) {
-		return logQueue[index]
+	if startIndex < len(logQueue) {
+		outLine := make([]string, 0)
+		for i := startIndex; i < len(logQueue); i++ {
+			outLine = append(outLine, logQueue[i])
+		}
+		return outLine
 	} else {
-		return ""
+		return nil
 	}
 }
 
@@ -141,15 +146,17 @@ func sendLog(clientId string) {
 			if nowClient == nil {
 				return
 			}
-			oneLineLogMessage := GetOneLogQueue(nowClient.LogIndex)
-			if oneLineLogMessage == "" {
+			multiLine := GetMultiLineLogQueue(nowClient.LogIndex)
+			if multiLine == nil {
 				continue
 			}
-			nowClient.LogIndex++
+			nowClient.LogIndex += len(multiLine)
 
-			err := mqttServer.Publish(fmt.Sprintf("log/%s", clientId), []byte(oneLineLogMessage), false)
-			if err != nil {
-				logger.Errorln("Publish Error:", err)
+			for _, oneLine := range multiLine {
+				err := mqttServer.Publish(fmt.Sprintf("log/%s", clientId), []byte(oneLine), false)
+				if err != nil {
+					logger.Errorln("Publish Error:", err)
+				}
 			}
 		}
 	}
