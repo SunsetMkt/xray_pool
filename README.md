@@ -74,7 +74,7 @@
 3. 去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`base_things`中
 4. 双击启动 `D:\Xray_Pool\xray_pool.exe`
 5. Windows 防火墙会提示有程序访问网络，选择同意
-6. 使用本地浏览器打开 http://127.0.0.1:19038
+6. 使用本地浏览器打开 http://127.0.0.1:19038，或者在“任务栏”，右键这个图标打开“主页”或者“退出”。![image-20220914092242827](README.assets/image-20220914092242827.png)
 8. 添加 V2RAY 鸡场提供的订阅源，更新节点
 9. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
 
