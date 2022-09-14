@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 )
@@ -28,13 +29,19 @@ func (m *Manager) ForwardProxyStart() bool {
 		// 如果不满足，那么就再次扫描一个端口段，找到一个可用的端口给反向代理服务器
 		alivePorts := pkg.ScanAlivePortList("63200-63400")
 		if len(alivePorts) == 0 {
-			logger.Errorf("ForwardProxyStart: no open ports to proxy")
+			logger.Errorf("自动选择负载均衡端口失败，搜索范围：63200-63400")
 			return false
 		} else {
 			m.forwardServerHttpPort = alivePorts[0]
 		}
 	} else {
-		m.forwardServerHttpPort = m.AppSettings.ManualLbPort
+		alivePorts := pkg.ScanAlivePortList(fmt.Sprintf("%s", m.AppSettings.ManualLbPort))
+		if len(alivePorts) == 0 {
+			logger.Errorf("手动指定负载均衡端口:%d ,已经被占用！", m.AppSettings.ManualLbPort)
+			return false
+		} else {
+			m.forwardServerHttpPort = m.AppSettings.ManualLbPort
+		}
 	}
 
 	socksPorts := make([]int, 0)
