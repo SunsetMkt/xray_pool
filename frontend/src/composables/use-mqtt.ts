@@ -9,10 +9,8 @@ export const logs = ref<string[]>([]);
 export const useMqtt = () => {
   const client = mqtt.connect('ws://127.0.0.1:19039', {
     // clean: false,
-    clientId: localStorage.getItem('mqtt-client-id') || undefined,
+    // clientId: localStorage.getItem('mqtt-client-id') || undefined,
   });
-
-  localStorage.setItem('mqtt-client-id', client.options.clientId);
 
   client.on('connect', () => {
     // eslint-disable-next-line no-console

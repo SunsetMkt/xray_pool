@@ -26,6 +26,7 @@ export interface ApiResponseSettings {
   batch_node_test_max_time_out: number;
   test_url: string;
   health_check_url: string;
+  health_check_interval: number;
   test_url_thread: number;
   test_url_hard_way: boolean;
   test_url_failed_words: string[];

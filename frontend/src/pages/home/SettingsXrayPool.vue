@@ -28,12 +28,9 @@
       <n-input v-model:value="settingsState.model.health_check_url" @blur="updateSettings" />
     </n-form-item>
 
-    <!--    <n-form-item label="启动 Xray 的实例数量" path="test_url">-->
-    <!--      <div class="w-full">-->
-    <!--        <n-input-number v-model:value="settingsState.model.xray_instance_count" @blur="updateSettings" />-->
-    <!--        <div class="text-gray-500">PS：数量决定了同时开启节点的数量</div>-->
-    <!--      </div>-->
-    <!--    </n-form-item>-->
+    <n-form-item v-if="isProMode" label="健康检测间隔（秒）" path="health_check_interval">
+      <n-input-number class="w-full" v-model:value="settingsState.model.health_check_interval" @blur="updateSettings" />
+    </n-form-item>
 
     <n-form-item v-if="isNormalMode" label="本机性能" path="test_url_thread">
       <n-radio-group v-model:value="settingsState.model.test_url_thread" name="radiogroup" @change="updateSettings">
