@@ -61,9 +61,9 @@
 
 ## 如何使用
 
-> 还没有做自动化编译
+> 目前仅仅实现了 Windows 的自动化编译输出，其他平台有待实现（可以自行编译玩着先）。
 >
-> 任何故障请去看`base_things`同级的 `Log`文件夹中的日志，偷懒没有传递太多信息到 Web UI 上。
+> 任何故障请去看`base_things`同级的 `Log`文件夹中的日志~~，~~~~偷懒没有传递太多信息到 Web UI 上~~。
 
 ### 如何启动
 
@@ -71,12 +71,12 @@
 
 1. 下载编译好的程序，放到任意目录中。比如在 `D:\Xray_Pool` 中
 2. 在`D:\Xray_Pool`中新建一个文件夹`base_things`
-3. 去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`base_things`中
+3. 去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`base_things`中，如图：<img src="README.assets/image-20220914115305110.png" alt="image-20220914115305110" style="zoom:50%;" />
 4. 双击启动 `D:\Xray_Pool\xray_pool.exe`
 5. Windows 防火墙会提示有程序访问网络，选择同意
 6. 使用本地浏览器打开 http://127.0.0.1:19038，或者在“任务栏”，右键这个图标打开“主页”或者“退出”。![image-20220914092242827](README.assets/image-20220914092242827.png)
-8. 添加 V2RAY 鸡场提供的订阅源，更新节点
-9. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
+7. 添加 V2RAY 鸡场提供的订阅源，更新节点
+8. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
 
 #### Linux
 
@@ -165,6 +165,31 @@ Url: `127.0.0.1:19038/v1/proxy_list`
 > 需要对应你的平台去找这个文件夹，参考上面的《如何启动》部分，提到的每个平台不同的存储位置。
 
 <img src="README.assets/image-20220914090655732.png" alt="image-20220914090655732" style="zoom:50%;" />
+
+## 如何编译
+
+首选需要编译前端部分，然后再编译主程序
+
+### 编译前端
+
+1. 控制台进入源码的 `/frontend` 文件夹
+2. `npm install`
+3. `npm run build`
+4. 等待编译完成
+
+### 编译主程序
+
+1. 控制台进入源码的 `/cmd/xray_pool` 文件夹
+2. `go build .`
+
+> 你需要针对你的平台考虑是否需要隐藏启动后的控制台窗口，这里举例 Windows 情况下，需要加参数
+>
+> ```
+> -s -w --extldflags "-static -fpic" -X main.AppVersion=v{{ .Version }} -H=windowsgui
+
+> 隐藏窗体的关键是 `-H=windowsgui` ，其他参数请参考 go build 的细节。
+>
+> `-X main.AppVersion=v{{ .Version }}` 这里的 `v{{ .Version }}` 是版本号，自动化编译会自动填写，人工编译可以忽略也行
 
 ## TODO
 
