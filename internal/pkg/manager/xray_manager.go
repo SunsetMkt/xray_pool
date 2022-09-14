@@ -124,6 +124,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 			false,
 		)
 		if bok == true {
+			println("send CheckResult")
 			// 需要记录当前的 Node Index 信息
 			checkResultChan <- CheckResult{
 				NodeIndex: deliveryInfo.NowNodeIndex,
