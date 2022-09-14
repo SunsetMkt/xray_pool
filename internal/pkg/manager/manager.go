@@ -124,6 +124,12 @@ func (m *Manager) Stop() {
 	m.xrayPoolRunning = false
 
 	logger.Infof("Stop: xrayPoolRunning = %v", m.xrayPoolRunning)
+
+	if m.xrayPoolRunning == true {
+		logger.Infof("代理池停止成功")
+	} else {
+		logger.Infof("代理池停止失败")
+	}
 }
 
 func (m *Manager) XrayPoolRunning() bool {

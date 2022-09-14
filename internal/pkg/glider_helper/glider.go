@@ -38,7 +38,7 @@ func (g *GliderHelper) Check() bool {
 	}
 }
 
-func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, socksPorts []int, GliderStrategy string) error {
+func (g *GliderHelper) Start(healthCheckUrl string, healthCheckInterval int, forwardServerHttpPort int, socksPorts []int, GliderStrategy string) error {
 
 	// 构建正向代理服务器启动的命令
 	runCommand := fmt.Sprintf("-listen :%d -strategy %s", forwardServerHttpPort, GliderStrategy)
@@ -48,6 +48,7 @@ func (g *GliderHelper) Start(healthCheckUrl string, forwardServerHttpPort int, s
 	// -check http://www.msftconnecttest.com/connecttest.txt#expect=200
 	if healthCheckUrl != "" {
 		runCommand += fmt.Sprintf(" -check %s#expect=200", healthCheckUrl)
+		runCommand += fmt.Sprintf(" -checkinterval %d", healthCheckInterval)
 	}
 	cmdArgs := strings.Fields(runCommand)
 	g.gliderCmd = exec.Command(g.gliderPath, cmdArgs...)

@@ -13,6 +13,7 @@ type AppSettings struct {
 	OneNodeTestTimeOut      int      `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
 	BatchNodeTestMaxTimeOut int      `json:"batch_node_test_max_time_out"` // 批量节点测试的最长超时时间，单位：秒
 	HealthCheckUrl          string   `json:"health_check_url"`             // glider 健康检查的 Url，可以与 TestUrl 相同，但是这样可能会浪费连接这个网站的次数。比如，一分钟只允许3次，Health Check 也是会浪费的，根据你的情况来考虑
+	HealthCheckInterval     int      `json:"health_check_interval"`        // 健康检查的间隔，单位 s
 	TestUrl                 string   `json:"test_url"`                     // 测试代理访问速度的url
 	TestUrlThread           int      `json:"test_url_thread"`              // 测试代理访问速度的url的线程数量
 	TestUrlHardWay          bool     `json:"test_url_hard_way"`            // 使用 go-rod 启动浏览器来进行测试
@@ -41,6 +42,7 @@ func NewAppSettings() *AppSettings {
 		XrayOpenSocksAndHttp:    false,
 		OneNodeTestTimeOut:      6,
 		BatchNodeTestMaxTimeOut: 100,
+		HealthCheckInterval:     30,
 		TestUrl:                 "https://google.com",
 		TestUrlThread:           10,
 		TestUrlHardWay:          false,
