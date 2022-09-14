@@ -46,7 +46,7 @@ func onReady() {
 	}
 	systray.SetIcon(mainICON)
 
-	if runtime.GOOS == "darwin" {
+	if runtime.GOOS != "darwin" {
 		// macos 的时候，就不设置 title 了，不然太占位置了
 		systray.SetTitle("XrayPool")
 	}
