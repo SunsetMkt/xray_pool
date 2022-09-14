@@ -78,13 +78,13 @@ func Listen() {
 	}()
 	// 连接
 	mqttServer.Events.OnConnect = func(cl events.Client, pk events.Packet) {
-		fmt.Printf("<< OnConnect client connected %s\n", cl.ID)
+		logger.Infoln("OnConnect ID:", cl.ID)
 		AddClientStatus(cl.ID)
 		go sendLog(cl.ID)
 	}
-	// 取消订阅主题
+	// 断开连接
 	mqttServer.Events.OnDisconnect = func(cl events.Client, err error) {
-		fmt.Printf("<< OnDisconnect client disconnected %s: %v\n", cl.ID, err)
+		logger.Infoln("OnDisconnect ID:", cl.ID, err)
 		DelClientStatus(cl.ID)
 	}
 
@@ -123,13 +123,16 @@ func sendLog(clientId string) {
 
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println(err)
+			logger.Debugln("sendLog panic", err)
 		}
 	}()
 	// 为每一个客户端开启一个发送日志的线程
 	for true {
 		select {
 		case <-GetClientStatus(clientId).ExitSignal:
+			// 退出的事件
+			close(GetClientStatus(clientId).ExitSignal)
+			clientIds.Remove(clientId)
 			return
 		default:
 			// 发送日志
@@ -186,6 +189,4 @@ func DelClientStatus(clientId string) {
 		return
 	}
 	client.ExitSignal <- true
-	close(client.ExitSignal)
-	clientIds.Remove(clientId)
 }
