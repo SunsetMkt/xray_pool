@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 )
@@ -35,13 +34,8 @@ func (m *Manager) ForwardProxyStart() bool {
 			m.forwardServerHttpPort = alivePorts[0]
 		}
 	} else {
-		alivePorts := pkg.ScanAlivePortList(fmt.Sprintf("%s", m.AppSettings.ManualLbPort))
-		if len(alivePorts) == 0 {
-			logger.Errorf("手动指定负载均衡端口:%d ,已经被占用！", m.AppSettings.ManualLbPort)
-			return false
-		} else {
-			m.forwardServerHttpPort = m.AppSettings.ManualLbPort
-		}
+
+		m.forwardServerHttpPort = m.AppSettings.ManualLbPort
 	}
 
 	socksPorts := make([]int, 0)

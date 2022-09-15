@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core"
@@ -88,6 +89,11 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		m.AppSettings.TestUrl = targetSiteUrl
 		m.Save()
 	}
+	alivePorts := pkg.ScanAlivePortList(fmt.Sprintf("%d", m.AppSettings.ManualLbPort))
+	if len(alivePorts) == 0 {
+		logger.Errorf("手动指定负载均衡端口:%d ,已经被占用！", m.AppSettings.ManualLbPort)
+		return false
+	}
 	// 检查可用的端口和可用的Node
 	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts()
 	if bok == false {
@@ -124,12 +130,7 @@ func (m *Manager) Stop() {
 	m.xrayPoolRunning = false
 
 	logger.Infof("Stop: xrayPoolRunning = %v", m.xrayPoolRunning)
-
-	if m.xrayPoolRunning == true {
-		logger.Infof("代理池停止成功")
-	} else {
-		logger.Infof("代理池停止失败")
-	}
+	logger.Infof("代理池停止")
 }
 
 func (m *Manager) XrayPoolRunning() bool {
