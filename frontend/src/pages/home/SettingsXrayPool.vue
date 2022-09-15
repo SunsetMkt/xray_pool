@@ -59,7 +59,10 @@
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="Xray 是否开启 HTTP 端口" path="xray_open_socks_and_http">
-      <n-switch v-model:value="settingsState.model.xray_open_socks_and_http" @change="updateSettings" />
+      <n-switch
+        v-model:value="settingsState.model.xray_open_socks_and_http"
+        @change="handleXrayOpenSocksAndHttpChange"
+      />
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="单个节点 的测试超时时间（秒）" path="one_node_test_time_out">
@@ -168,4 +171,12 @@ const gliderStrategyOptions = [
   { label: 'lha(latency based high availability)', value: 'lha' },
   { label: 'dh(destination hashing)', value: 'dh' },
 ];
+
+const handleXrayOpenSocksAndHttpChange = () => {
+  if (settingsState.model === null) return;
+  if (settingsState.model.xray_open_socks_and_http === true) {
+    settingsState.model.test_url_hard_way = true;
+  }
+  updateSettings();
+};
 </script>
