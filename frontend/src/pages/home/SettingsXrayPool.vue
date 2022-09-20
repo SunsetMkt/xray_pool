@@ -15,25 +15,34 @@
       <n-radio-group v-model:value="settingsState.mode" name="radiogroup">
         <n-space>
           <n-radio value="normal"> 简易模式 </n-radio>
+          <n-radio value="gfw"> 科学上网 </n-radio>
           <n-radio value="pro"> 专业模式 </n-radio>
         </n-space>
       </n-radio-group>
     </n-form-item>
 
     <n-form-item label="目标网站" path="test_url">
-      <n-input v-model:value="settingsState.model.test_url" @blur="updateSettings" />
+      <n-input v-model:value="settingsState.model.test_url" @blur="handleUpdateSettings" />
     </n-form-item>
 
-    <n-form-item v-if="isProMode" label="健康检测网站" path="health_check_url">
-      <n-input v-model:value="settingsState.model.health_check_url" @blur="updateSettings" />
+    <n-form-item v-if="isProMode || isGfwMode" label="健康检测网站" path="health_check_url">
+      <n-input v-model:value="settingsState.model.health_check_url" @blur="handleUpdateSettings" />
     </n-form-item>
 
-    <n-form-item v-if="isProMode" label="健康检测间隔（秒）" path="health_check_interval">
-      <n-input-number class="w-full" v-model:value="settingsState.model.health_check_interval" @blur="updateSettings" />
+    <n-form-item v-if="isProMode || isGfwMode" label="健康检测间隔（秒）" path="health_check_interval">
+      <n-input-number
+        class="w-full"
+        v-model:value="settingsState.model.health_check_interval"
+        @blur="handleUpdateSettings"
+      />
     </n-form-item>
 
-    <n-form-item v-if="isNormalMode" label="本机性能" path="test_url_thread">
-      <n-radio-group v-model:value="settingsState.model.test_url_thread" name="radiogroup" @change="updateSettings">
+    <n-form-item v-if="isNormalMode || isGfwMode" label="本机性能" path="test_url_thread">
+      <n-radio-group
+        v-model:value="settingsState.model.test_url_thread"
+        name="radiogroup"
+        @change="handleUpdateSettings"
+      >
         <n-space>
           <n-radio :value="3"> 弱鸡（3线程） </n-radio>
           <n-radio :value="10"> 一般（10线程） </n-radio>
@@ -46,24 +55,32 @@
       <n-select
         v-model:value="settingsState.model.glider_strategy"
         :options="gliderStrategyOptions"
-        @update:value="updateSettings"
+        @update:value="handleUpdateSettings"
       ></n-select>
     </n-form-item>
 
-    <n-form-item v-if="isProMode" label="自定义负载均衡端口（0为动态端口）" path="manual_lb_port">
-      <n-input-number class="w-full" v-model:value="settingsState.model.manual_lb_port" @blur="updateSettings" />
+    <n-form-item v-if="isProMode || isGfwMode" label="自定义负载均衡端口（0为动态端口）" path="manual_lb_port">
+      <n-input-number class="w-full" v-model:value="settingsState.model.manual_lb_port" @blur="handleUpdateSettings" />
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="Xray启动起始端口" path="xray_port_range">
-      <n-input-number class="w-full" v-model:value="settingsState.model.xray_port_range" @blur="updateSettings" />
+      <n-input-number class="w-full" v-model:value="settingsState.model.xray_port_range" @blur="handleUpdateSettings" />
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="Xray 是否开启 HTTP 端口" path="xray_open_socks_and_http">
-      <n-switch v-model:value="settingsState.model.xray_open_socks_and_http" @change="updateSettings" />
+      <n-switch
+        v-model:value="settingsState.model.xray_open_socks_and_http"
+        @change="handleUpdateSettings"
+        :disabled="settingsState.model.test_url_hard_way"
+      />
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="单个节点 的测试超时时间（秒）" path="one_node_test_time_out">
-      <n-input-number class="w-full" v-model:value="settingsState.model.one_node_test_time_out" @blur="updateSettings">
+      <n-input-number
+        class="w-full"
+        v-model:value="settingsState.model.one_node_test_time_out"
+        @blur="handleUpdateSettings"
+      >
         <!--        <template #suffix> 秒 </template>-->
       </n-input-number>
     </n-form-item>
@@ -72,7 +89,7 @@
       <n-input-number
         class="w-full"
         v-model:value="settingsState.model.batch_node_test_max_time_out"
-        @blur="updateSettings"
+        @blur="handleUpdateSettings"
       >
         <!--        <template #suffix> 秒 </template>-->
       </n-input-number>
@@ -91,7 +108,11 @@
         </div>
       </template>
       <div class="w-full">
-        <n-input-number class="w-full" v-model:value="settingsState.model.test_url_thread" @blur="updateSettings" />
+        <n-input-number
+          class="w-full"
+          v-model:value="settingsState.model.test_url_thread"
+          @blur="handleUpdateSettings"
+        />
       </div>
     </n-form-item>
 
@@ -130,13 +151,17 @@
         filterable
         :options="[]"
         placeholder="输入后按回车新增一条关键字"
-        @update:value="updateSettings"
+        @update:value="handleUpdateSettings"
       />
     </n-form-item>
 
     <n-form-item v-if="isProMode" label="测速失败的关键字（正则）" path="test_url_failed_regex">
       <div class="w-full">
-        <n-input class="w-full" v-model:value="settingsState.model.test_url_failed_regex" @blur="updateSettings" />
+        <n-input
+          class="w-full"
+          v-model:value="settingsState.model.test_url_failed_regex"
+          @blur="handleUpdateSettings"
+        />
       </div>
     </n-form-item>
 
@@ -152,15 +177,31 @@
           </n-tooltip>
         </div>
       </template>
-      <n-input-number class="w-full" v-model:value="settingsState.model.test_url_status_code" @blur="updateSettings" />
+      <n-input-number
+        class="w-full"
+        v-model:value="settingsState.model.test_url_status_code"
+        @blur="handleUpdateSettings"
+      />
     </n-form-item>
   </n-form>
 </template>
 
 <script setup lang="ts">
 import { HelpCircle } from '@vicons/ionicons5';
-import { settingsState, formRules, isProMode, isNormalMode, updateSettings } from '@/composables/use-settings';
+import { ref } from 'vue';
+import { NForm } from 'naive-ui';
+import type { FormInst } from 'naive-ui';
+import {
+  settingsState,
+  formRules,
+  isProMode,
+  isNormalMode,
+  updateSettings,
+  isGfwMode,
+} from '@/composables/use-settings';
 import { isStopped } from '@/composables/use-proxy-pool';
+
+const formRef = ref<FormInst | null>(null);
 
 const gliderStrategyOptions = [
   { label: 'rr(round robin)', value: 'rr' },
@@ -169,11 +210,14 @@ const gliderStrategyOptions = [
   { label: 'dh(destination hashing)', value: 'dh' },
 ];
 
+const handleUpdateSettings = () => {
+  updateSettings(formRef.value);
+};
+
 const handleTestUrlHardWayChange = () => {
   if (settingsState.model === null) return;
   if (settingsState.model.test_url_hard_way === true) {
     settingsState.model.xray_open_socks_and_http = true;
   }
-  updateSettings();
 };
 </script>
