@@ -32,7 +32,7 @@
 
 ## 软件界面
 
-<img src="README.assets/image-20220908202747942.png" alt="image-20220908202747942" style="zoom: 80%;" />
+<img src="README.assets/image-20220922163506565.png" alt="image-20220922163506565" style="zoom:50%;" />
 
 <img src="README.assets/image-20220908202902194.png" alt="image-20220908202902194" style="zoom:80%;" />
 
@@ -69,14 +69,21 @@
 
 #### Window
 
-1. 下载编译好的程序，放到任意目录中。比如在 `D:\Xray_Pool` 中
-2. 在`D:\Xray_Pool`中新建一个文件夹`base_things`
-3. 去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`base_things`中，如图：<img src="README.assets/image-20220914115305110.png" alt="image-20220914115305110" style="zoom:50%;" />
-4. 双击启动 `D:\Xray_Pool\xray_pool.exe`
-5. Windows 防火墙会提示有程序访问网络，选择同意
-6. 使用本地浏览器打开 http://127.0.0.1:19038，或者在“任务栏”，右键这个图标打开“主页”或者“退出”。![image-20220914092242827](README.assets/image-20220914092242827.png)
-7. 添加 V2RAY 鸡场提供的订阅源，更新节点
-8. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
+1. 下载编译好的程序（或者下载 Release 页面的程序），放到任意目录中。比如在 `D:\Xray_Pool` 中，运行 xray_pool.exe
+
+   <img src="README.assets/image-20220922163953405.png" alt="image-20220922163953405" style="zoom:50%;" />
+
+2. 根据页面的提示去 [XTLS/Xray-core](https://github.com/XTLS/Xray-core/releases) 和 [nadoo/glider](https://github.com/nadoo/glider/releases) 对应平台和架构的程序，解压到`D:\Xray_Pool\base_things`中，如图：<img src="README.assets/image-20220914115305110.png" alt="image-20220914115305110" style="zoom:50%;" />
+
+   
+
+3. Windows 防火墙会提示有程序访问网络，选择同意
+
+4. 使用本地浏览器打开 http://127.0.0.1:19038，或者在“任务栏”，右键这个图标（蓝色游泳池梯子）打开“主页”或者“退出”。![image-20220914092242827](README.assets/image-20220914092242827.png)
+
+5. 添加 V2RAY 鸡场提供的订阅源，更新节点
+
+6. 输入目标网站，点击启动代理池，根据反馈的信息得到已经开启有哪些端口（负载均衡端口、Socks5端口、HTTP 端口）
 
 #### Linux
 
