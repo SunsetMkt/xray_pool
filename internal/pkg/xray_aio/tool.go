@@ -58,6 +58,11 @@ func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
 		}
 	}()
 
+	err = page.Timeout(time.Duration(timeout) * time.Second).WaitLoad()
+	if err != nil {
+		return -1, "Error"
+	}
+
 	elapsed := time.Since(start)
 	speedResult := int(float32(elapsed.Nanoseconds()) / 1e6)
 
