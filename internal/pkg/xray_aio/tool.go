@@ -3,7 +3,7 @@ package xray_aio
 import (
 	"fmt"
 	"github.com/WQGroup/logger"
-	"github.com/allanpk716/xray_pool/internal/pkg/rod_helper"
+	"github.com/allanpk716/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/go-rod/rod"
 	"net/http"
@@ -46,7 +46,7 @@ func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
 	timeout int) (int, string) {
 
 	start := time.Now()
-	page, statusCode, _, err := rod_helper.NewPageNavigate(browser,
+	page, e, err := rod_helper.NewPageNavigateWithProxy(browser,
 		fmt.Sprintf("http://127.0.0.1:%d", x.OneProxySettings.HttpPort),
 		targetUrl, time.Duration(timeout)*time.Second)
 	if err != nil {
@@ -58,11 +58,6 @@ func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
 		}
 	}()
 
-	err = page.Timeout(time.Duration(timeout) * time.Second).WaitLoad()
-	if err != nil {
-		return -1, "Error"
-	}
-
 	elapsed := time.Since(start)
 	speedResult := int(float32(elapsed.Nanoseconds()) / 1e6)
 
@@ -73,7 +68,7 @@ func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
 
 	if appSettings.TestUrlStatusCode != 0 {
 		// 需要判断
-		if statusCode != appSettings.TestUrlStatusCode {
+		if e.Response.Status != appSettings.TestUrlStatusCode {
 			return -1, "Error statusCode"
 		}
 	}

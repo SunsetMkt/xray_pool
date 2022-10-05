@@ -5,7 +5,6 @@ import (
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
-	"github.com/allanpk716/xray_pool/internal/pkg/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
 	"github.com/go-rod/rod"
@@ -19,7 +18,7 @@ import (
 )
 
 // GetsValidNodesAndAlivePorts 获取有效的节点和端口信息
-func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
+func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser) (bool, []int, []int) {
 
 	defer pkg.TimeCost()("GetsValidNodesAndAlivePorts")
 
@@ -37,9 +36,10 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 		logger.Infoln("------------------------------")
 	}()
 
-	browser := rod_helper.NewBrowser()
 	defer func() {
-		_ = browser.Close()
+		if browser != nil {
+			_ = browser.Close()
+		}
 	}()
 
 	// 首先需要找到当前系统中残留的 xray 程序，结束它们

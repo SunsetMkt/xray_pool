@@ -53,7 +53,7 @@ func (x *XrayAIO) StartOne(testUrl string, testTimeOut int, skipSpeedTest bool) 
 
 		result := 0
 		status := ""
-		if x.AppSettings.TestUrlHardWay == false {
+		if x.AppSettings.TestUrlHardWay == false || x.browser == nil {
 			result, status = x.TestNode(testUrl, x.OneProxySettings.SocksPort, testTimeOut)
 		} else {
 			result, status = x.TestNodeByRod(x.AppSettings, x.browser, testUrl, testTimeOut)
