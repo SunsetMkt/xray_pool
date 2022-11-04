@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
@@ -12,6 +13,7 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/glider_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
+	"github.com/go-rod/rod"
 	"os"
 	"sync"
 )
@@ -94,8 +96,41 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		logger.Errorf("手动指定负载均衡端口:%d ,已经被占用！", m.AppSettings.ManualLbPort)
 		return false
 	}
+
+	var browser *rod.Browser
+	if m.AppSettings.TestUrlHardWay == true {
+		// 使用浏览器测速.那么就需要提前启动 Xray，因为浏览器需要连接 Xray
+		// 检查可用的端口和可用的Node
+		bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts(nil)
+		if bok == false {
+			logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
+			return false
+		}
+		// 开启本地的代理
+		bok = m.StartXray(aliveNodeIndexList, alivePorts)
+		if bok == false {
+			logger.Errorf("StartProxyPoolHandler: StartXray failed")
+			return false
+		}
+		// 开启 glider 前置代理
+		bok = m.ForwardProxyStart()
+		if bok == false {
+			logger.Errorf("StartProxyPoolHandler: ForwardProxyStart failed")
+			return false
+		}
+		var err error
+		// 需要先以普通扫描的情况找一次有效的代理出来，给 Chrome 下载使用
+		tmpLBPortUrl := fmt.Sprintf("http://127.0.0.1:%d", m.ForwardProxyPort())
+		browser, err = rod_helper.NewBrowserBase("", tmpLBPortUrl, true)
+		if err != nil {
+			logger.Errorln("rod_helper.NewBrowserBase error: ", err)
+			return false
+		}
+		m.ForwardProxyStop()
+		m.StopXray()
+	}
 	// 检查可用的端口和可用的Node
-	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts()
+	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts(browser)
 	if bok == false {
 		logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
 		return false

@@ -6,6 +6,7 @@ require (
 	github.com/WQGroup/logger v0.0.6
 	github.com/allanpk716/fake-useragent v0.2.1
 	github.com/allanpk716/go-protocol-detector v0.11.1
+	github.com/allanpk716/rod_helper v0.0.19
 	github.com/getlantern/systray v1.2.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.1
@@ -24,7 +25,6 @@ require (
 	github.com/3th1nk/cidr v0.0.0-20220718125058-47306b78b56c // indirect
 	github.com/EDDYCJY/fake-useragent v0.2.0 // indirect
 	github.com/PuerkitoBio/goquery v1.7.1 // indirect
-	github.com/allanpk716/rod_helper v0.0.19 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/bodgit/plumbing v1.2.0 // indirect
