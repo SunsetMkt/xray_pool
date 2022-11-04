@@ -3,7 +3,7 @@ package xray_aio
 import (
 	"fmt"
 	"github.com/WQGroup/logger"
-	"github.com/allanpk716/xray_pool/internal/pkg/rod_helper"
+	"github.com/allanpk716/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/go-rod/rod"
 	"net/http"
@@ -14,9 +14,9 @@ import (
 )
 
 // TestNode 获取节点代理访问外网的延迟
-func (x *XrayAIO) TestNode(url string, port int, timeout int) (int, string) {
+func TestNode(testUrl string, socks5Port int, timeout int) (int, string) {
 	start := time.Now()
-	res, e := x.GetBySocks5Proxy(url, "127.0.0.1", port, time.Duration(timeout)*time.Second)
+	res, e := GetBySocks5Proxy(testUrl, "127.0.0.1", socks5Port, time.Duration(timeout)*time.Second)
 	elapsed := time.Since(start)
 	if e != nil {
 		logger.Warn(e)
@@ -28,7 +28,7 @@ func (x *XrayAIO) TestNode(url string, port int, timeout int) (int, string) {
 }
 
 // GetBySocks5Proxy 通过Socks5代理访问网站
-func (x *XrayAIO) GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*http.Response, error) {
+func GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*http.Response, error) {
 	proxy := func(_ *http.Request) (*url.URL, error) {
 		return url.Parse(fmt.Sprintf("socks5://%s:%d", proxyAddress, proxyPort))
 	}
@@ -40,15 +40,14 @@ func (x *XrayAIO) GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, t
 	return client.Get(objUrl)
 }
 
-func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
+func TestNodeByRod(appSettings *settings.AppSettings,
 	browser *rod.Browser,
-	targetUrl string,
-	timeout int) (int, string) {
+	localProxyHttpPort int) (int, string) {
 
 	start := time.Now()
-	page, statusCode, _, err := rod_helper.NewPageNavigate(browser,
-		fmt.Sprintf("http://127.0.0.1:%d", x.OneProxySettings.HttpPort),
-		targetUrl, time.Duration(timeout)*time.Second)
+	page, e, err := rod_helper.NewPageNavigateWithProxy(browser,
+		fmt.Sprintf("http://127.0.0.1:%d", localProxyHttpPort),
+		appSettings.TestUrl, time.Duration(appSettings.OneNodeTestTimeOut)*time.Second)
 	if err != nil {
 		return -1, "Error"
 	}
@@ -68,7 +67,7 @@ func (x *XrayAIO) TestNodeByRod(appSettings *settings.AppSettings,
 
 	if appSettings.TestUrlStatusCode != 0 {
 		// 需要判断
-		if statusCode != appSettings.TestUrlStatusCode {
+		if e == nil || e.Response == nil || e.Response.Status != appSettings.TestUrlStatusCode {
 			return -1, "Error statusCode"
 		}
 	}

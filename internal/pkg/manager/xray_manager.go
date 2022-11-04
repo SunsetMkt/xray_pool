@@ -3,10 +3,9 @@ package manager
 import (
 	"fmt"
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
-	"github.com/allanpk716/xray_pool/internal/pkg/rod_helper"
-	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
 	"github.com/go-rod/rod"
 	"github.com/panjf2000/ants/v2"
@@ -24,7 +23,6 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 	defer pkg.TimeCost()("GetsValidNodesAndAlivePorts")
 
 	aliveNodeIndexList := make([]int, 0)
-
 	defer func() {
 		logger.Infoln("------------------------------")
 		logger.Infof("Alive Node Count: %v", len(aliveNodeIndexList))
@@ -37,7 +35,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 		logger.Infoln("------------------------------")
 	}()
 
-	browser := rod_helper.NewBrowser()
+	browser, err := rod_helper.NewBrowserBase("", "", false)
 	defer func() {
 		_ = browser.Close()
 	}()
@@ -72,7 +70,24 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 	}
 	// 是否有足够的空闲、有效的节点，进行了一次粗略的 TCP 排序
 	m.NodesTCPing()
-
+	// --------------------------------------------
+	// 开启所有的节点，然后再一个个进行检测
+	firstTimeNodeIndexList := make([]int, 0)
+	m.NodeForEach(func(nIndex int, node *node.Node) {
+		firstTimeNodeIndexList = append(firstTimeNodeIndexList, nIndex)
+	})
+	bok := m.StartXray(firstTimeNodeIndexList, alivePorts)
+	defer func() {
+		m.StopXray()
+	}()
+	if bok == false {
+		logger.Errorf("StartProxyPoolHandler: StartXray failed")
+		return false, nil, nil
+	}
+	// 临时开启的端口有那些
+	firTimeOpenedProxyPorts := m.GetOpenedProxyPorts()
+	// --------------------------------------------
+	// 接收测试结果
 	checkResultChan := make(chan CheckResult, 1)
 	defer func() {
 		close(checkResultChan)
@@ -93,42 +108,29 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 			}
 		}
 	}()
-
+	// --------------------------------------------
 	var wg sync.WaitGroup
 	// 然后需要并发取完成 Xray 的启动并且通过代理访问目标网站取进行延迟的评价
 	p, err := ants.NewPoolWithFunc(m.AppSettings.TestUrlThread, func(inData interface{}) {
 		deliveryInfo := inData.(DeliveryInfo)
-
-		var nowXrayOne *xray_aio.XrayAIO
 		defer func() {
-			if nowXrayOne != nil {
-				nowXrayOne.Stop()
-			}
 			deliveryInfo.Wg.Done()
 		}()
-
-		nowXrayOne = xray_aio.NewXrayOne(deliveryInfo.StartIndex,
-			m.GetNode(deliveryInfo.NowNodeIndex),
-			deliveryInfo.AppSettings,
-			deliveryInfo.NowProxySettings,
-			m.routing,
-			deliveryInfo.Browser)
-		if nowXrayOne.Check() == false {
-			logger.Errorf("xray Check Error")
-			return
+		// 测试这节点
+		var speedResult int
+		if m.AppSettings.TestUrlHardWay == true {
+			speedResult, _ = xray_aio.TestNodeByRod(m.AppSettings, deliveryInfo.Browser, deliveryInfo.OpenResult.HttpPort)
+		} else {
+			speedResult, _ = xray_aio.TestNode(m.AppSettings.TestUrl, deliveryInfo.OpenResult.SocksPort, m.AppSettings.OneNodeTestTimeOut)
 		}
 
-		bok, delay := nowXrayOne.StartOne(
-			m.AppSettings.TestUrl,
-			m.AppSettings.OneNodeTestTimeOut,
-			false,
-		)
-		if bok == true {
-			// 需要记录当前的 Node Index 信息
+		if speedResult > 0 {
 			checkResultChan <- CheckResult{
-				NodeIndex: deliveryInfo.NowNodeIndex,
-				Delay:     delay,
+				NodeIndex: deliveryInfo.NodeIndex,
+				Delay:     speedResult,
 			}
+		} else {
+			logger.Infof("节点 %d %s 测试失败", deliveryInfo.NodeIndex, deliveryInfo.OpenResult.Name)
 		}
 	})
 	if err != nil {
@@ -137,38 +139,22 @@ func (m *Manager) GetsValidNodesAndAlivePorts() (bool, []int, []int) {
 	}
 	defer p.Release()
 
-	alivePortIndex := 0
-	m.NodeForEach(func(nIndex int, node *node.Node) {
-
-		// 设置 socks 端口
-		nowProxySettings := m.AppSettings.MainProxySettings
-		socksPort := alivePorts[alivePortIndex]
-		alivePortIndex++
-		nowProxySettings.SocksPort = socksPort
-		// 设置 http 端口
-		if m.AppSettings.XrayOpenSocksAndHttp == true {
-			httpPort := alivePorts[alivePortIndex]
-			alivePortIndex++
-			nowProxySettings.HttpPort = httpPort
-		}
+	for i, openResult := range firTimeOpenedProxyPorts {
 
 		wg.Add(1)
 		err = p.Invoke(DeliveryInfo{
-			Browser:          browser,
-			StartIndex:       nIndex,
-			AppSettings:      m.AppSettings,
-			NowProxySettings: nowProxySettings,
-			NowNodeIndex:     nIndex,
-			Wg:               &wg,
+			Browser:    browser,
+			NodeIndex:  i + 1,
+			OpenResult: openResult,
+			Wg:         &wg,
 		})
 		if err != nil {
 			logger.Errorf("xray 工作池提交任务失败: %v", err)
-			return
+			return false, nil, nil
 		}
-	})
+	}
 
 	wg.Wait()
-	exitRevResultChan <- true
 
 	return true, aliveNodeIndexList, alivePorts
 }
@@ -256,12 +242,10 @@ func (m *Manager) KillAllXray() {
 }
 
 type DeliveryInfo struct {
-	Browser          *rod.Browser
-	StartIndex       int
-	AppSettings      *settings.AppSettings
-	NowProxySettings settings.ProxySettings
-	NowNodeIndex     int
-	Wg               *sync.WaitGroup
+	Browser    *rod.Browser
+	NodeIndex  int
+	OpenResult xray_aio.OpenResult
+	Wg         *sync.WaitGroup
 }
 
 type CheckResult struct {

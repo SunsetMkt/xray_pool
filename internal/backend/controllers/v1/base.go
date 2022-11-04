@@ -82,8 +82,8 @@ func (cb *ControllerBase) SystemStatus(c *gin.Context) {
 	replySystemStatus.ARCH = runtime.GOARCH
 	replySystemStatus.GliderDownloaded = cb.manager.CheckGliderStatus()
 
-	nowXrayHelper := xray_aio.NewXrayOne(0, nil, cb.manager.AppSettings, cb.manager.AppSettings.MainProxySettings, nil, nil)
-	replySystemStatus.XrayDownloaded = nowXrayHelper.Check()
+	var xx xray_aio.XrayAIO
+	replySystemStatus.XrayDownloaded = xx.Check()
 
 	c.JSON(http.StatusOK, replySystemStatus)
 
