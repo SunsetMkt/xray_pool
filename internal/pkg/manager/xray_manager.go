@@ -40,8 +40,6 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser) (bool, []int
 		}
 	}()
 
-	// 首先需要找到当前系统中残留的 xray 程序，结束它们
-	m.KillAllXray()
 	// 然后需要扫描一个连续的端口段，便于后续的分配
 	// 这里需要根据 Node 的数量来推算一个连续的端口段
 	needTestPortCount := m.NodeLen()
@@ -118,7 +116,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser) (bool, []int
 		}()
 		// 测试这节点
 		var speedResult int
-		if m.AppSettings.TestUrlHardWay == true {
+		if m.AppSettings.TestUrlHardWay == true && deliveryInfo.Browser != nil {
 			speedResult, _ = xray_aio.TestNodeByRod(m.AppSettings, deliveryInfo.Browser, deliveryInfo.OpenResult.HttpPort)
 		} else {
 			speedResult, _ = xray_aio.TestNode(m.AppSettings.TestUrl, deliveryInfo.OpenResult.SocksPort, m.AppSettings.OneNodeTestTimeOut)

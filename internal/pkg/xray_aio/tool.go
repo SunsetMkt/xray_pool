@@ -48,14 +48,14 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 	page, e, err := rod_helper.NewPageNavigateWithProxy(browser,
 		fmt.Sprintf("http://127.0.0.1:%d", localProxyHttpPort),
 		appSettings.TestUrl, time.Duration(appSettings.OneNodeTestTimeOut)*time.Second)
-	if err != nil {
-		return -1, "Error"
-	}
 	defer func() {
 		if page != nil {
 			_ = page.Close()
 		}
 	}()
+	if err != nil {
+		return -1, "Error"
+	}
 
 	elapsed := time.Since(start)
 	speedResult := int(float32(elapsed.Nanoseconds()) / 1e6)
