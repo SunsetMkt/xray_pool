@@ -17,7 +17,7 @@ import (
 )
 
 // GetsValidNodesAndAlivePorts 获取有效的节点和端口信息
-func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser) (bool, []int, []int) {
+func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl string) (bool, []int, []int) {
 
 	defer pkg.TimeCost()("GetsValidNodesAndAlivePorts")
 
@@ -116,10 +116,25 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser) (bool, []int
 		}()
 		// 测试这节点
 		var speedResult int
-		if m.AppSettings.TestUrlHardWay == true && deliveryInfo.Browser != nil {
-			speedResult, _ = xray_aio.TestNodeByRod(m.AppSettings, deliveryInfo.Browser, deliveryInfo.OpenResult.HttpPort)
+		var errMessage string
+		var nowTestUrl string
+		var successWords []string
+		if testUrl == "" {
+			nowTestUrl = m.AppSettings.TestUrl
 		} else {
-			speedResult, _ = xray_aio.TestNode(m.AppSettings.TestUrl, deliveryInfo.OpenResult.SocksPort, m.AppSettings.OneNodeTestTimeOut)
+			nowTestUrl = testUrl
+		}
+
+		if deliveryInfo.Browser == nil {
+			successWords = nil
+		} else {
+			successWords = m.AppSettings.TestUrlSucceedWords
+		}
+
+		if m.AppSettings.TestUrlHardWay == true && deliveryInfo.Browser != nil {
+			speedResult, errMessage = xray_aio.TestNodeByRod(m.AppSettings, nowTestUrl, successWords, deliveryInfo.Browser, deliveryInfo.OpenResult.HttpPort)
+		} else {
+			speedResult, errMessage = xray_aio.TestNode(m.AppSettings, nowTestUrl, successWords, deliveryInfo.OpenResult.SocksPort, m.AppSettings.OneNodeTestTimeOut)
 		}
 
 		if speedResult > 0 {
@@ -128,7 +143,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser) (bool, []int
 				Delay:     speedResult,
 			}
 		} else {
-			logger.Infof("节点 %d %s 测试失败", deliveryInfo.NodeIndex, deliveryInfo.OpenResult.Name)
+			logger.Infof("节点 %d %s 测试失败, %s", deliveryInfo.NodeIndex, deliveryInfo.OpenResult.Name, errMessage)
 		}
 	})
 	if err != nil {

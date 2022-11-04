@@ -98,14 +98,21 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 	}
 
 	var browser *rod.Browser
+	var bok bool
+	var aliveNodeIndexList []int
 	if m.AppSettings.TestUrlHardWay == true {
-		// 使用浏览器测速.那么就需要提前启动 Xray，因为浏览器需要连接 Xray
+
 		// 检查可用的端口和可用的Node
-		bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts(nil)
+		bok, aliveNodeIndexList, alivePorts = m.GetsValidNodesAndAlivePorts(nil, "https://www.google.com")
 		if bok == false {
 			logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
 			return false
 		}
+		if len(aliveNodeIndexList) == 0 {
+			logger.Errorf("StartProxyPoolHandler: aliveNodeIndexList is empty")
+			return false
+		}
+		// 使用浏览器测速.那么就需要提前启动 Xray，因为浏览器需要连接 Xray
 		// 开启本地的代理
 		bok = m.StartXray(aliveNodeIndexList, alivePorts)
 		if bok == false {
@@ -130,9 +137,13 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		m.StopXray()
 	}
 	// 检查可用的端口和可用的Node
-	bok, aliveNodeIndexList, alivePorts := m.GetsValidNodesAndAlivePorts(browser)
+	bok, aliveNodeIndexList, alivePorts = m.GetsValidNodesAndAlivePorts(browser, m.AppSettings.TestUrl)
 	if bok == false {
 		logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
+		return false
+	}
+	if len(aliveNodeIndexList) == 0 {
+		logger.Errorf("StartProxyPoolHandler: aliveNodeIndexList is empty")
 		return false
 	}
 	// 开启本地的代理

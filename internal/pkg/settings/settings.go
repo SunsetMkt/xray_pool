@@ -17,6 +17,7 @@ type AppSettings struct {
 	TestUrl                 string   `json:"test_url"`                     // 测试代理访问速度的url
 	TestUrlThread           int      `json:"test_url_thread"`              // 测试代理访问速度的url的线程数量
 	TestUrlHardWay          bool     `json:"test_url_hard_way"`            // 使用 go-rod 启动浏览器来进行测试
+	TestUrlSucceedWords     []string `json:"test_url_succeed_words"`       // 测试代理访问速度的url的成功关键字
 	TestUrlFailedWords      []string `json:"test_url_failed_words"`        // 测试这个网站是否有效的关键词，注意是失效的关键词，不是正常的。注意这里需要填入的是小写的，在内部会进行大小写的转换
 	TestUrlFailedRegex      string   `json:"test_url_failed_regex"`        // 测试这个网站是否有效的正则表达式，如果匹配到这个正则表达式，则认为这个网站是无效的
 	TestUrlStatusCode       int      `json:"test_url_status_code"`         // 期望的网页 StatusCode，一般来说是 200 ，默认是0也就是不进行检查
