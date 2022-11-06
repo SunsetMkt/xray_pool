@@ -3,24 +3,25 @@ package settings
 import "github.com/allanpk716/xray_pool/internal/pkg/common"
 
 type AppSettings struct {
-	UserName                string   `json:"user_name"`
-	Password                string   `json:"password"`
-	AppStartPort            int      `json:"app_start_port"`               // 本程序启动的端口，用于 WebUI 登录
-	ManualLbPort            int      `json:"manual_lb_port"`               // 手动指定的负载均衡端口，如果为 0 则自动分配
-	XrayPortRange           string   `json:"xray_port_range"`              // xray 程序的端口范围，从这个范围中找到空闲的端口来使用 36000-  只需要填写起始的端口号，range，会根据 Node 的数量取补全
-	XrayInstanceCount       int      `json:"xray_instance_count"`          // Xray 程序的实例数量，简单说就是开启多少个代理
-	XrayOpenSocksAndHttp    bool     `json:"xray_open_socks_and_http"`     // 是否开启 socks 和 http 端口，默认只开启 socks 端口
-	OneNodeTestTimeOut      int      `json:"one_node_test_time_out"`       // 单个节点测试超时时间，单位：秒
-	BatchNodeTestMaxTimeOut int      `json:"batch_node_test_max_time_out"` // 批量节点测试的最长超时时间，单位：秒
-	HealthCheckUrl          string   `json:"health_check_url"`             // glider 健康检查的 Url，可以与 TestUrl 相同，但是这样可能会浪费连接这个网站的次数。比如，一分钟只允许3次，Health Check 也是会浪费的，根据你的情况来考虑
-	HealthCheckInterval     int      `json:"health_check_interval"`        // 健康检查的间隔，单位 s
-	TestUrl                 string   `json:"test_url"`                     // 测试代理访问速度的url
-	TestUrlThread           int      `json:"test_url_thread"`              // 测试代理访问速度的url的线程数量
-	TestUrlHardWay          bool     `json:"test_url_hard_way"`            // 使用 go-rod 启动浏览器来进行测试
-	TestUrlSucceedWords     []string `json:"test_url_succeed_words"`       // 测试代理访问速度的url的成功关键字
-	TestUrlFailedWords      []string `json:"test_url_failed_words"`        // 测试这个网站是否有效的关键词，注意是失效的关键词，不是正常的。注意这里需要填入的是小写的，在内部会进行大小写的转换
-	TestUrlFailedRegex      string   `json:"test_url_failed_regex"`        // 测试这个网站是否有效的正则表达式，如果匹配到这个正则表达式，则认为这个网站是无效的
-	TestUrlStatusCode       int      `json:"test_url_status_code"`         // 期望的网页 StatusCode，一般来说是 200 ，默认是0也就是不进行检查
+	UserName                  string   `json:"user_name"`
+	Password                  string   `json:"password"`
+	AppStartPort              int      `json:"app_start_port"`                 // 本程序启动的端口，用于 WebUI 登录
+	ManualLbPort              int      `json:"manual_lb_port"`                 // 手动指定的负载均衡端口，如果为 0 则自动分配
+	XrayPortRange             string   `json:"xray_port_range"`                // xray 程序的端口范围，从这个范围中找到空闲的端口来使用 36000-  只需要填写起始的端口号，range，会根据 Node 的数量取补全
+	XrayInstanceCount         int      `json:"xray_instance_count"`            // Xray 程序的实例数量，简单说就是开启多少个代理
+	XrayOpenSocksAndHttp      bool     `json:"xray_open_socks_and_http"`       // 是否开启 socks 和 http 端口，默认只开启 socks 端口
+	OneNodeTestTimeOut        int      `json:"one_node_test_time_out"`         // 单个节点测试超时时间，单位：秒
+	BatchNodeTestMaxTimeOut   int      `json:"batch_node_test_max_time_out"`   // 批量节点测试的最长超时时间，单位：秒
+	HealthCheckUrl            string   `json:"health_check_url"`               // glider 健康检查的 Url，可以与 TestUrl 相同，但是这样可能会浪费连接这个网站的次数。比如，一分钟只允许3次，Health Check 也是会浪费的，根据你的情况来考虑
+	HealthCheckInterval       int      `json:"health_check_interval"`          // 健康检查的间隔，单位 s
+	TestUrl                   string   `json:"test_url"`                       // 测试代理访问速度的url
+	TestUrlThread             int      `json:"test_url_thread"`                // 测试代理访问速度的url的线程数量
+	TestUrlHardWay            bool     `json:"test_url_hard_way"`              // 使用 go-rod 启动浏览器来进行测试
+	TestUrlHardWayLoadPicture bool     `json:"test_url_hard_way_load_picture"` // 使用 go-rod 启动浏览器来进行测试，是否加载图片
+	TestUrlSucceedWords       []string `json:"test_url_succeed_words"`         // 测试代理访问速度的url的成功关键字
+	TestUrlFailedWords        []string `json:"test_url_failed_words"`          // 测试这个网站是否有效的关键词，注意是失效的关键词，不是正常的。注意这里需要填入的是小写的，在内部会进行大小写的转换
+	TestUrlFailedRegex        string   `json:"test_url_failed_regex"`          // 测试这个网站是否有效的正则表达式，如果匹配到这个正则表达式，则认为这个网站是无效的
+	TestUrlStatusCode         int      `json:"test_url_status_code"`           // 期望的网页 StatusCode，一般来说是 200 ，默认是0也就是不进行检查
 	/*
 		Glider 负载均衡策略：
 			rr: round robin
@@ -34,23 +35,24 @@ type AppSettings struct {
 
 func NewAppSettings() *AppSettings {
 	return &AppSettings{
-		UserName:                "",
-		Password:                "",
-		AppStartPort:            common.DefAppStartPort,
-		ManualLbPort:            0,
-		XrayPortRange:           "36000",
-		XrayInstanceCount:       3,
-		XrayOpenSocksAndHttp:    false,
-		OneNodeTestTimeOut:      6,
-		BatchNodeTestMaxTimeOut: 100,
-		HealthCheckInterval:     30,
-		TestUrl:                 "https://google.com",
-		TestUrlThread:           10,
-		TestUrlHardWay:          false,
-		TestUrlFailedWords:      []string{},
-		TestUrlFailedRegex:      "",
-		TestUrlStatusCode:       0,
-		GliderStrategy:          "rr",
+		UserName:                  "",
+		Password:                  "",
+		AppStartPort:              common.DefAppStartPort,
+		ManualLbPort:              0,
+		XrayPortRange:             "36000",
+		XrayInstanceCount:         3,
+		XrayOpenSocksAndHttp:      false,
+		OneNodeTestTimeOut:        6,
+		BatchNodeTestMaxTimeOut:   100,
+		HealthCheckInterval:       30,
+		TestUrl:                   "https://google.com",
+		TestUrlThread:             10,
+		TestUrlHardWay:            false,
+		TestUrlHardWayLoadPicture: true,
+		TestUrlFailedWords:        []string{},
+		TestUrlFailedRegex:        "",
+		TestUrlStatusCode:         0,
+		GliderStrategy:            "rr",
 		MainProxySettings: *NewProxySettings(
 			0,
 			1080,

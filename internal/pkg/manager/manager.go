@@ -128,7 +128,7 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		var err error
 		// 需要先以普通扫描的情况找一次有效的代理出来，给 Chrome 下载使用
 		tmpLBPortUrl := fmt.Sprintf("http://127.0.0.1:%d", m.ForwardProxyPort())
-		browser, err = rod_helper.NewBrowserBase("", tmpLBPortUrl, true)
+		browser, err = rod_helper.NewBrowserBase("", tmpLBPortUrl, true, m.AppSettings.TestUrlHardWayLoadPicture)
 		if err != nil {
 			logger.Errorln("rod_helper.NewBrowserBase error: ", err)
 			return false
