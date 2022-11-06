@@ -131,6 +131,21 @@
       <n-switch v-model:value="settingsState.model.test_url_hard_way" @change="handleTestUrlHardWayChange" />
     </n-form-item>
 
+    <n-form-item v-if="isProMode" path="test_url_hard_way_load_picture">
+      <template #label>
+        <div>
+          <span>浏览器测速是否加载图片</span>
+          <n-tooltip>
+            <template #trigger>
+              <n-icon><help-circle /></n-icon>
+            </template>
+            <span>有些爬虫任务无需图片，这样效率更高，流量更低</span>
+          </n-tooltip>
+        </div>
+      </template>
+      <n-switch v-model:value="settingsState.model.test_url_hard_way_load_picture" @change="handleUpdateSettings" />
+    </n-form-item>
+
     <n-form-item v-if="isProMode" path="test_url_failed_words">
       <template #label>
         <div>

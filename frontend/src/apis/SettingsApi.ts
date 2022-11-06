@@ -29,6 +29,7 @@ export interface ApiResponseSettings {
   health_check_interval: number;
   test_url_thread: number;
   test_url_hard_way: boolean;
+  test_url_hard_way_load_picture: boolean;
   test_url_succeed_words: string[];
   test_url_failed_words: string[];
   test_url_failed_regex: string;
