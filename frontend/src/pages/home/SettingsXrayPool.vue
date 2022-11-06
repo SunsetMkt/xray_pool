@@ -134,6 +134,30 @@
     <n-form-item v-if="isProMode" path="test_url_failed_words">
       <template #label>
         <div>
+          <span>测速成功的关键字</span>
+          <n-tooltip>
+            <template #trigger>
+              <n-icon><help-circle /></n-icon>
+            </template>
+            <span>如果测速目标网站返回结果中包含这些关键字，则认为测速成功，不区分大小写</span>
+          </n-tooltip>
+        </div>
+      </template>
+      <n-select
+        class="w-full"
+        v-model:value="settingsState.model.test_url_succeed_words"
+        multiple
+        tag
+        filterable
+        :options="[]"
+        placeholder="输入后按回车新增一条关键字"
+        @update:value="handleUpdateSettings"
+      />
+    </n-form-item>
+
+    <n-form-item v-if="isProMode" path="test_url_failed_words">
+      <template #label>
+        <div>
           <span>测速失败的关键字</span>
           <n-tooltip>
             <template #trigger>
@@ -215,6 +239,7 @@ const handleUpdateSettings = () => {
 };
 
 const handleTestUrlHardWayChange = () => {
+  handleUpdateSettings();
   if (settingsState.model === null) return;
   if (settingsState.model.test_url_hard_way === true) {
     settingsState.model.xray_open_socks_and_http = true;
