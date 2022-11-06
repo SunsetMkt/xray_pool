@@ -36,7 +36,7 @@ func (x *XrayAIO) StartMix() bool {
 	for _, nowNode := range x.nodes {
 		nowNodeProtocol := nowNode
 		switch nowNodeProtocol.GetProtocolMode() {
-		case protocols.ModeShadowSocks, protocols.ModeTrojan, protocols.ModeVMess, protocols.ModeSocks, protocols.ModeVLESS, protocols.ModeVMessAEAD:
+		case protocols.ModeShadowSocks, protocols.ModeShadowSocksR, protocols.ModeTrojan, protocols.ModeVMess, protocols.ModeSocks, protocols.ModeVLESS, protocols.ModeVMessAEAD:
 		default:
 			logger.Errorf("Xray -- %2d 暂不支持%v协议", x.index, nowNodeProtocol.GetProtocolMode())
 			return false
