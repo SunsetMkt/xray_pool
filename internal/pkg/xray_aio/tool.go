@@ -58,32 +58,38 @@ func TestNode(appSettings *settings.AppSettings,
 
 	pageHtmlString := string(content)
 
-	for _, word := range appSettings.TestUrlFailedWords {
+	if appSettings.TestUrlFailedWordsEnable == true {
 
-		if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
-			return -1, "Error FailedWord " + word
-		}
-	}
-
-	if appSettings.TestUrlFailedRegex != "" {
-		FailedRegex := regexp.MustCompile(appSettings.TestUrlFailedRegex)
-		matches := FailedRegex.FindAllString(pageHtmlString, -1)
-		if matches == nil || len(matches) == 0 {
-			// 没有找到匹配的内容，那么认为是成功的
-		} else {
-			// 匹配到了失败的内容，那么认为是失败的
-			return -1, "Error FailedRegex"
-		}
-	}
-
-	if succeedWords != nil && len(succeedWords) > 0 {
-		for _, word := range succeedWords {
+		for _, word := range appSettings.TestUrlFailedWords {
 
 			if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
-				return speedResult, "OK"
+				return -1, "Error FailedWord " + word
 			}
 		}
-		return -1, "Error SucceedWord not found"
+
+		if appSettings.TestUrlFailedRegex != "" {
+			FailedRegex := regexp.MustCompile(appSettings.TestUrlFailedRegex)
+			matches := FailedRegex.FindAllString(pageHtmlString, -1)
+			if matches == nil || len(matches) == 0 {
+				// 没有找到匹配的内容，那么认为是成功的
+			} else {
+				// 匹配到了失败的内容，那么认为是失败的
+				return -1, "Error FailedRegex"
+			}
+		}
+	}
+
+	if appSettings.TestUrlSucceedWordsEnable == true {
+
+		if succeedWords != nil && len(succeedWords) > 0 {
+			for _, word := range succeedWords {
+
+				if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
+					return speedResult, "OK"
+				}
+			}
+			return -1, "Error SucceedWord not found"
+		}
 	}
 
 	return speedResult, status
@@ -152,32 +158,38 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 		}
 	}
 
-	for _, word := range appSettings.TestUrlFailedWords {
+	if appSettings.TestUrlFailedWordsEnable == true {
 
-		if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
-			return -1, "Error FailedWord " + word
-		}
-	}
-
-	if appSettings.TestUrlFailedRegex != "" {
-		FailedRegex := regexp.MustCompile(appSettings.TestUrlFailedRegex)
-		matches := FailedRegex.FindAllString(pageHtmlString, -1)
-		if matches == nil || len(matches) == 0 {
-			// 没有找到匹配的内容，那么认为是成功的
-		} else {
-			// 匹配到了失败的内容，那么认为是失败的
-			return -1, "Error FailedRegex"
-		}
-	}
-
-	if succeedWords != nil && len(succeedWords) > 0 {
-		for _, word := range succeedWords {
+		for _, word := range appSettings.TestUrlFailedWords {
 
 			if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
-				return speedResult, "OK"
+				return -1, "Error FailedWord " + word
 			}
 		}
-		return -1, "Error SucceedWord not found"
+
+		if appSettings.TestUrlFailedRegex != "" {
+			FailedRegex := regexp.MustCompile(appSettings.TestUrlFailedRegex)
+			matches := FailedRegex.FindAllString(pageHtmlString, -1)
+			if matches == nil || len(matches) == 0 {
+				// 没有找到匹配的内容，那么认为是成功的
+			} else {
+				// 匹配到了失败的内容，那么认为是失败的
+				return -1, "Error FailedRegex"
+			}
+		}
+	}
+
+	if appSettings.TestUrlSucceedWordsEnable == true {
+
+		if succeedWords != nil && len(succeedWords) > 0 {
+			for _, word := range succeedWords {
+
+				if strings.Contains(strings.ToLower(pageHtmlString), word) == true {
+					return speedResult, "OK"
+				}
+			}
+			return -1, "Error SucceedWord not found"
+		}
 	}
 
 	return speedResult, "OK"
