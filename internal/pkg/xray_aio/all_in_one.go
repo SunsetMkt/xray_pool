@@ -14,12 +14,11 @@ import (
 func NewXrayAIO(inNodes []*node.Node, appSettings *settings.AppSettings, route *routing.Routing, socksPorts, httpPorts []int) *XrayAIO {
 
 	x := XrayAIO{
-		AppSettings:   appSettings,
-		route:         route,
-		startOneOrAll: false,
-		nodes:         make([]*node.Node, 0),
-		socksPorts:    socksPorts,
-		httpPorts:     httpPorts,
+		AppSettings: appSettings,
+		route:       route,
+		nodes:       make([]*node.Node, 0),
+		socksPorts:  socksPorts,
+		httpPorts:   httpPorts,
 	}
 
 	x.nodes = append(x.nodes, inNodes...)

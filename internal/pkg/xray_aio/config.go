@@ -45,11 +45,7 @@ func (x *XrayAIO) GenConfigMix() string {
 
 func (x *XrayAIO) GetLogFPath() string {
 
-	if x.startOneOrAll == true {
-		return filepath.Join(pkg.GetTmpFolderFPath(), fmt.Sprintf(xrayLogFileName, x.index))
-	} else {
-		return filepath.Join(pkg.GetTmpFolderFPath(), xrayLogFileNameMix)
-	}
+	return filepath.Join(pkg.GetTmpFolderFPath(), xrayLogFileNameMix)
 }
 
 // logConfig 日志
@@ -63,15 +59,32 @@ func (x *XrayAIO) logConfig() interface{} {
 
 func (x *XrayAIO) getAllProxyTag() string {
 
-	tagStr := ""
-	for i := 0; i < len(x.nodes); i++ {
-		tagStr += "proxy" + fmt.Sprintf("%d", i)
-		if i != len(x.nodes)-1 {
-			tagStr += ","
-		}
-	}
+	//tagStr := ""
+	//for i := 0; i < len(x.nodes); i++ {
+	//	tagStr += "proxy" + fmt.Sprintf("%d", i)
+	//	if i != len(x.nodes)-1 {
+	//		tagStr += ","
+	//	}
+	//}
+	tagStr := fmt.Sprintf(outboundTag, 0)
 
 	return tagStr
+}
+
+func (x *XrayAIO) getInboundTags(nodeIndex int) []interface{} {
+
+	outInboundStr := make([]interface{}, 0)
+	// 如果开启了 http ，那么就是两个 inbound，否则就是一个
+	outInboundStr = append(outInboundStr, fmt.Sprintf(inboundSocksTag, nodeIndex))
+	if x.AppSettings.XrayOpenSocksAndHttp == true {
+		outInboundStr = append(outInboundStr, fmt.Sprintf(inboundHttpTag, nodeIndex))
+	}
+	return outInboundStr
+}
+
+func (x *XrayAIO) getOutboundTags(nodeIndex int) string {
+
+	return fmt.Sprintf(outboundTag, nodeIndex)
 }
 
 // inboundsConfig 入站
@@ -82,7 +95,7 @@ func (x *XrayAIO) inboundsConfig(tagIndex int, SocksPort, HttpPort int) interfac
 	}
 	data := []interface{}{
 		map[string]interface{}{
-			"tag":      fmt.Sprintf("proxy%d", tagIndex),
+			"tag":      fmt.Sprintf(inboundSocksTag, tagIndex),
 			"port":     SocksPort,
 			"listen":   listen,
 			"protocol": "socks",
@@ -102,7 +115,7 @@ func (x *XrayAIO) inboundsConfig(tagIndex int, SocksPort, HttpPort int) interfac
 	}
 	if HttpPort > 0 {
 		data = append(data, map[string]interface{}{
-			"tag":      fmt.Sprintf("http%d", tagIndex),
+			"tag":      fmt.Sprintf(inboundHttpTag, tagIndex),
 			"port":     HttpPort,
 			"listen":   listen,
 			"protocol": "http",
@@ -195,6 +208,16 @@ func (x *XrayAIO) dnsConfig() interface{} {
 // routingConfig 路由
 func (x *XrayAIO) routingConfig() interface{} {
 	rules := make([]interface{}, 0)
+
+	// 生成对应的 inbound 和 outbound 的对应的路由关系
+	for i := 0; i < len(x.nodes); i++ {
+		rules = append(rules, map[string]interface{}{
+			"type":        "field",
+			"inboundTag":  x.getInboundTags(i),
+			"outboundTag": x.getOutboundTags(i),
+		})
+	}
+
 	if x.AppSettings.MainProxySettings.DNSPort != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type": "field",
