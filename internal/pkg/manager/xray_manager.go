@@ -91,8 +91,11 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl stri
 		close(checkResultChan)
 	}()
 	exitRevResultChan := make(chan bool, 1)
-	defer close(exitRevResultChan)
-
+	defer func() {
+		exitRevResultChan <- false
+		close(exitRevResultChan)
+	}()
+	var p *ants.PoolWithFunc
 	go func() {
 		for {
 			select {
@@ -109,7 +112,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl stri
 	// --------------------------------------------
 	var wg sync.WaitGroup
 	// 然后需要并发取完成 Xray 的启动并且通过代理访问目标网站取进行延迟的评价
-	p, err := ants.NewPoolWithFunc(m.AppSettings.TestUrlThread, func(inData interface{}) {
+	p, err = ants.NewPoolWithFunc(m.AppSettings.TestUrlThread, func(inData interface{}) {
 		deliveryInfo := inData.(DeliveryInfo)
 		defer func() {
 			deliveryInfo.Wg.Done()

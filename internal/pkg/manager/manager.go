@@ -101,40 +101,17 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 	var bok bool
 	var aliveNodeIndexList []int
 	if m.AppSettings.TestUrlHardWay == true {
-
-		// 检查可用的端口和可用的Node
-		bok, aliveNodeIndexList, alivePorts = m.GetsValidNodesAndAlivePorts(nil, "https://www.google.com")
-		if bok == false {
-			logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
-			return false
-		}
-		if len(aliveNodeIndexList) == 0 {
-			logger.Errorf("StartProxyPoolHandler: aliveNodeIndexList is empty")
-			return false
-		}
-		// 使用浏览器测速.那么就需要提前启动 Xray，因为浏览器需要连接 Xray
-		// 开启本地的代理
-		bok = m.StartXray(aliveNodeIndexList, alivePorts)
-		if bok == false {
-			logger.Errorf("StartProxyPoolHandler: StartXray failed")
-			return false
-		}
-		// 开启 glider 前置代理
-		bok = m.ForwardProxyStart()
-		if bok == false {
-			logger.Errorf("StartProxyPoolHandler: ForwardProxyStart failed")
-			return false
-		}
 		var err error
 		// 需要先以普通扫描的情况找一次有效的代理出来，给 Chrome 下载使用
-		tmpLBPortUrl := fmt.Sprintf("http://127.0.0.1:%d", m.ForwardProxyPort())
+		tmpLBPortUrl := ""
+		if m.AppSettings.ProxyInfoSettings.Enable == true {
+			tmpLBPortUrl = m.AppSettings.ProxyInfoSettings.HttpUrl
+		}
 		browser, err = rod_helper.NewBrowserBase("", tmpLBPortUrl, true, m.AppSettings.TestUrlHardWayLoadPicture)
 		if err != nil {
 			logger.Errorln("rod_helper.NewBrowserBase error: ", err)
 			return false
 		}
-		m.ForwardProxyStop()
-		m.StopXray()
 	}
 	// 检查可用的端口和可用的Node
 	bok, aliveNodeIndexList, alivePorts = m.GetsValidNodesAndAlivePorts(browser, m.AppSettings.TestUrl)

@@ -33,6 +33,7 @@ type AppSettings struct {
 	*/
 	GliderStrategy    string        `json:"glider_strategy"`
 	MainProxySettings ProxySettings `json:"main_proxy_settings"`
+	ProxyInfoSettings ProxyInfo     `json:"proxy_info_settings"` // 用于下载浏览器的插件，或者更新订阅信息
 }
 
 func NewAppSettings() *AppSettings {
@@ -51,6 +52,9 @@ func NewAppSettings() *AppSettings {
 		TestUrlThread:             10,
 		TestUrlHardWay:            false,
 		TestUrlHardWayLoadPicture: true,
+		TestUrlSucceedWordsEnable: false,
+		TestUrlSucceedWords:       []string{},
+		TestUrlFailedWordsEnable:  false,
 		TestUrlFailedWords:        []string{},
 		TestUrlFailedRegex:        "",
 		TestUrlStatusCode:         0,
@@ -69,6 +73,7 @@ func NewAppSettings() *AppSettings {
 			"IPIfNonMatch",
 			false,
 		),
+		ProxyInfoSettings: *NewProxyInfo(),
 	}
 }
 

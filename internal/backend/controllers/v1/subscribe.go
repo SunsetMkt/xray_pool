@@ -55,7 +55,15 @@ func (cb *ControllerBase) SubscribeUpdateNodesHandler(c *gin.Context) {
 		cb.ErrorProcess(c, "SubscribeUpdateHandler", err)
 	}()
 
-	opt := subscribe.NewUpdateOption(subscribe.NONE, "", 0, 5*time.Second)
+	var opt *subscribe.UpdateOption
+	if cb.manager.AppSettings.ProxyInfoSettings.Enable == true {
+		opt = subscribe.NewUpdateOption(subscribe.HTTP,
+			cb.manager.AppSettings.ProxyInfoSettings.HttpUrl,
+			cb.manager.AppSettings.ProxyInfoSettings.HttpPort,
+			5*time.Second)
+	} else {
+		opt = subscribe.NewUpdateOption(subscribe.NONE, "", 0, 5*time.Second)
+	}
 	cb.manager.UpdateNode(opt)
 
 	c.JSON(http.StatusOK, backend.ReplyCommon{Message: "ok"})
