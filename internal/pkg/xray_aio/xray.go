@@ -17,19 +17,18 @@ import (
 )
 
 type XrayAIO struct {
-	xrayCmd          *exec.Cmd              // xray 程序的进程
-	xrayPath         string                 // xray 程序的路径
-	AppSettings      *settings.AppSettings  // 主程序的设置信息
-	OneProxySettings settings.ProxySettings // 代理的配置
-	route            *routing.Routing       // 路由
-	targetUrl        string                 // 目标 url
-	browser          *rod.Browser           // 浏览器实例
-	index            int                    // 如果是启动单个实例单个端口的情况下，需要填写这个 Index 字段
-	startOneOrAll    bool                   // true 表示启动单个，false 表示启动全部
-	nodes            []*node.Node           // 节点列表
-	socksPorts       []int                  // socks 端口列表
-	httpPorts        []int                  // http 端口列表
-	runningLock      sync.Mutex
+	xrayCmd       *exec.Cmd             // xray 程序的进程
+	xrayPath      string                // xray 程序的路径
+	AppSettings   *settings.AppSettings // 主程序的设置信息
+	route         *routing.Routing      // 路由
+	targetUrl     string                // 目标 url
+	browser       *rod.Browser          // 浏览器实例
+	index         int                   // 如果是启动单个实例单个端口的情况下，需要填写这个 Index 字段
+	startOneOrAll bool                  // true 表示启动单个，false 表示启动全部
+	nodes         []*node.Node          // 节点列表
+	socksPorts    []int                 // socks 端口列表
+	httpPorts     []int                 // http 端口列表
+	runningLock   sync.Mutex
 }
 
 // Check 检查 Xray 程序和需求的资源是否已经存在，不存在则需要提示用户去下载
@@ -72,7 +71,7 @@ func (x *XrayAIO) Stop() {
 			logger.Errorf("Xray -- %2d 停止xray服务失败: %v", x.index, err)
 		}
 		x.xrayCmd = nil
-		x.OneProxySettings.PID = 0
+		x.AppSettings.MainProxySettings.PID = 0
 	}
 	// 日志文件过大清除
 	if pkg.IsFile(x.GetLogFPath()) == true {

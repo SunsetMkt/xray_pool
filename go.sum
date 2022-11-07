@@ -33,8 +33,6 @@ github.com/allanpk716/fake-useragent v0.2.1 h1:5EurHovAMGNwMZNbZ2cFOH8HsLdHwopnn
 github.com/allanpk716/fake-useragent v0.2.1/go.mod h1:U3tmrxBYvSPeQKQ/9x59CXJPkHbU4x4eXw3ji5TDhPk=
 github.com/allanpk716/go-protocol-detector v0.11.1 h1:iicjjC9SaUMmEJVPPYJGtFm+UZy0I3Ggh5qUFepBcmY=
 github.com/allanpk716/go-protocol-detector v0.11.1/go.mod h1:lwMcq+YWTz5qKb5Sit1EMrEduZQObZ3njP20YPZMu/c=
-github.com/allanpk716/rod_helper v0.0.19 h1:AzhtMKgLoMKmQbttsYHp26+QQGnEyri9jHC6wmq7qt4=
-github.com/allanpk716/rod_helper v0.0.19/go.mod h1:WkRFang6kgpTfpgvTNU3BYm8pkJx9644CecS8u/OvW4=
 github.com/allanpk716/rod_helper v0.0.32 h1:b1RwnoRqe/uXDz0qIBDhEhJIN0M0F7Yq5fbEMcWGcrc=
 github.com/allanpk716/rod_helper v0.0.32/go.mod h1:WkRFang6kgpTfpgvTNU3BYm8pkJx9644CecS8u/OvW4=
 github.com/andybalholm/brotli v1.0.1/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=

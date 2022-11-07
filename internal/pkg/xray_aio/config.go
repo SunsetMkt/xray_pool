@@ -11,27 +11,6 @@ import (
 	"strings"
 )
 
-// GenConfigOne 构建 Xray 的运行配置，针对测速时候用，一次启动一个节点一个进程
-func (x *XrayAIO) GenConfigOne() string {
-
-	// 需要根据 base xray 的配置生成当前 Index xray 的配置
-	path := filepath.Join(pkg.GetTmpFolderFPath(), fmt.Sprintf(configFileName, x.index))
-	tagIndex := 0
-	var conf = map[string]interface{}{
-		"log":       x.logConfig(),
-		"inbounds":  x.inboundsConfig(tagIndex, x.OneProxySettings.SocksPort, x.OneProxySettings.HttpPort),
-		"outbounds": x.outboundConfig(),
-		"policy":    x.policyConfig(),
-		"dns":       x.dnsConfig(),
-		"routing":   x.routingConfig(),
-	}
-	err := pkg.WriteJSON(conf, path)
-	if err != nil {
-		logger.Panicln("write config file error:", err.Error())
-	}
-	return path
-}
-
 // GenConfigMix 构建 Xray 的运行配置，针对最终结果一次性启动所有节点，一个进程
 func (x *XrayAIO) GenConfigMix() string {
 
@@ -171,9 +150,9 @@ func (x *XrayAIO) policyConfig() interface{} {
 // dnsConfig DNS
 func (x *XrayAIO) dnsConfig() interface{} {
 	servers := make([]interface{}, 0)
-	if x.OneProxySettings.DNSDomestic != "" {
+	if x.AppSettings.MainProxySettings.DNSDomestic != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": x.OneProxySettings.DNSDomestic,
+			"address": x.AppSettings.MainProxySettings.DNSDomestic,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:cn",
@@ -183,9 +162,9 @@ func (x *XrayAIO) dnsConfig() interface{} {
 			},
 		})
 	}
-	if x.OneProxySettings.DNSDomesticBackup != "" {
+	if x.AppSettings.MainProxySettings.DNSDomesticBackup != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": x.OneProxySettings.DNSDomesticBackup,
+			"address": x.AppSettings.MainProxySettings.DNSDomesticBackup,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:cn",
@@ -195,9 +174,9 @@ func (x *XrayAIO) dnsConfig() interface{} {
 			},
 		})
 	}
-	if x.OneProxySettings.DNSForeign != "" {
+	if x.AppSettings.MainProxySettings.DNSForeign != "" {
 		servers = append(servers, map[string]interface{}{
-			"address": x.OneProxySettings.DNSForeign,
+			"address": x.AppSettings.MainProxySettings.DNSForeign,
 			"port":    53,
 			"domains": []interface{}{
 				"geosite:geolocation-!cn",
@@ -216,7 +195,7 @@ func (x *XrayAIO) dnsConfig() interface{} {
 // routingConfig 路由
 func (x *XrayAIO) routingConfig() interface{} {
 	rules := make([]interface{}, 0)
-	if x.OneProxySettings.DNSPort != 0 {
+	if x.AppSettings.MainProxySettings.DNSPort != 0 {
 		rules = append(rules, map[string]interface{}{
 			"type": "field",
 			"inboundTag": []interface{}{
@@ -225,23 +204,23 @@ func (x *XrayAIO) routingConfig() interface{} {
 			"outboundTag": "dns-out",
 		})
 	}
-	if x.OneProxySettings.DNSForeign != "" {
+	if x.AppSettings.MainProxySettings.DNSForeign != "" {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
 			"port":        53,
 			"outboundTag": x.getAllProxyTag(),
 			"ip": []string{
-				x.OneProxySettings.DNSForeign,
+				x.AppSettings.MainProxySettings.DNSForeign,
 			},
 		})
 	}
-	if x.OneProxySettings.DNSDomestic != "" || x.OneProxySettings.DNSDomesticBackup != "" {
+	if x.AppSettings.MainProxySettings.DNSDomestic != "" || x.AppSettings.MainProxySettings.DNSDomesticBackup != "" {
 		var ip []string
-		if x.OneProxySettings.DNSDomestic != "" {
-			ip = append(ip, x.OneProxySettings.DNSDomestic)
+		if x.AppSettings.MainProxySettings.DNSDomestic != "" {
+			ip = append(ip, x.AppSettings.MainProxySettings.DNSDomestic)
 		}
-		if x.OneProxySettings.DNSDomesticBackup != "" {
-			ip = append(ip, x.OneProxySettings.DNSDomesticBackup)
+		if x.AppSettings.MainProxySettings.DNSDomesticBackup != "" {
+			ip = append(ip, x.AppSettings.MainProxySettings.DNSDomesticBackup)
 		}
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
@@ -300,7 +279,7 @@ func (x *XrayAIO) routingConfig() interface{} {
 		})
 	}
 
-	if x.OneProxySettings.BypassLANAndMainLand {
+	if x.AppSettings.MainProxySettings.BypassLANAndMainLand {
 		rules = append(rules, map[string]interface{}{
 			"type":        "field",
 			"outboundTag": "direct",
@@ -318,7 +297,7 @@ func (x *XrayAIO) routingConfig() interface{} {
 		})
 	}
 	return map[string]interface{}{
-		"domainStrategy": x.OneProxySettings.RoutingStrategy,
+		"domainStrategy": x.AppSettings.MainProxySettings.RoutingStrategy,
 		"rules":          rules,
 	}
 }
@@ -377,7 +356,7 @@ func (x *XrayAIO) outboundConfig() interface{} {
 // ShadowSocks 出站
 func (x *XrayAIO) shadowSocksOutbound(tagIndex int, ss *protocols.ShadowSocks) interface{} {
 	return map[string]interface{}{
-		"tag":      fmt.Sprintf("proxy%d", tagIndex),
+		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "shadowsocks",
 		"settings": map[string]interface{}{
 			"servers": []interface{}{
@@ -409,7 +388,7 @@ func (x *XrayAIO) trojanOutbound(tagIndex int, trojan *protocols.Trojan) interfa
 		}
 	}
 	return map[string]interface{}{
-		"tag":      fmt.Sprintf("proxy%d", tagIndex),
+		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "trojan",
 		"settings": map[string]interface{}{
 			"servers": []interface{}{
@@ -427,7 +406,7 @@ func (x *XrayAIO) trojanOutbound(tagIndex int, trojan *protocols.Trojan) interfa
 
 // VMess 出站
 func (x *XrayAIO) vMessOutbound(tagIndex int, vmess *protocols.VMess) interface{} {
-	mux := x.OneProxySettings.Mux
+	mux := x.AppSettings.MainProxySettings.Mux
 	streamSettings := map[string]interface{}{
 		"network":  vmess.Net,
 		"security": vmess.Tls,
@@ -506,7 +485,7 @@ func (x *XrayAIO) vMessOutbound(tagIndex int, vmess *protocols.VMess) interface{
 		}
 	}
 	return map[string]interface{}{
-		"tag":      fmt.Sprintf("proxy%d", tagIndex),
+		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "vmess",
 		"settings": map[string]interface{}{
 			"vnext": []interface{}{
@@ -544,7 +523,7 @@ func (x *XrayAIO) socksOutbound(tagIndex int, socks *protocols.Socks) interface{
 		}
 	}
 	return map[string]interface{}{
-		"tag":      fmt.Sprintf("proxy%d", tagIndex),
+		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "socks",
 		"settings": map[string]interface{}{
 			"servers": []interface{}{
@@ -567,7 +546,7 @@ func (x *XrayAIO) socksOutbound(tagIndex int, socks *protocols.Socks) interface{
 
 // VLESS 出站
 func (x *XrayAIO) vLessOutbound(tagIndex int, vless *protocols.VLess) interface{} {
-	mux := x.OneProxySettings.Mux
+	mux := x.AppSettings.MainProxySettings.Mux
 	security := vless.GetValue(field.Security)
 	network := vless.GetValue(field.NetworkType)
 	user := map[string]interface{}{
@@ -671,7 +650,7 @@ func (x *XrayAIO) vLessOutbound(tagIndex int, vless *protocols.VLess) interface{
 		}
 	}
 	return map[string]interface{}{
-		"tag":      fmt.Sprintf("proxy%d", tagIndex),
+		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "vless",
 		"settings": map[string]interface{}{
 			"vnext": []interface{}{
@@ -693,7 +672,7 @@ func (x *XrayAIO) vLessOutbound(tagIndex int, vless *protocols.VLess) interface{
 
 // VMessAEAD 出站
 func (x *XrayAIO) vMessAEADOutbound(tagIndex int, vmess *protocols.VMessAEAD) interface{} {
-	mux := x.OneProxySettings.Mux
+	mux := x.AppSettings.MainProxySettings.Mux
 	security := vmess.GetValue(field.Security)
 	network := vmess.GetValue(field.NetworkType)
 	streamSettings := map[string]interface{}{
@@ -777,7 +756,7 @@ func (x *XrayAIO) vMessAEADOutbound(tagIndex int, vmess *protocols.VMessAEAD) in
 		}
 	}
 	return map[string]interface{}{
-		"tag":      fmt.Sprintf("proxy%d", tagIndex),
+		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "vmess",
 		"settings": map[string]interface{}{
 			"vnext": []interface{}{
@@ -807,4 +786,10 @@ const (
 
 	configFileNameMix  = "xray_config_mix.json"
 	xrayLogFileNameMix = "xray_access_mix.log"
+)
+
+const (
+	inboundSocksTag = "in_socks_%d"
+	inboundHttpTag  = "in_http_%d"
+	outboundTag     = "out_bound_%d"
 )

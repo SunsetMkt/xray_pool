@@ -63,7 +63,7 @@ func (x *XrayAIO) StartMix() bool {
 	stopper := time.NewTimer(time.Millisecond * 300)
 	select {
 	case <-stopper.C:
-		x.OneProxySettings.PID = x.xrayCmd.Process.Pid
+		x.AppSettings.MainProxySettings.PID = x.xrayCmd.Process.Pid
 		return true
 	case <-status:
 		logger.Error("Xray -- %2d 开启xray服务失败, 查看下面报错信息来检查出错问题", x.index)
