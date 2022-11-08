@@ -105,7 +105,7 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		// 需要先以普通扫描的情况找一次有效的代理出来，给 Chrome 下载使用
 		tmpLBPortUrl := ""
 		if m.AppSettings.ProxyInfoSettings.Enable == true {
-			tmpLBPortUrl = m.AppSettings.ProxyInfoSettings.HttpUrl
+			tmpLBPortUrl = m.AppSettings.ProxyInfoSettings.GetHttpProxyUrl()
 		}
 		browser, err = rod_helper.NewBrowserBase("", tmpLBPortUrl, true, m.AppSettings.TestUrlHardWayLoadPicture)
 		if err != nil {

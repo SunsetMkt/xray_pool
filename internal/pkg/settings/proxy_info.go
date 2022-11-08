@@ -1,5 +1,7 @@
 package settings
 
+import "fmt"
+
 type ProxyInfo struct {
 	Enable   bool   `json:"enable"`
 	HttpUrl  string `json:"http_url"`
@@ -12,4 +14,8 @@ func NewProxyInfo() *ProxyInfo {
 		HttpUrl:  "",
 		HttpPort: 0,
 	}
+}
+
+func (p *ProxyInfo) GetHttpProxyUrl() string {
+	return fmt.Sprintf("http://%s:%d", p.HttpUrl, p.HttpPort)
 }

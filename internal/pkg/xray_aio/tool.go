@@ -25,12 +25,13 @@ func TestNode(appSettings *settings.AppSettings,
 	res, err := GetBySocks5Proxy(testUrl, "127.0.0.1", socks5Port, time.Duration(timeout)*time.Second)
 	elapsed := time.Since(start)
 	if err != nil {
-		if len(appSettings.TestUrlSucceedWords) > 0 {
+		if appSettings.TestUrlSucceedWordsEnable == true && len(appSettings.TestUrlSucceedWords) > 0 {
 			// 无需判断超时，因为后续需要判断页面成功关键词
 			if errors.Is(err, context.DeadlineExceeded) == false {
 				// 不是超时错误，那么就返回错误，跳过
 				return -1, "Error"
 			}
+			// 超时就通过，继续判断页面成功关键词
 		} else {
 			// 因为没有设置成功关键词，那么就需要判断超时
 			if errors.Is(err, context.DeadlineExceeded) == false {
@@ -126,7 +127,7 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 
 	if err != nil {
 
-		if len(appSettings.TestUrlSucceedWords) > 0 {
+		if appSettings.TestUrlSucceedWordsEnable == true && len(appSettings.TestUrlSucceedWords) > 0 {
 			// 无需判断超时，因为后续需要判断页面成功关键词
 			if errors.Is(err, context.DeadlineExceeded) == false {
 				// 不是超时错误，那么就返回错误，跳过
