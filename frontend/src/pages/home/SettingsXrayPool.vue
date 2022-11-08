@@ -190,6 +190,7 @@
       <n-select
         class="w-full ml-2"
         v-model:value="settingsState.model.test_url_failed_words_enable"
+        :disabled="!settingsState.model.test_url_failed_words_enable"
         multiple
         tag
         filterable
