@@ -189,7 +189,7 @@
       <n-switch v-model:value="settingsState.model.test_url_failed_words_enable" @change="handleUpdateSettings" />
       <n-select
         class="w-full ml-2"
-        v-model:value="settingsState.model.test_url_failed_words_enable"
+        v-model:value="settingsState.model.test_url_failed_words"
         :disabled="!settingsState.model.test_url_failed_words_enable"
         multiple
         tag
