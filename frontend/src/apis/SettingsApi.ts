@@ -16,6 +16,12 @@ export interface MainProxySettings {
   Mux: boolean;
 }
 
+export interface ProxySettings {
+  enable: boolean;
+  http_port: number;
+  http_url: string;
+}
+
 export interface ApiResponseSettings {
   app_start_port: number;
   manual_lb_port: number;
@@ -30,12 +36,15 @@ export interface ApiResponseSettings {
   test_url_thread: number;
   test_url_hard_way: boolean;
   test_url_hard_way_load_picture: boolean;
+  test_url_succeed_words_enable: boolean;
   test_url_succeed_words: string[];
+  test_url_failed_words_enable: boolean;
   test_url_failed_words: string[];
   test_url_failed_regex: string;
   test_url_status_code: string;
   glider_strategy: 'rr' | 'ha' | 'lha' | 'dh';
   main_proxy_settings: MainProxySettings;
+  proxy_info_settings: ProxySettings;
 }
 
 class SettingsApi extends BaseApi {

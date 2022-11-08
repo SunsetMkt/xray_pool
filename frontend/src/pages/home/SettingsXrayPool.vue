@@ -158,8 +158,11 @@
           </n-tooltip>
         </div>
       </template>
+
+      <n-switch v-model:value="settingsState.model.test_url_succeed_words_enable" @change="handleUpdateSettings" />
       <n-select
-        class="w-full"
+        :disabled="!settingsState.model.test_url_succeed_words_enable"
+        class="w-full ml-2"
         v-model:value="settingsState.model.test_url_succeed_words"
         multiple
         tag
@@ -182,9 +185,11 @@
           </n-tooltip>
         </div>
       </template>
+
+      <n-switch v-model:value="settingsState.model.test_url_failed_words_enable" @change="handleUpdateSettings" />
       <n-select
-        class="w-full"
-        v-model:value="settingsState.model.test_url_failed_words"
+        class="w-full ml-2"
+        v-model:value="settingsState.model.test_url_failed_words_enable"
         multiple
         tag
         filterable
@@ -222,6 +227,36 @@
         @blur="handleUpdateSettings"
       />
     </n-form-item>
+
+    <div v-if="isProMode">
+      <n-divider class="!my-3" />
+      <div class="font-bold">代理设置</div>
+      <div class="text-gray-400">
+        此处代理设置的作用：软件添加“订阅源”的时候，可能这时候就需要代理才能够访问这些链接，以及在“浏览器”加载插件的时候，需要代理才能够取下载
+        Adblock 插件。
+      </div>
+
+      <n-form-item v-if="isProMode" label="是否启用代理" path="proxy_info_settings.enable">
+        <n-switch v-model:value="settingsState.model.proxy_info_settings.enable" @change="handleUpdateSettings" />
+      </n-form-item>
+
+      <n-form-item label="代理地址" path="test_url">
+        <n-input
+          v-model:value="settingsState.model.proxy_info_settings.http_url"
+          :disabled="!settingsState.model.proxy_info_settings.enable"
+          @blur="handleUpdateSettings"
+        />
+      </n-form-item>
+
+      <n-form-item label="代理端口" path="health_check_url">
+        <n-input-number
+          class="w-full"
+          v-model:value="settingsState.model.proxy_info_settings.http_port"
+          :disabled="!settingsState.model.proxy_info_settings.enable"
+          @blur="handleUpdateSettings"
+        />
+      </n-form-item>
+    </div>
   </n-form>
 </template>
 

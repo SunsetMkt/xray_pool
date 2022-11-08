@@ -5,4 +5,9 @@ module.exports = {
   root: true,
 
   extends: ['@imyon/eslint-config-preset'],
+
+  // add your custom rules here
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
 };
