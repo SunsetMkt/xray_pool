@@ -135,8 +135,10 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl stri
 		}
 
 		if m.AppSettings.TestUrlHardWay == true && deliveryInfo.Browser != nil {
+			logger.Infoln("Test", nowTestUrl, "by browser", deliveryInfo.OpenResult.Name, deliveryInfo.OpenResult.HttpPort)
 			speedResult, errMessage = xray_aio.TestNodeByRod(m.AppSettings, nowTestUrl, successWords, deliveryInfo.Browser, deliveryInfo.OpenResult.HttpPort)
 		} else {
+			logger.Infoln("Test", nowTestUrl, "by proxy", deliveryInfo.OpenResult.Name, deliveryInfo.OpenResult.SocksPort)
 			speedResult, errMessage = xray_aio.TestNode(m.AppSettings, nowTestUrl, successWords, deliveryInfo.OpenResult.SocksPort, m.AppSettings.OneNodeTestTimeOut)
 		}
 
