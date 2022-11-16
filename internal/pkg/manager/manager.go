@@ -13,7 +13,6 @@ import (
 	"github.com/allanpk716/xray_pool/internal/pkg/glider_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
-	"github.com/go-rod/rod"
 	"os"
 	"sync"
 )
@@ -97,7 +96,7 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		return false
 	}
 
-	var browser *rod.Browser
+	var nowBrowser *rod_helper.BrowserInfo
 	var bok bool
 	var aliveNodeIndexList []int
 	if m.AppSettings.TestUrlHardWay == true {
@@ -107,14 +106,17 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 		if m.AppSettings.ProxyInfoSettings.Enable == true {
 			tmpLBPortUrl = m.AppSettings.ProxyInfoSettings.GetHttpProxyUrl()
 		}
-		browser, err = rod_helper.NewBrowserBase("", tmpLBPortUrl, true, m.AppSettings.TestUrlHardWayLoadPicture)
+
+		nowBrowser, err = rod_helper.NewBrowserBase("",
+			tmpLBPortUrl,
+			true, m.AppSettings.TestUrlHardWayLoadPicture)
 		if err != nil {
 			logger.Errorln("rod_helper.NewBrowserBase error: ", err)
 			return false
 		}
 	}
 	// 检查可用的端口和可用的Node
-	bok, aliveNodeIndexList, alivePorts = m.GetsValidNodesAndAlivePorts(browser, m.AppSettings.TestUrl)
+	bok, aliveNodeIndexList, alivePorts = m.GetsValidNodesAndAlivePorts(nowBrowser, m.AppSettings.TestUrl)
 	if bok == false {
 		logger.Errorf("StartProxyPoolHandler: GetsValidNodesAndAlivePorts failed")
 		return false

@@ -3,10 +3,10 @@ package manager
 import (
 	"fmt"
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/core/node"
 	"github.com/allanpk716/xray_pool/internal/pkg/xray_aio"
-	"github.com/go-rod/rod"
 	"github.com/panjf2000/ants/v2"
 	"github.com/tklauser/ps"
 	"os"
@@ -17,7 +17,7 @@ import (
 )
 
 // GetsValidNodesAndAlivePorts 获取有效的节点和端口信息
-func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl string) (bool, []int, []int) {
+func (m *Manager) GetsValidNodesAndAlivePorts(browserInfo *rod_helper.BrowserInfo, testUrl string) (bool, []int, []int) {
 
 	defer pkg.TimeCost()("GetsValidNodesAndAlivePorts")
 
@@ -35,8 +35,8 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl stri
 	}()
 
 	defer func() {
-		if browser != nil {
-			_ = browser.Close()
+		if browserInfo != nil {
+			browserInfo.Close()
 		}
 	}()
 
@@ -161,7 +161,7 @@ func (m *Manager) GetsValidNodesAndAlivePorts(browser *rod.Browser, testUrl stri
 
 		wg.Add(1)
 		err = p.Invoke(DeliveryInfo{
-			Browser:    browser,
+			Browser:    browserInfo,
 			NodeIndex:  i + 1,
 			OpenResult: openResult,
 			Wg:         &wg,
@@ -260,7 +260,7 @@ func (m *Manager) KillAllXray() {
 }
 
 type DeliveryInfo struct {
-	Browser    *rod.Browser
+	Browser    *rod_helper.BrowserInfo
 	NodeIndex  int
 	OpenResult xray_aio.OpenResult
 	Wg         *sync.WaitGroup
