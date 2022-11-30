@@ -107,7 +107,7 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 			tmpLBPortUrl = m.AppSettings.ProxyInfoSettings.GetHttpProxyUrl()
 		}
 
-		nowBrowser, err = rod_helper.NewBrowserBase("",
+		nowBrowser, err = rod_helper.NewBrowserBase(m.AppSettings.CachePath, "",
 			tmpLBPortUrl,
 			true, m.AppSettings.TestUrlHardWayLoadPicture)
 		if err != nil {

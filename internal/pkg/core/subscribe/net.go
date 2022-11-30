@@ -1,6 +1,7 @@
 package subscribe
 
 import (
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,7 +14,10 @@ func GetByHTTPProxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Dur
 	proxy := func(_ *http.Request) (*url.URL, error) {
 		return url.Parse(fmt.Sprintf("http://%s:%d", proxyAddress, proxyPort))
 	}
-	transport := &http.Transport{Proxy: proxy}
+	transport := &http.Transport{
+		Proxy:           proxy,
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   timeOut,
@@ -27,7 +31,10 @@ func GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.D
 	proxy := func(_ *http.Request) (*url.URL, error) {
 		return url.Parse(fmt.Sprintf("socks5://%s:%d", proxyAddress, proxyPort))
 	}
-	transport := &http.Transport{Proxy: proxy}
+	transport := &http.Transport{
+		Proxy:           proxy,
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   timeOut,
@@ -37,8 +44,14 @@ func GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.D
 
 // GetNoProxy 不通过代理访问网站
 func GetNoProxy(url string, timeOut time.Duration) (*http.Response, error) {
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
 	client := &http.Client{
-		Timeout: timeOut,
+		Timeout:   timeOut,
+		Transport: transport,
 	}
 	return client.Get(url)
 }

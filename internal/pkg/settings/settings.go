@@ -34,6 +34,7 @@ type AppSettings struct {
 	GliderStrategy    string        `json:"glider_strategy"`
 	MainProxySettings ProxySettings `json:"main_proxy_settings"`
 	ProxyInfoSettings ProxyInfo     `json:"proxy_info_settings"` // 用于下载浏览器的插件，或者更新订阅信息
+	CachePath         string        `json:"cache_path"`          // 缓存路径
 }
 
 func NewAppSettings() *AppSettings {
