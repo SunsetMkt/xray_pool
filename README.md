@@ -1,5 +1,7 @@
 # xray_pool
 
+> 准备大范围重构，不建议现在使用，后续建议配合 [rod_helper](https://github.com/allanpk716/rod_helper) 使用。
+
 ## 前言
 
 本软件的目标是短平快的提供一个多协议支持的代理池，针对**目标网站**筛选出**有效**的**节点**去访问，输出一个使用负载均衡策的 HTTP/Socks5 端口（暂时默认：round robin）。
