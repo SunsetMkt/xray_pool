@@ -86,6 +86,12 @@ func (m *Manager) Start(targetSiteUrl string) bool {
 	m.xrayPoolRunningLock.Lock()
 	defer m.xrayPoolRunningLock.Unlock()
 
+	if m.AppSettings.ProxyInfoSettings.Enable == true {
+		rod_helper.InitFakeUA(pkg.GetTmpFolderFPath(), m.AppSettings.ProxyInfoSettings.GetHttpProxyUrl())
+	} else {
+		rod_helper.InitFakeUA(pkg.GetTmpFolderFPath(), "")
+	}
+
 	if targetSiteUrl != "" {
 		m.AppSettings.TestUrl = targetSiteUrl
 		m.Save()

@@ -24,7 +24,6 @@ func init() {
 func main() {
 
 	logger.Infoln("Start XrayPool...")
-
 	go logger_helper.Listen()
 
 	restartSignal := make(chan interface{}, 1)

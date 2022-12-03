@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/WQGroup/logger"
 	"github.com/allanpk716/rod_helper"
-	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/settings"
 	"github.com/go-rod/rod"
 	"github.com/go-rod/rod/lib/proto"
@@ -126,8 +125,8 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 	nowHttpProxyUrl := fmt.Sprintf("http://127.0.0.1:%d", localProxyHttpPort)
 	timeOut := time.Duration(appSettings.OneNodeTestTimeOut) * time.Second
 
-	opt := pkg.NewHttpClientOptions(timeOut, nowHttpProxyUrl, "")
-	client, err := pkg.NewHttpClient(opt)
+	opt := rod_helper.NewHttpClientOptions(timeOut, nowHttpProxyUrl, "")
+	client, err := rod_helper.NewHttpClient(opt)
 	if err != nil {
 		return -1, err.Error()
 	}
@@ -153,7 +152,7 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 	}()
 	go router.Run()
 	page, e, err := rod_helper.PageNavigate(
-		page, testUrl,
+		page, true, testUrl,
 		timeOut,
 	)
 	if err != nil {
@@ -186,7 +185,7 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 		return -1, err.Error()
 	}
 	switch StatusCodeCheck {
-	case rod_helper.Skip:
+	case rod_helper.Skip, rod_helper.Repeat:
 		// 跳过后续的逻辑，不需要再次访问
 		return -1, "StatusCodeCheck Error"
 	}
