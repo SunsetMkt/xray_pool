@@ -125,7 +125,8 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 	nowHttpProxyUrl := fmt.Sprintf("http://127.0.0.1:%d", localProxyHttpPort)
 	timeOut := time.Duration(appSettings.OneNodeTestTimeOut) * time.Second
 
-	opt := rod_helper.NewHttpClientOptions(timeOut, nowHttpProxyUrl, "")
+	opt := rod_helper.NewHttpClientOptions(timeOut)
+	opt.SetHttpProxy(nowHttpProxyUrl)
 	client, err := rod_helper.NewHttpClient(opt)
 	if err != nil {
 		return -1, err.Error()

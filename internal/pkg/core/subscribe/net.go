@@ -1,63 +1,44 @@
 package subscribe
 
 import (
-	"crypto/tls"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
+	"github.com/allanpk716/rod_helper"
+	"github.com/go-resty/resty/v2"
 	"time"
 )
 
 // GetByHTTPProxy 通过http代理访问网站
-func GetByHTTPProxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*http.Response, error) {
-	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse(fmt.Sprintf("http://%s:%d", proxyAddress, proxyPort))
+func GetByHTTPProxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*resty.Response, error) {
+
+	opt := rod_helper.NewHttpClientOptions(timeOut)
+	opt.SetHttpProxy(fmt.Sprintf("http://%s:%d", proxyAddress, proxyPort))
+	client, err := rod_helper.NewHttpClient(opt)
+	if err != nil {
+		return nil, err
 	}
-	transport := &http.Transport{
-		Proxy:           proxy,
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{
-		Transport: transport,
-		Timeout:   timeOut,
-	}
-	return client.Get(objUrl)
+	return client.R().Get(objUrl)
 }
 
 // GetBySocks5Proxy 通过Socks5代理访问网站
-func GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*http.Response, error) {
+func GetBySocks5Proxy(objUrl, proxyAddress string, proxyPort int, timeOut time.Duration) (*resty.Response, error) {
 
-	proxy := func(_ *http.Request) (*url.URL, error) {
-		return url.Parse(fmt.Sprintf("socks5://%s:%d", proxyAddress, proxyPort))
+	opt := rod_helper.NewHttpClientOptions(timeOut)
+	opt.SetSocks5Proxy(fmt.Sprintf("socks5://%s:%d", proxyAddress, proxyPort))
+	client, err := rod_helper.NewHttpClient(opt)
+	if err != nil {
+		return nil, err
 	}
-	transport := &http.Transport{
-		Proxy:           proxy,
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client := &http.Client{
-		Transport: transport,
-		Timeout:   timeOut,
-	}
-	return client.Get(objUrl)
+	return client.R().Get(objUrl)
+
 }
 
 // GetNoProxy 不通过代理访问网站
-func GetNoProxy(url string, timeOut time.Duration) (*http.Response, error) {
+func GetNoProxy(url string, timeOut time.Duration) (*resty.Response, error) {
 
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	opt := rod_helper.NewHttpClientOptions(timeOut)
+	client, err := rod_helper.NewHttpClient(opt)
+	if err != nil {
+		return nil, err
 	}
-
-	client := &http.Client{
-		Timeout:   timeOut,
-		Transport: transport,
-	}
-	return client.Get(url)
-}
-
-// ReadDate 读取http响应的内容
-func ReadDate(resp *http.Response) string {
-	body, _ := io.ReadAll(resp.Body)
-	return string(body)
+	return client.R().Get(url)
 }

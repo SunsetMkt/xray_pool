@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"github.com/WQGroup/logger"
-	"net/http"
+	"github.com/go-resty/resty/v2"
 	"net/url"
 )
 
@@ -38,7 +38,7 @@ func (s *Subscribe) ID() string {
 }
 
 func (s *Subscribe) UpdateNode(opt *UpdateOption) []string {
-	var res *http.Response
+	var res *resty.Response
 	var err error
 	switch opt.ProxyMode {
 	case SOCKS:
@@ -52,8 +52,6 @@ func (s *Subscribe) UpdateNode(opt *UpdateOption) []string {
 		logger.Error(err)
 		return []string{}
 	}
-	logger.Info("访问 [", s.Url, "] -- ", res.Status)
-	text := ReadDate(res)
-	res.Body.Close()
-	return Sub2links(text)
+	logger.Info("访问 [", s.Url, "] -- ", res.StatusCode())
+	return Sub2links(string(res.Body()))
 }

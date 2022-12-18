@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"github.com/WQGroup/logger"
+	"github.com/allanpk716/rod_helper"
 	"github.com/allanpk716/xray_pool/internal/backend"
 	"github.com/allanpk716/xray_pool/internal/pkg"
 	"github.com/allanpk716/xray_pool/internal/pkg/common"
@@ -25,6 +26,13 @@ func main() {
 
 	logger.Infoln("Start XrayPool...")
 	go logger_helper.Listen()
+
+	m := manager.NewManager()
+	httpProxyUrl := ""
+	if m.AppSettings.ProxyInfoSettings.Enable == true {
+		httpProxyUrl = m.AppSettings.ProxyInfoSettings.GetHttpProxyUrl()
+	}
+	rod_helper.InitFakeUA(m.AppSettings.CachePath, httpProxyUrl)
 
 	restartSignal := make(chan interface{}, 1)
 	defer close(restartSignal)
