@@ -199,7 +199,7 @@ func TestNodeByRod(appSettings *settings.AppSettings,
 	// ------------------会循环检测是否加载完毕，关键 Ele 出现即可------------------
 	const manPageKeyWordXPath = "/html/body/div[2]/div/div/div/div[2]/div[1]/div[1]"
 	logger.Infoln("HasPageLoaded: ", testUrl)
-	pageLoaded := rod_helper.HasPageLoaded(page, manPageKeyWordXPath, appSettings.OneNodeTestTimeOut)
+	pageLoaded := rod_helper.HasPageLoaded(page, []string{manPageKeyWordXPath}, appSettings.OneNodeTestTimeOut)
 	logger.Infoln("HasPageLoaded: ", testUrl, pageLoaded)
 	// 要在 StatusCode 检查之后再判断
 	if pageLoaded == false {
