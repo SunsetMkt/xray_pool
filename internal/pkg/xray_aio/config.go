@@ -378,7 +378,8 @@ func (x *XrayAIO) outboundConfig() interface{} {
 
 // ShadowSocks 出站
 func (x *XrayAIO) shadowSocksOutbound(tagIndex int, ss *protocols.ShadowSocks) interface{} {
-	return map[string]interface{}{
+
+	defaultOut := map[string]interface{}{
 		"tag":      fmt.Sprintf(outboundTag, tagIndex),
 		"protocol": "shadowsocks",
 		"settings": map[string]interface{}{
@@ -396,6 +397,45 @@ func (x *XrayAIO) shadowSocksOutbound(tagIndex int, ss *protocols.ShadowSocks) i
 			"network": "tcp",
 		},
 	}
+	// 如果 RequestHost 不为空
+	if ss.RequestHost != "" {
+
+		tcpSettings := map[string]interface{}{
+			"header": map[string]interface{}{
+				"type": "http",
+				"request": map[string]interface{}{
+					"version": "1.1",
+					"method":  "GET",
+					"path":    []string{"/"},
+					"headers": map[string]interface{}{
+						"Host": []string{
+							ss.RequestHost,
+						},
+						"User-Agent": []string{
+							"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+							"Mozilla/5.0 (iPhone; CPU iPhone OS 10_0_2 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/53.0.2785.109 Mobile/14A456 Safari/601.1.46",
+						},
+						"Accept-Encoding": []string{
+							"gzip, deflate",
+						},
+						"Connection": []string{
+							"keep-alive",
+						},
+						"Pragma": "no-cache",
+					},
+				},
+			},
+		}
+
+		streamSettings := map[string]interface{}{
+			"network":     "tcp",
+			"tcpSettings": tcpSettings,
+		}
+
+		defaultOut["streamSettings"] = streamSettings
+	}
+
+	return defaultOut
 }
 
 // Trojan 出站

@@ -6,7 +6,7 @@ require (
 	github.com/WQGroup/logger v0.0.6
 	github.com/allanpk716/fake-useragent v0.2.1
 	github.com/allanpk716/go-protocol-detector v0.11.1
-	github.com/allanpk716/rod_helper v0.0.73
+	github.com/allanpk716/rod_helper v0.0.78
 	github.com/getlantern/systray v1.2.1
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-gonic/gin v1.8.2

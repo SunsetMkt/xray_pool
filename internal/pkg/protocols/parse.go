@@ -19,30 +19,30 @@ func ParseLink(link string) Protocol {
 	case "vmess":
 		if obj := ParseVMessLink(link); obj != nil {
 			return obj
-		} 
+		}
 		if obj := ParseVMessAEADLink(link); obj != nil {
 			return obj
-		} 
+		}
 	case "vless":
 		if obj := ParseVLessLink(link); obj != nil {
 			return obj
-		} 
+		}
 	case "ss":
 		if obj := ParseSSLink(link); obj != nil {
 			return obj
-		} 
+		}
 	case "ssr":
 		if obj := ParseSSRLink(link); obj != nil {
 			return obj
-		} 
+		}
 	case "trojan":
 		if obj := ParseTrojanLink(link); obj != nil {
 			return obj
-		} 
+		}
 	case "socks":
 		if obj := ParseSocksLink(link); obj != nil {
 			return obj
-		} 
+		}
 	}
 	return nil
 }
@@ -329,5 +329,30 @@ func ParseSSLink(link string) *ShadowSocks {
 		ss.Password = result[1]
 		ss.Values = u.Query()
 	}
+
+	m, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return nil
+	}
+	if plugin, ok := m["plugin"]; ok {
+		ss.Plugin = plugin[0]
+		// 首先需要包含 obfs=http 和 obfs-host= 信息
+		if strings.Contains(ss.Plugin, "obfs-host=") == true &&
+			strings.Contains(ss.Plugin, "obfs=http") == true {
+			// 使用 ; 分割
+			pluginInfo := strings.Split(ss.Plugin, ";")
+			for _, info := range pluginInfo {
+				// 使用 = 分割
+				pluginInfoDetail := strings.Split(info, "=")
+				if len(pluginInfoDetail) > 0 && pluginInfoDetail[0] == "obfs-host" {
+					ss.Network = "tcp"
+					ss.HeaderType = "http"
+					ss.RequestHost = pluginInfoDetail[1]
+					break
+				}
+			}
+		}
+	}
+
 	return ss.Check()
 }

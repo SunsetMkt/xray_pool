@@ -8,11 +8,15 @@ import (
 
 type ShadowSocks struct {
 	url.Values
-	Password string `json:"password"`
-	Address  string `json:"address"`
-	Port     int    `json:"port"`
-	Remarks  string `json:"remarks"`
-	Method   string `json:"method"`
+	Password    string `json:"password"`
+	Address     string `json:"address"`
+	Port        int    `json:"port"`
+	Remarks     string `json:"remarks"`
+	Method      string `json:"method"`
+	Plugin      string `json:"plugin"`
+	Network     string `json:"network"`
+	HeaderType  string `json:"header_type"`
+	RequestHost string `json:"request_host"`
 }
 
 func (s *ShadowSocks) GetProtocolMode() Mode {
