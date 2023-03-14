@@ -17,6 +17,14 @@ builds:
     main: ./cmd/xray_pool/main.go
     ldflags:
       - -s -w --extldflags "-static -fpic" -X main.AppVersion=v{{ .Version }} -H=windowsgui
+  - id: linux-build
+    goos:
+      - linux
+    goarch:
+      - amd64
+    main: ./cmd/xray_pool/main.go
+    ldflags:
+      - -s -w --extldflags "-static -fpic" -X main.AppVersion=v{{ .Version }}
 
 archives:
   - id: archive
