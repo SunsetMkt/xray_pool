@@ -29,7 +29,7 @@ func (x *XrayAIO) GenConfigMix() string {
 	}
 
 	var conf = map[string]interface{}{
-		"log":       x.logConfig(),
+		//"log":       x.logConfig(),
 		"inbounds":  inbounds,
 		"outbounds": x.outboundConfig(),
 		"policy":    x.policyConfig(),

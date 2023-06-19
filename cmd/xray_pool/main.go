@@ -34,7 +34,7 @@ func main() {
 	if m.AppSettings.ProxyInfoSettings.Enable == true {
 		httpProxyUrl = m.AppSettings.ProxyInfoSettings.GetHttpProxyUrl()
 	}
-	rod_helper.InitFakeUA(m.AppSettings.CachePath, httpProxyUrl)
+	rod_helper.InitFakeUA(true, m.AppSettings.CachePath, httpProxyUrl)
 
 	restartSignal := make(chan interface{}, 1)
 	defer close(restartSignal)
